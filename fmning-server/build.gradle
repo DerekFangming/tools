@@ -30,8 +30,13 @@ test {
 	useJUnitPlatform()
 }
 
+clean.doFirst {
+	delete "${project.staticFolder}"
+}
+
 war {
 	dependsOn(':fmning-ui:war')
+	mustRunAfter(':fmning-ui:war')
 	enabled=true
 	archiveName = 'fmning.war'
 }

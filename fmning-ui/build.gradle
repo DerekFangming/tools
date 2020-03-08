@@ -12,11 +12,13 @@ node {
 
 task npmBuild(type: NpmTask) {
   args = ['run', 'buildProd']
-
-  copy {
-    from 'dist/fmning-ui'
-    into '../fmning-server/src/main/resources/static'
+  doLast {
+    copy {
+      from 'build/ui'
+      into "../fmning-server/${project.staticFolder}"
+    }
   }
+
 }
 
 war.dependsOn(npmBuild)
