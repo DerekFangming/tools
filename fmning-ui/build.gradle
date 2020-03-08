@@ -1,0 +1,22 @@
+plugins {
+  id 'java'
+  id 'war'
+  id "com.moowork.node" version "1.3.1"
+}
+
+node {
+  version = '10.16.3'
+  npmVersion = '6.11.2'
+  download = true
+}
+
+task npmBuild(type: NpmTask) {
+  args = ['run', 'buildProd']
+
+  copy {
+    from 'dist/fmning-ui'
+    into '../fmning-server/src/main/resources/static'
+  }
+}
+
+war.dependsOn(npmBuild)

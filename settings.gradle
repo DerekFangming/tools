@@ -1,1 +1,2 @@
 include ":fmning-server"
+include ":fmning-ui"
