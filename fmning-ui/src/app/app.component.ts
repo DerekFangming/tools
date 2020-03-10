@@ -6,10 +6,7 @@ import { Component, OnInit } from '@angular/core';
   styleUrls: ['./app.component.css']
 })
 export class AppComponent implements OnInit {
-  title = 'fmning-ui';
-
   ngOnInit() {
-    console.log(1);
     window.location.href = '/home';
   }
 
