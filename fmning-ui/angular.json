@@ -22,12 +22,7 @@
             "assets": [
               "src/favicon.ico",
               "src/assets",
-              "src/static",
-              { "glob": "*", "input": "src/static/", "output": "/home/" },
-              { "glob": "*", "input": "src/static/projects/", "output": "/projects/" },
-              { "glob": "*", "input": "src/static/ideas/", "output": "/ideas/" },
-              { "glob": "*", "input": "src/static/gallery/", "output": "/gallery/" },
-              { "glob": "*", "input": "src/static/cyan/", "output": "/cyan/" }
+              "src/home"
             ],
             "styles": [
               "src/styles.css"
