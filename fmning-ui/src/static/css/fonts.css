@@ -1,0 +1,25 @@
+@import url(http://fonts.googleapis.com/css?family=Lobster|Oswald:400,300,700|Vollkorn:700italic|Pacifico|Amatic+SC:400,700|Leckerli+One|Raleway:400,300,600,700,800,900|Pacifico);
+[class*="entypo-"]:before {
+    font-family: "entypo", sans-serif
+}
+.raleway {
+    font-family: "Raleway", sans-serif
+}
+.oswald {
+    font-family: "Oswald", sans-serif
+}
+.volkorn {
+    font-family: "Vollkorn", serif
+}
+.lobster {
+    font-family: "Lobster", cursive
+}
+.pacifico {
+    font-family: "Pacifico", cursive
+}
+.amatic {
+    font-family: "Amatic SC", cursive
+}
+.leckerli {
+    font-family: "Leckerli One", cursive
+}

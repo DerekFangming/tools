@@ -38,5 +38,5 @@ war {
 	dependsOn(':fmning-ui:war')
 	mustRunAfter(':fmning-ui:war')
 	enabled=true
-	archiveName = 'fmning.war'
+	archiveFileName = 'fmning.war'
 }
