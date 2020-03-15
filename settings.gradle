@@ -1,2 +1,2 @@
-include ":fmning-server"
-include ":fmning-ui"
+include ":tools-server"
+include ":tools-ui"
