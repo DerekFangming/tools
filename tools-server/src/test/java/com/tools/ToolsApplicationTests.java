@@ -1,10 +1,10 @@
-package com.fmning;
+package com.tools;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class FmningApplicationTests {
+class ToolsApplicationTests {
 
 	@Test
 	void contextLoads() {

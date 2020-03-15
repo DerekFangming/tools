@@ -15,7 +15,7 @@ task npmBuild(type: NpmTask) {
   doLast {
     copy {
       from 'build/ui'
-      into "../fmning-server/${project.staticFolder}"
+      into "../tools-server/${project.staticFolder}"
     }
   }
 

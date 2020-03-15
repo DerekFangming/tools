@@ -1,4 +1,4 @@
-package com.fmning;
+package com.tools;
 
 import org.junit.jupiter.api.Test;
 

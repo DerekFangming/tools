@@ -5,7 +5,7 @@ plugins {
 	id 'io.spring.dependency-management' version '1.0.9.RELEASE'
 }
 
-group = 'com.fmning'
+group = 'com.tools'
 version = '0.0.1-SNAPSHOT'
 sourceCompatibility = '1.8'
 
@@ -35,8 +35,8 @@ clean.doFirst {
 }
 
 war {
-	dependsOn(':fmning-ui:war')
-	mustRunAfter(':fmning-ui:war')
+	dependsOn(':tools-ui:war')
+	mustRunAfter(':tools-ui:war')
 	enabled=true
-	archiveFileName = 'fmning.war'
+	archiveFileName = 'tools.war'
 }
