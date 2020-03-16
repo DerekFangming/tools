@@ -1,9 +1,11 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
+import { ClipboardComponent } from './clipboard/clipboard.component';
 
 
 const routes: Routes = [
-  //{ path: '', redirectTo: '/home', pathMatch: 'full' }
+  { path: 'clipboard', component: ClipboardComponent },
+  { path: '**', redirectTo: '/clipboard', pathMatch: 'full' }
 ];
 
 @NgModule({
