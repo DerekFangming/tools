@@ -13,7 +13,7 @@ export class ClipboardComponent implements OnInit {
 
   editor: any;
 
-  editorOptions = {theme: 'vs-dark', language: 'javascript'};
+  editorOptions = {language: 'javascript'};
 
   model: NgxEditorModel = {
     value: '',
@@ -21,7 +21,7 @@ export class ClipboardComponent implements OnInit {
   };
 
   constructor(private http: HttpClient) {
-    this.http.get<Clipboard>(environment.urlPrefix + 'tools/api/clipboard').subscribe(cb => {
+    this.http.get<Clipboard>(environment.urlPrefix + 'api/clipboard').subscribe(cb => {
       if (this.editor == null) {
         this.model.value = cb.content;
       } else {
@@ -36,7 +36,7 @@ export class ClipboardComponent implements OnInit {
     this.editor = editor;
     this.editor.getModel().onDidChangeContent(_ => {
       let clipboard = new Clipboard(this.editor.getValue());
-      this.http.post<Clipboard>(environment.urlPrefix + 'tools/api/clipboard', clipboard).subscribe(_ => {
+      this.http.post<Clipboard>(environment.urlPrefix + 'api/clipboard', clipboard).subscribe(_ => {
       });
     });
   }

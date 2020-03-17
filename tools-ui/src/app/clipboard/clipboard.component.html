@@ -1,5 +1,7 @@
 <nav class="navbar navbar-light bg-light">
-  <a class="navbar-brand" href="#">Clipboard</a>
+  <div class="container">
+    <a class="navbar-brand ml-2" href="#">Clipboard</a>
+  </div>
 </nav>
 <div class="container mt-2">
   <div class="row">
@@ -22,8 +24,8 @@
   </div>
 
   <div class="row mt-2">
-    <div class="col ml-2">
-      <ngx-monaco-editor [options]="editorOptions" [model]="model" (onInit)="onEditorInit($event)"></ngx-monaco-editor>
+    <div class="col ml-4 mr-3 border" style="height: 720px">
+      <ngx-monaco-editor style="height: 100%" [options]="editorOptions" [model]="model" (onInit)="onEditorInit($event)"></ngx-monaco-editor>
     </div>
   </div>
 </div>
