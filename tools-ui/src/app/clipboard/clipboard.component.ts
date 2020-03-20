@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { NgxEditorModel } from 'ngx-monaco-editor';
 import { environment } from 'src/environments/environment';
 import { Clipboard } from '../model/clipboard';
+import { Title } from '@angular/platform-browser';
 
 @Component({
   selector: 'app-clipboard',
@@ -20,7 +21,8 @@ export class ClipboardComponent implements OnInit {
     language: 'text'
   };
 
-  constructor(private http: HttpClient) {
+  constructor(private http: HttpClient, private title: Title) {
+    this.title.setTitle("Clipboard");
     this.http.get<Clipboard>(environment.urlPrefix + 'api/clipboard').subscribe(cb => {
       if (this.editor == null) {
         this.model.value = cb.content;
