@@ -6,11 +6,13 @@ import { AppComponent } from './app.component';
 import { ClipboardComponent } from './clipboard/clipboard.component';
 import { MonacoEditorModule } from 'ngx-monaco-editor';
 import { HttpClientModule } from '@angular/common/http';
+import { ImageConverterComponent } from './image-converter/image-converter.component';
 
 @NgModule({
   declarations: [
     AppComponent,
-    ClipboardComponent
+    ClipboardComponent,
+    ImageConverterComponent
   ],
   imports: [
     BrowserModule,
