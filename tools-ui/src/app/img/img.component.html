@@ -1,0 +1,17 @@
+<nav class="navbar navbar-light bg-light">
+  <div class="container-fluid">
+      <a class="navbar-brand ml-2" href="#">Img</a>
+  </div>
+</nav>
+<div class="container-fluid mt-2">
+
+  <div class="row mt-4" *ngFor="let post of posts;">
+    <div class="col-12 mt-4">
+      <p>{{ post.title }}</p>
+    </div>
+    <div class="col-2 mt-2 img-container" *ngFor="let imgName of post.imageNames;">
+      <img class="aspect-fill" src="{{ 'http://localhost:8080/tools/images/' + post.id + '/' + imgName}}">
+    </div>
+  </div>
+</div>
+  

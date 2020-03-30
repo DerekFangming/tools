@@ -7,12 +7,14 @@ import { ClipboardComponent } from './clipboard/clipboard.component';
 import { MonacoEditorModule } from 'ngx-monaco-editor';
 import { HttpClientModule } from '@angular/common/http';
 import { HeicComponent } from './heic/heic.component';
+import { ImgComponent } from './img/img.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     ClipboardComponent,
-    HeicComponent
+    HeicComponent,
+    ImgComponent
   ],
   imports: [
     BrowserModule,

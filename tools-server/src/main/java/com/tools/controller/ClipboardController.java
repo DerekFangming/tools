@@ -1,4 +1,4 @@
-package com.tools;
+package com.tools.controller;
 
 import com.tools.dto.ClipboardDto;
 import org.springframework.http.ResponseEntity;
