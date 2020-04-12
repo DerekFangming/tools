@@ -13,4 +13,9 @@ public class PostDto {
     int id;
     String title;
     List<String> imageNames;
+    String attachment;
+    int rank;
+    int category;
+    boolean flagged;
+    String url;
 }

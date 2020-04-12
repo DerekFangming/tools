@@ -21,6 +21,7 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -28,19 +29,16 @@ import javax.annotation.PostConstruct;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.PrintWriter;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.security.KeyManagementException;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -51,13 +49,16 @@ public class PostService {
 
     private String matcher;
     private String rootUrl;
-    private static String imgDir = "D:/Github/test/img/";
+    public static final String imgDir = System.getenv("imgDir");
 
     private static CloseableHttpClient httpClient;
     private static final String httpAgent = "Mozilla/5.0 (Platform; Security; OS-or-CPU; Localization; rv:1.4) Gecko/20030624 Netscape/7.1 (ax)";
 
-    private static List<Integer> categories = Arrays.asList(798);
-    private static int pageLimit = 2;
+    private static final List<Integer> CATEGORIES = Arrays.asList(798);
+    private static final int PAGE_READ_PER_CATEGORY = 2;
+    private static final int DAYS_TO_KEEP_POST = 14;
+
+    private AtomicBoolean loadingPosts = new AtomicBoolean(false);
 
     private final PostRepo postRepo;
     private final QueryService queryService;
@@ -80,39 +81,59 @@ public class PostService {
         }
     }
 
+    public String getPostUrl(int id) {
+        return rootUrl + "thread-" + id + "-1-1.html";
+    }
+
+    public void cleanupViewedPosts() {
+
+        List<Post> postList = postRepo.findByViewedLessThan(Instant.now().minus(DAYS_TO_KEEP_POST, ChronoUnit.DAYS));
+        for (Post p : postList) {
+            File folder = new File(imgDir + p.getId());
+            folder.delete();
+            postRepo.delete(p);
+        }
+    }
+
     public void loadPosts() {
+        if (loadingPosts.get()) return;
+        loadingPosts.set(true);
 
-        for (Integer category : categories) {
-            for (int page = 1; page <= pageLimit; page ++) {
-                System.out.println("PAGE: " + page);
-                Post pagePost = Post.builder()
-                        .url(rootUrl + "forum-" + category + "-" + page + ".html")
-                        .build();
+        try {
+            for (Integer category : CATEGORIES) {
+                for (int page = 1; page <= PAGE_READ_PER_CATEGORY; page++) {
+                    System.out.println("PAGE: " + page);
+                    Post pagePost = Post.builder()
+                            .url(rootUrl + "forum-" + category + "-" + page + ".html")
+                            .build();
 
-                downloadHtml(pagePost);
+                    downloadHtml(pagePost);
 
-                if (page == 1) {
-                    AtomicInteger rank = new AtomicInteger(1);
-                    Matcher postMatcher = Pattern.compile("(<li><em>[\\s\\S]*?)<\\/ul>").matcher(pagePost.getHtml());
-                    while (postMatcher.find()) {
-                        Post highlightedPost = Post.builder().html(postMatcher.group(0)).build();
-                        getElementsByTag(highlightedPost, "a").forEach(p -> {
-                            Post post = Post.builder().title(p.html()).category(category).rank(rank.get()).created(Instant.now()).build();
-                            processPost(post, p.attr("href"));
-                        });
-                        rank.incrementAndGet();
+                    if (page == 1) {
+                        AtomicInteger rank = new AtomicInteger(1);
+                        Matcher postMatcher = Pattern.compile("(<li><em>[\\s\\S]*?)<\\/ul>").matcher(pagePost.getHtml());
+                        while (postMatcher.find()) {
+                            Post highlightedPost = Post.builder().html(postMatcher.group(0)).build();
+                            getElementsByTag(highlightedPost, "a").forEach(p -> {
+                                Post post = Post.builder().title(p.html()).category(category).rank(rank.get()).created(Instant.now()).build();
+                                processPost(post, p.attr("href"));
+                            });
+                            rank.incrementAndGet();
+                        }
                     }
-                }
 
-                Elements anchorElements = getElementsByTag(pagePost, "a");
-                for (Element e : anchorElements) {
-                    if (e.hasClass("s xst")) {
-                        Post post = Post.builder().title(e.html()).category(category).created(Instant.now()).firstPage(page == 1).build();
-                        boolean createdNewPost = processPost(post, e.attr("href"));
-                        if (!createdNewPost) return;
+                    Elements anchorElements = getElementsByTag(pagePost, "a");
+                    for (Element e : anchorElements) {
+                        if (e.hasClass("s xst")) {
+                            Post post = Post.builder().title(e.html()).category(category).created(Instant.now()).firstPage(page == 1).build();
+                            boolean createdNewPost = processPost(post, e.attr("href"));
+                            if (!createdNewPost) return;
+                        }
                     }
                 }
             }
+        } finally {
+            loadingPosts.set(false);
         }
     }
 
@@ -206,7 +227,7 @@ public class PostService {
         while (attachmentMatcher.find()) {
             String attachment = attachmentMatcher.group().replaceAll("\"", "");
             if (!attachment.endsWith("nothumb=yes")) {
-                post.setAttachment(attachment.replaceAll("amp;", ""));
+                post.setAttachment(rootUrl + attachment.replaceAll("amp;", ""));
                 break;
             }
         }

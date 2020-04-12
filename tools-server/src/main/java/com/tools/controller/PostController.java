@@ -1,72 +1,88 @@
 package com.tools.controller;
 
+import com.tools.dao.PostRepo;
 import com.tools.domain.Post;
 import com.tools.dto.PostDto;
+import com.tools.service.PostService;
 import com.tools.type.HtmlReaderType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.apachecommons.CommonsLog;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.PostConstruct;
 import java.io.File;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
+import java.time.temporal.ChronoUnit;
+import java.util.*;
 
 @RestController
-@RequestMapping(value = "/api/post")
+@RequestMapping(value = "/api/posts")
 @CommonsLog
 @RequiredArgsConstructor(onConstructor_={@Autowired})
 public class PostController {
 
     private final ModelMapper modelMapper;
-
-    @PostConstruct
-    public void init() {
-        log.info("aaa");
-    }
+    private final PostService postService;
+    private final PostRepo postRepo;
 
     @GetMapping
-    public ResponseEntity<List<PostDto>> getPosts() throws Exception {
+    public ResponseEntity<List<PostDto>> getPosts() {
 
-        String root = "D:/Github/imgs/";
-        List<PostDto> postList = new ArrayList<>();
-        for (int i = 1; i < 4; i ++) {
+        List<Post> postList = postRepo.findByViewed(null, PageRequest.of(0, 10));
+        List<PostDto> postDtoList = new ArrayList<>();
+
+        for (Post p : postList) {
             List<String> imageNames = new ArrayList<>();
-            File folder = new File(root + i);
-            for (File f : folder.listFiles()) {
-                String[] components = getNormalizedPath(f).split("/");
-                imageNames.add(components[components.length - 1]);
+            File folder = new File(PostService.imgDir + p.getId());
+            if (folder.listFiles() != null) {
+                for (File f : Objects.requireNonNull(folder.listFiles())) {
+                    String[] components = getNormalizedPath(f).split("/");
+                    imageNames.add(components[components.length - 1]);
+                }
             }
-            postList.add(new PostDto(i, "Some title " + i, imageNames));
+
+            PostDto dto = modelMapper.map(p, PostDto.class);
+            dto.setImageNames(imageNames);
+            dto.setUrl(postService.getPostUrl(p.getId()));
+
+            postDtoList.add(dto);
         }
 
-        return ResponseEntity.ok(postList);
+        return ResponseEntity.ok(postDtoList);
+    }
+
+    @GetMapping("/reload")
+    public ResponseEntity<Void> reload() {
+        postService.loadPosts();
+        return ResponseEntity.ok().build();
+    }
+
+    @PutMapping
+    public ResponseEntity<Void> markPostsAsRead(@RequestBody List<Integer> idList) {
+        if (idList != null && idList.size() > 0) {
+            postRepo.markAsRead(Instant.now(), idList);
+        }
+        return ResponseEntity.ok().build();
     }
 
     @GetMapping("/1")
-    public ResponseEntity<PostDto> getPosts1() throws Exception {
+    public ResponseEntity<List<Post>> getPosts1() throws Exception {
 
-		Post post = Post.builder()
-				.title("test title")
-				.imgUrls("urls")
-				.attachment("attachment")
-				.htmlType(HtmlReaderType.JSOUP)
-				.html("html")
-				.exception("exception")
-				.created(Instant.now())
-				.viewed(Instant.now())
-				.rank(1)
-				.category(123)
-				.flagged(true)
-				.build();
+//        postService.deletePosts(Arrays.asList(13271124, 13504082, 13508541));
 
-        return ResponseEntity.ok(modelMapper.map(post, PostDto.class));
+        return ResponseEntity.ok(postRepo.findByViewed(null, PageRequest.of(0, 10)));
+    }
+
+    @GetMapping("/2")
+    public ResponseEntity<Void> getPosts2() throws Exception {
+
+        postService.cleanupViewedPosts();
+
+        return ResponseEntity.ok().build();
     }
 
     private String getNormalizedPath(File file) {
