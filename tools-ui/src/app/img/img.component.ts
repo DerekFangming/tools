@@ -38,9 +38,9 @@ export class ImgComponent implements OnInit {
   }
 
   nextBtnClicked() {
-    this.posts = [];
     this.loadingNextPage = true;
     var idList = this.posts.map(p => p.id);
+    this.posts = [];
     
     this.http.put(environment.urlPrefix + 'api/posts', idList).subscribe(() => {
       this.loadNextPage();

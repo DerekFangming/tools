@@ -5,6 +5,7 @@ import com.tools.domain.Post;
 import com.tools.type.HtmlReaderType;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpEntity;
@@ -54,7 +55,7 @@ public class PostService {
     private static CloseableHttpClient httpClient;
     private static final String httpAgent = "Mozilla/5.0 (Platform; Security; OS-or-CPU; Localization; rv:1.4) Gecko/20030624 Netscape/7.1 (ax)";
 
-    private static final List<Integer> CATEGORIES = Arrays.asList(798);
+    private static final List<Integer> CATEGORIES = Arrays.asList(136);//Arrays.asList(798, 96, 103, 135, 136)
     private static final int PAGE_READ_PER_CATEGORY = 2;
     private static final int DAYS_TO_KEEP_POST = 14;
 
@@ -89,9 +90,11 @@ public class PostService {
 
         List<Post> postList = postRepo.findByViewedLessThan(Instant.now().minus(DAYS_TO_KEEP_POST, ChronoUnit.DAYS));
         for (Post p : postList) {
-            File folder = new File(imgDir + p.getId());
-            folder.delete();
             postRepo.delete(p);
+            try {
+                File folder = new File(imgDir + p.getId());
+                FileUtils.deleteDirectory(folder);
+            } catch (Exception ignored){}
         }
     }
 

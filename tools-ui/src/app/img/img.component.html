@@ -6,7 +6,7 @@
 <div *ngIf="!showingIFrame" class="container-fluid mt-2">
 
   <div class="card mt-4" *ngFor="let post of posts;">
-    <div class="card-header">
+    <div class="card-header" [style.background-color]="post.rank > 0 || post.flagged ? '#00AA9E' : '#FFFFFF'">
       <h4 class="my-0">{{ post.title }}</h4>
       <span class="badge badge-secondary">Catigory: {{ getCategory(post.category) }}</span>
       <span class="badge ml-2" [ngClass]="getRankTheme(post.rank)">Rank: {{ getRankName(post.rank) }}</span>

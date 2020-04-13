@@ -7,6 +7,7 @@ import com.tools.service.PostService;
 import com.tools.type.HtmlReaderType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.apachecommons.CommonsLog;
+import org.apache.commons.io.FileUtils;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -70,11 +71,15 @@ public class PostController {
     }
 
     @GetMapping("/1")
-    public ResponseEntity<List<Post>> getPosts1() throws Exception {
+    public ResponseEntity<Void> getPosts1() throws Exception {
 
-//        postService.deletePosts(Arrays.asList(13271124, 13504082, 13508541));
+        File folder = new File("D:/Github/test/img/13201942");
+        boolean deleted = folder.delete();
 
-        return ResponseEntity.ok(postRepo.findByViewed(null, PageRequest.of(0, 10)));
+        FileUtils.deleteDirectory(folder);
+        System.out.println(deleted);
+
+        return ResponseEntity.ok().build();
     }
 
     @GetMapping("/2")
