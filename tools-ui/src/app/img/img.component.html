@@ -11,8 +11,8 @@
       <span class="badge badge-secondary">Catigory: {{ getCategory(post.category) }}</span>
       <span class="badge ml-2" [ngClass]="getRankTheme(post.rank)">Rank: {{ getRankName(post.rank) }}</span>
       <span class="badge ml-2" [ngClass]="post.flagged ? 'badge-danger' : 'badge-secondary'">{{ post.flagged ? 'Flagged' : 'No flag' }}</span>
-      <a type="button" class="btn btn-link" target="_blank" href="{{ post.attachment }}">Torrent</a>
-      <a type="button" class="btn btn-link" target="_blank" href="{{ post.url }}">View Original</a>
+      <a class="ml-3" target="_blank" href="{{ post.attachment }}">Torrent</a>
+      <a class="ml-3" target="_blank" href="{{ post.url }}">View Original</a>
     </div>
     <div class="card-body">
       <div class="row">

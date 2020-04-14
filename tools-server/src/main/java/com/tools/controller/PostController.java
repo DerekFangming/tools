@@ -70,6 +70,12 @@ public class PostController {
         return ResponseEntity.ok().build();
     }
 
+    @PostMapping("/debug")
+    public ResponseEntity<Void> debugPosts(@RequestBody List<Integer> idList) {
+        postService.debugPosts(idList);
+        return ResponseEntity.ok().build();
+    }
+
     @GetMapping("/1")
     public ResponseEntity<Void> getPosts1() throws Exception {
 

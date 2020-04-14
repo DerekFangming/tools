@@ -58,6 +58,7 @@ public class PostService {
     private static final List<Integer> CATEGORIES = Arrays.asList(136);//Arrays.asList(798, 96, 103, 135, 136)
     private static final int PAGE_READ_PER_CATEGORY = 2;
     private static final int DAYS_TO_KEEP_POST = 14;
+    private static final int DEBUG_RANK = -1;
 
     private AtomicBoolean loadingPosts = new AtomicBoolean(false);
 
@@ -105,7 +106,6 @@ public class PostService {
         try {
             for (Integer category : CATEGORIES) {
                 for (int page = 1; page <= PAGE_READ_PER_CATEGORY; page++) {
-                    System.out.println("PAGE: " + page);
                     Post pagePost = Post.builder()
                             .url(rootUrl + "forum-" + category + "-" + page + ".html")
                             .build();
@@ -140,12 +140,19 @@ public class PostService {
         }
     }
 
+    public void debugPosts(List<Integer> idList) {
+        idList.forEach(i -> {
+            Post p = Post.builder().title("").rank(DEBUG_RANK).build();
+            processPost(p, "a-" + i + "-a-a");
+        });
+    }
+
     private boolean processPost(Post post, String href) {
         String[] parts = href.split("-");
         if (parts.length == 4) {
             int id = Integer.parseInt(parts[1]);
             Optional<Post> existingPostOpt = postRepo.findById(id);
-            if (existingPostOpt.isPresent()) {
+            if (existingPostOpt.isPresent() && post.getRank() != DEBUG_RANK) {
                 Post existingPost = existingPostOpt.get();
                 if (existingPost.getRank() == 0 && post.getRank() == 0 && !post.isFirstPage()) {
                     return false;
@@ -163,7 +170,7 @@ public class PostService {
             post.logException("Post url format err: " + href);
         }
 
-        postRepo.save(post);
+        if (post.getRank() != DEBUG_RANK) postRepo.save(post);
         return true;
     }
 
@@ -214,10 +221,16 @@ public class PostService {
                 }
             });
 
-            if (post.getImgUrls() == null && post.getHtmlType() == HtmlReaderType.JSOUP) {
-                post.setHtmlType(HtmlReaderType.IOUTIL);
-                Thread.sleep(500);
-                downloadImageFromPost(post);
+            if (post.getImgUrls() == null) {
+                if (post.getHtmlType() == HtmlReaderType.JSOUP) {
+                    post.setHtmlType(HtmlReaderType.IOUTIL);
+                    Thread.sleep(200);
+                    downloadImageFromPost(post);
+                } else if (post.getHtmlType() == HtmlReaderType.IOUTIL) {
+                    post.setHtmlType(HtmlReaderType.MANUAL);
+                    Thread.sleep(200);
+                    downloadImageFromPost(post);
+                }
             }
         } catch (Exception e) {
             post.logException(e);
@@ -262,13 +275,26 @@ public class PostService {
     private Elements getElementsByTag(Post post, String tag) {
         if (post.getHtmlType() == HtmlReaderType.JSOUP) {
             return Jsoup.parse(post.getHtml()).getElementsByTag(tag);
-        } else {
+        } else if (post.getHtmlType() == HtmlReaderType.IOUTIL) {
             StringBuilder matchedTags = new StringBuilder();
             Matcher matcher = Pattern.compile(tag.equals("img") ? "<" + tag + ".*?>" : "<" + tag + ".*?" + tag + ">").matcher(post.getHtml());
             while (matcher.find()) {
                 matchedTags.append(matcher.group());
             }
             return Jsoup.parse(matchedTags.toString()).getElementsByTag(tag);
+        } else {
+            System.out.println("By TD");
+            Elements tds = Jsoup.parse(post.getHtml()).getElementsByTag("td");
+            for (Element td : tds) {
+                if ((td.hasAttr("class") && td.attr("class").equals("t_f")) &&
+                        td.hasAttr("id") && td.attr("id").startsWith("postmessage_")) {
+                    System.out.println("Found by TD");
+                    Elements elements = td.getElementsByTag(tag);
+                    elements.forEach(e -> e.attr("lazyloadthumb", "1"));
+                    return elements;
+                }
+            }
+            return Jsoup.parse("").getElementsByTag(tag);
         }
     }
 
