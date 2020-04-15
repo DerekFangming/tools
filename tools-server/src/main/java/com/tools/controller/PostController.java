@@ -31,9 +31,18 @@ public class PostController {
     private final PostRepo postRepo;
 
     @GetMapping
-    public ResponseEntity<List<PostDto>> getPosts() {
+    public ResponseEntity<List<PostDto>> getPosts(@RequestParam("mode") String mode) {
 
-        List<Post> postList = postRepo.findByViewed(null, PageRequest.of(0, 10));
+        List<Post> postList;
+
+        if (mode.equals("flagged")) {
+            postList = postRepo.findByViewedAndFlagged(null, true, PageRequest.of(0, 10));
+        } else if(mode.equals("ranked")) {
+            postList = postRepo.findByViewedAndRankGreaterThan(null, 0, PageRequest.of(0, 10));
+        } else {
+            postList = postRepo.findByViewed(null, PageRequest.of(0, 10));
+        }
+
         List<PostDto> postDtoList = new ArrayList<>();
 
         for (Post p : postList) {

@@ -18,6 +18,10 @@ public interface PostRepo extends CrudRepository<Post, Integer> {
 
     List<Post> findByViewedLessThan(Instant viewed);
 
+    List<Post> findByViewedAndFlagged(Instant viewed, boolean flagged, Pageable pageable);
+
+    List<Post> findByViewedAndRankGreaterThan(Instant viewed, int rank, Pageable pageable);
+
     @Transactional
     @Modifying(clearAutomatically = true)
     @Query("update Post set viewed =:viewed where id in (:idList)")

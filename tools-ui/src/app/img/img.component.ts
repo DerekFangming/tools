@@ -1,6 +1,6 @@
 import { Component, OnInit, HostListener } from '@angular/core';
 import { Title } from '@angular/platform-browser';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
 import { Post } from '../model/post';
 
@@ -18,6 +18,8 @@ export class ImgComponent implements OnInit {
   showingIFrame = false;
   showingPreview = false;
 
+  mode = 'all';
+
   constructor(private http: HttpClient, private title: Title) {
     this.title.setTitle('Img');
     this.loadNextPage();
@@ -28,7 +30,10 @@ export class ImgComponent implements OnInit {
 
   loadNextPage() {
     this.loadingNextPage = true;
-    this.http.get<Post[]>(environment.urlPrefix + 'api/posts').subscribe(posts => {
+    const httpOptions = {
+      params: { 'mode': this.mode}
+    };
+    this.http.get<Post[]>(environment.urlPrefix + 'api/posts', httpOptions).subscribe(posts => {
       this.loadingNextPage = false;
       this.posts = posts;
     }, error => {
@@ -116,6 +121,13 @@ export class ImgComponent implements OnInit {
         return 'Month';
       default:
         return 'Unknown rank: ' + rank;
+    }
+  }
+
+  modeChanged(mode: string) {
+    if (this.mode != mode) {
+      this.mode = mode;
+      this.loadNextPage();
     }
   }
 
