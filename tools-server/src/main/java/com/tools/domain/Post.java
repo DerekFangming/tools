@@ -11,7 +11,6 @@ import javax.persistence.*;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.time.Instant;
-import java.util.List;
 
 @Entity
 @Table(name="posts")

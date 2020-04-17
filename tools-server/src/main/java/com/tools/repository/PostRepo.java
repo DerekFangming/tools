@@ -1,4 +1,4 @@
-package com.tools.dao;
+package com.tools.repository;
 
 import com.tools.domain.Post;
 import org.springframework.data.domain.Pageable;

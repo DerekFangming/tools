@@ -1,10 +1,10 @@
 package com.tools.controller;
 
-import com.tools.dao.PostRepo;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.tools.repository.PostRepo;
 import com.tools.domain.Post;
 import com.tools.dto.PostDto;
 import com.tools.service.PostService;
-import com.tools.type.HtmlReaderType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.apachecommons.CommonsLog;
 import org.apache.commons.io.FileUtils;
@@ -14,10 +14,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import javax.annotation.PostConstruct;
 import java.io.File;
 import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 import java.util.*;
 
 @RestController
@@ -29,6 +27,13 @@ public class PostController {
     private final ModelMapper modelMapper;
     private final PostService postService;
     private final PostRepo postRepo;
+
+
+    @PostMapping("/5")
+    public ResponseEntity<Void> getPosts111(@RequestParam("mode") String mode) throws JsonProcessingException {
+
+        return ResponseEntity.ok().build();
+    }
 
     @GetMapping
     public ResponseEntity<List<PostDto>> getPosts(@RequestParam("mode") String mode) {

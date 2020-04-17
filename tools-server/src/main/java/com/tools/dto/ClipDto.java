@@ -3,6 +3,6 @@ package com.tools.dto;
 import lombok.Data;
 
 @Data
-public class ClipboardDto {
+public class ClipDto {
     private String content;
 }

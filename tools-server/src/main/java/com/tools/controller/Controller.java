@@ -1,10 +1,8 @@
 package com.tools.controller;
 
-import com.tools.dao.PostRepo;
-import com.tools.domain.Post;
+import com.tools.repository.PostRepo;
 import com.tools.service.PostService;
 import com.tools.service.QueryService;
-import com.tools.type.HtmlReaderType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -12,10 +10,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.io.IOException;
-import java.time.Instant;
-import java.util.concurrent.TimeUnit;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 @RestController
 @RequiredArgsConstructor(onConstructor_={@Autowired})
