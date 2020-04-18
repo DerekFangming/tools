@@ -20,7 +20,7 @@ public class AngularRoutingConfig implements WebMvcConfigurer {
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         registry.addResourceHandler("/images/**")
-                .addResourceLocations("file:" + System.getenv("imgDir"));
+                .addResourceLocations("file:" + System.getenv("TL_IMG_DIR"));
 
         registry.addResourceHandler("/**/*")
                 .addResourceLocations("classpath:/static/")

@@ -49,7 +49,7 @@ public class PostService {
 
     private String matcher;
     private String rootUrl;
-    public static final String imgDir = System.getenv("imgDir");
+    public static final String imgDir = System.getenv("TL_IMG_DIR");
 
     private static CloseableHttpClient httpClient;
     private static final String httpAgent = "Mozilla/5.0 (Platform; Security; OS-or-CPU; Localization; rv:1.4) Gecko/20030624 Netscape/7.1 (ax)";
@@ -66,9 +66,9 @@ public class PostService {
 
     @PostConstruct
     public void init() {
-        matcher = System.getenv("matcher");
+        matcher = System.getenv("TL_MATCHER");
 
-        String urlToken = System.getenv("urlToken");
+        String urlToken = System.getenv("TL_UTL_TOKEN");
         rootUrl = new String(Base64.decodeBase64(urlToken.getBytes()));
 
         System.setProperty("http.agent", httpAgent);

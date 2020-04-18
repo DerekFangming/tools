@@ -41,11 +41,12 @@ public class Controller {
 //				.category(123)
 //				.flagged(true)
 //				.build();
-//		postRepo.save(post);
+////		postRepo.save(post);
+//
+//		postService.loadPosts();
 
-		postService.loadPosts();
-
-		return ResponseEntity.ok("res");
+		System.out.println(111);
+		return ResponseEntity.status(256).build();
 	}
 
 }
