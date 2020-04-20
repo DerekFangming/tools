@@ -140,7 +140,7 @@ public class PostService {
                         if (e.hasClass("s xst")) {
                             Post post = Post.builder().title(e.html()).category(category).created(Instant.now()).firstPage(page == 1).build();
                             boolean createdNewPost = processPost(post, e.attr("href"));
-                            if (!createdNewPost) return;
+                            if (!createdNewPost) break;
                         }
                     }
                 }
