@@ -55,7 +55,7 @@ public class PostService {
     private static CloseableHttpClient httpClient;
     private static final String httpAgent = "Mozilla/5.0 (Platform; Security; OS-or-CPU; Localization; rv:1.4) Gecko/20030624 Netscape/7.1 (ax)";
 
-    private static final List<Integer> CATEGORIES = Arrays.asList(798);//427
+    private static final List<Integer> CATEGORIES = Arrays.asList(798, 96, 103, 135, 136);//427
     private static final int PAGE_READ_PER_CATEGORY = 5;
     private static final int DAYS_TO_KEEP_POST = 21;
     private static final int DEBUG_RANK = -1;
