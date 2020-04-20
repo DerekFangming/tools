@@ -22,6 +22,7 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -54,7 +55,7 @@ public class PostService {
     private static CloseableHttpClient httpClient;
     private static final String httpAgent = "Mozilla/5.0 (Platform; Security; OS-or-CPU; Localization; rv:1.4) Gecko/20030624 Netscape/7.1 (ax)";
 
-    private static final List<Integer> CATEGORIES = Arrays.asList(798, 96, 103, 135, 136);//427
+    private static final List<Integer> CATEGORIES = Arrays.asList(798);//427
     private static final int PAGE_READ_PER_CATEGORY = 5;
     private static final int DAYS_TO_KEEP_POST = 21;
     private static final int DEBUG_RANK = -1;
@@ -80,6 +81,16 @@ public class PostService {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    @Scheduled(cron = "0 0 1 * * ?")
+    public void autoLoad() {
+        loadPosts();
+    }
+
+    @Scheduled(cron = "0 0 6 * * ?")
+    public void autoCleanup() {
+        cleanupViewedPosts();
     }
 
     public String getPostUrl(int id) {
@@ -115,7 +126,7 @@ public class PostService {
                         AtomicInteger rank = new AtomicInteger(1);
                         Matcher postMatcher = Pattern.compile("(<li><em>[\\s\\S]*?)<\\/ul>").matcher(pagePost.getHtml());
                         while (postMatcher.find()) {
-                            Post highlightedPost = Post.builder().html(postMatcher.group(0)).build();
+                            Post highlightedPost = Post.builder().html(postMatcher.group(0)).htmlType(HtmlReaderType.JSOUP).build();
                             getElementsByTag(highlightedPost, "a").forEach(p -> {
                                 Post post = Post.builder().title(p.html()).category(category).rank(rank.get()).created(Instant.now()).build();
                                 processPost(post, p.attr("href"));
@@ -282,7 +293,6 @@ public class PostService {
             }
             return Jsoup.parse(matchedTags.toString()).getElementsByTag(tag);
         } else {
-            System.out.println("By TD");
             Elements tds = Jsoup.parse(post.getHtml()).getElementsByTag("td");
             for (Element td : tds) {
                 if ((td.hasAttr("class") && td.attr("class").equals("t_f")) &&

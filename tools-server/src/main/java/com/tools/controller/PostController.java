@@ -1,6 +1,7 @@
 package com.tools.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.tools.domain.Clip;
 import com.tools.repository.PostRepo;
 import com.tools.domain.Post;
 import com.tools.dto.PostDto;
@@ -28,12 +29,7 @@ public class PostController {
     private final PostService postService;
     private final PostRepo postRepo;
 
-
-    @PostMapping("/5")
-    public ResponseEntity<Void> getPosts111(@RequestParam("mode") String mode) throws JsonProcessingException {
-
-        return ResponseEntity.ok().build();
-    }
+    private Timer timer = new Timer();
 
     @GetMapping
     public ResponseEntity<List<PostDto>> getPosts(@RequestParam("mode") String mode) {
@@ -72,7 +68,15 @@ public class PostController {
 
     @GetMapping("/reload")
     public ResponseEntity<Void> reload() {
-        postService.loadPosts();
+        timer.schedule(
+                new java.util.TimerTask() {
+                    @Override
+                    public void run() {
+                        postService.loadPosts();
+                    }
+                },
+                1000
+        );
         return ResponseEntity.ok().build();
     }
 
@@ -90,23 +94,9 @@ public class PostController {
         return ResponseEntity.ok().build();
     }
 
-    @GetMapping("/1")
-    public ResponseEntity<Void> getPosts1() throws Exception {
-
-        File folder = new File("D:/Github/test/img/13201942");
-        boolean deleted = folder.delete();
-
-        FileUtils.deleteDirectory(folder);
-        System.out.println(deleted);
-
-        return ResponseEntity.ok().build();
-    }
-
-    @GetMapping("/2")
-    public ResponseEntity<Void> getPosts2() throws Exception {
-
+    @GetMapping("/cleanup")
+    public ResponseEntity<Void> cleanup() throws Exception {
         postService.cleanupViewedPosts();
-
         return ResponseEntity.ok().build();
     }
 

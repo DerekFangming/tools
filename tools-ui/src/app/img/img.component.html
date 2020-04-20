@@ -17,6 +17,8 @@
           </li>
         </ul>
       </div>
+
+      <button class="btn btn-outline-success my-2 my-sm-0" (click)="reloadBtnClicked()">{{ reloadBtnText }}</button>
   </div>
 </nav>
 <div *ngIf="!showingIFrame" class="container-fluid mt-2">
@@ -32,10 +34,10 @@
     </div>
     <div class="card-body">
       <div class="row">
-        <!-- <div class="col-2 mt-2 img-container" *ngFor="let imgName of post.imageNames;">
-          <img class="aspect-fill" src="{{ 'http://localhost:8080/tools/images/' + post.id + '/' + imgName}}"
-          (click)="openPreview('http://localhost:8080/tools/images/' + post.id + '/' + imgName)">
-        </div> -->
+        <div class="col-2 mt-2 img-container" *ngFor="let imgName of post.imageNames;">
+          <img class="aspect-fill" src="{{ urlPrefix + 'images/' + post.id + '/' + imgName}}"
+          (click)="openPreview(urlPrefix + 'images/' + post.id + '/' + imgName)">
+        </div>
       </div>
     </div>
   </div>

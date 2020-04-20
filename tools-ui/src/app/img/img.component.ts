@@ -20,6 +20,9 @@ export class ImgComponent implements OnInit {
 
   mode = 'all';
 
+  reloadBtnText = 'Reload';
+  urlPrefix = environment.urlPrefix;
+
   constructor(private http: HttpClient, private title: Title) {
     this.title.setTitle('Img');
     this.loadNextPage();
@@ -51,6 +54,14 @@ export class ImgComponent implements OnInit {
       this.loadNextPage();
     }, error => {
       this.loadingNextPage = false;
+      console.log(error.error);
+    });
+  }
+
+  reloadBtnClicked() {
+    this.http.get(environment.urlPrefix + 'api/posts/reload').subscribe(() => {
+      this.reloadBtnText = 'Reloaded'
+    }, error => {
       console.log(error.error);
     });
   }
