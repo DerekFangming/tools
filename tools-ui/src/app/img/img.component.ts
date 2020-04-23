@@ -38,7 +38,7 @@ export class ImgComponent implements OnInit {
       params: { 'mode': this.mode},
       observe: 'response' as 'response'
     };
-    this.http.get<HttpResponse<Post[]>>(environment.urlPrefix + 'api/posts', httpOptions).subscribe(res => {
+    this.http.get<Post[]>(environment.urlPrefix + 'api/posts', httpOptions).subscribe(res => {
       this.loadingNextPage = false;
       this.posts = res.body;
       this.remainingPosts = res.headers.get('X-Total-Count');
