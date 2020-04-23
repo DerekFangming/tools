@@ -10,12 +10,20 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import javax.annotation.PostConstruct;
+import java.util.TimeZone;
+
 @Configuration
 @RequiredArgsConstructor(onConstructor_={@Autowired})
 public class BeanConfig {
 
     private final PostImageConverter postImageConverter;
     private final PostUrlConverter postUrlConverter;
+
+    @PostConstruct
+    private void init() {
+        TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
+    }
 
     @Bean
     public ModelMapper modelMapper() {
