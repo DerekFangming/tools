@@ -7,6 +7,7 @@ export class Post {
     category: number;
     flagged: boolean;
     url: string;
+    created: string;
 
 	constructor() {}
 }

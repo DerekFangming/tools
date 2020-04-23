@@ -63,7 +63,10 @@ public class PostController {
             postDtoList.add(dto);
         }
 
-        return ResponseEntity.ok(postDtoList);
+        long remaining = postRepo.countByViewed(null);
+        return ResponseEntity.ok()
+                .header("X-Total-Count", String.valueOf(remaining))
+                .body(postDtoList);
     }
 
     @GetMapping("/reload")

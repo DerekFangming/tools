@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.Instant;
 import java.util.List;
 
 @Data
@@ -18,4 +19,5 @@ public class PostDto {
     int category;
     boolean flagged;
     String url;
+    Instant created;
 }

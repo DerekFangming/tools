@@ -16,11 +16,14 @@ public interface PostRepo extends CrudRepository<Post, Integer> {
 
     List<Post> findByViewed(Instant viewed, Pageable pageable);
 
+    Long countByViewed(Instant viewed);
+
     List<Post> findByViewedLessThan(Instant viewed);
 
     List<Post> findByViewedAndFlagged(Instant viewed, boolean flagged, Pageable pageable);
 
     List<Post> findByViewedAndRankGreaterThan(Instant viewed, int rank, Pageable pageable);
+
 
     @Transactional
     @Modifying(clearAutomatically = true)

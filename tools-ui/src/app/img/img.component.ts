@@ -1,6 +1,6 @@
 import { Component, OnInit, HostListener } from '@angular/core';
 import { Title } from '@angular/platform-browser';
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpParams, HttpResponse } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
 import { Post } from '../model/post';
 
@@ -12,6 +12,7 @@ import { Post } from '../model/post';
 export class ImgComponent implements OnInit {
 
   posts: Post[];
+  remainingPosts: string;
   previewedImgSrc: string;
 
   loadingNextPage = false;
@@ -34,11 +35,13 @@ export class ImgComponent implements OnInit {
   loadNextPage() {
     this.loadingNextPage = true;
     const httpOptions = {
-      params: { 'mode': this.mode}
+      params: { 'mode': this.mode},
+      observe: 'response' as 'response'
     };
-    this.http.get<Post[]>(environment.urlPrefix + 'api/posts', httpOptions).subscribe(posts => {
+    this.http.get<HttpResponse<Post[]>>(environment.urlPrefix + 'api/posts', httpOptions).subscribe(res => {
       this.loadingNextPage = false;
-      this.posts = posts;
+      this.posts = res.body;
+      this.remainingPosts = res.headers.get('X-Total-Count');
     }, error => {
       this.loadingNextPage = false;
       console.log(error.error);
@@ -138,6 +141,10 @@ export class ImgComponent implements OnInit {
       default:
         return 'Unknown rank: ' + rank;
     }
+  }
+
+  getCreatedTime(time: string) {
+    return new Date(time).toLocaleString();
   }
 
   modeChanged(mode: string) {
