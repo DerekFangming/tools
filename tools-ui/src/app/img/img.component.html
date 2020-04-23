@@ -1,4 +1,4 @@
-<nav class="navbar navbar-expand-lg navbar-light bg-light">
+<nav class="navbar navbar-expand-lg navbar-light bg-light navbar-fixed-top">
   <div class="container-fluid">
       <a class="navbar-brand ml-2" href="#">Images</a>
       <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
@@ -21,7 +21,7 @@
       <button class="btn btn-outline-success my-2 my-sm-0" (click)="reloadBtnClicked()">{{ reloadBtnText }}</button>
   </div>
 </nav>
-<div *ngIf="!showingIFrame" class="container-fluid mt-2">
+<div [hidden]="showingIFrame" class="container-fluid mt-2">
 
   <div class="card mt-4" *ngFor="let post of posts;">
     <div class="card-header" [style.background-color]="post.rank > 0 || post.flagged ? '#00AA9E' : '#FFFFFF'">
@@ -34,7 +34,7 @@
     </div>
     <div class="card-body">
       <div class="row">
-        <div class="col-2 mt-2 img-container" *ngFor="let imgName of post.imageNames;">
+        <div class="col-xl-2 col-lg-4 col-md-12 mt-2 img-container" *ngFor="let imgName of post.imageNames;">
           <img class="aspect-fill" src="{{ urlPrefix + 'images/' + post.id + '/' + imgName}}"
           (click)="openPreview(urlPrefix + 'images/' + post.id + '/' + imgName)">
         </div>

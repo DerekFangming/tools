@@ -1,9 +1,13 @@
 package com.tools.controller;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.tools.repository.PostRepo;
 import com.tools.service.PostService;
 import com.tools.service.QueryService;
+import lombok.Data;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,33 +24,21 @@ public class Controller {
 	private final QueryService queryService;
 	
 	@GetMapping("/test")
-	public ResponseEntity<String> test() throws IOException, InterruptedException {
-
-
-//		Runtime rt = Runtime.getRuntime();
-//		Process pr = rt.exec("npx.cmd heic-cli < D:/Github/IMG_3008.heic > D:/Github/4.jpg");
-//		pr.waitFor();
-
-
-//		Post post = Post.builder()
-//				.title("test title")
-//				.imgUrls("urls")
-//				.attachment("attachment")
-//				.htmlType(HtmlReaderType.JSOUP)
-//				.html("html")
-//				.exception("exception")
-//				.created(Instant.now())
-//				.viewed(Instant.now())
-//				.rank(1)
-//				.category(123)
-//				.flagged(true)
-//				.build();
-////		postRepo.save(post);
-//
-//		postService.loadPosts();
+	public ResponseEntity<Dto> test() throws IOException, InterruptedException {
 
 		System.out.println(111);
-		return ResponseEntity.status(256).build();
+		return ResponseEntity.ok(new Dto());
+	}
+
+	@Data
+	@Getter
+	@Setter
+	@JsonInclude(JsonInclude.Include.NON_NULL)
+	private class Dto {
+		String string = "a";
+		String hidden = null;
+		int integer = 1;
+		boolean bool = false;
 	}
 
 }

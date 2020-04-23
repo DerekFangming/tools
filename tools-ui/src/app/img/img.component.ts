@@ -24,7 +24,7 @@ export class ImgComponent implements OnInit {
   urlPrefix = environment.urlPrefix;
 
   constructor(private http: HttpClient, private title: Title) {
-    this.title.setTitle('Img');
+    this.title.setTitle('Images');
     this.loadNextPage();
   }
 
@@ -67,12 +67,17 @@ export class ImgComponent implements OnInit {
   }
 
   @HostListener('document:keydown.escape', ['$event'])
-  onKeydownHandler(event: KeyboardEvent) {
+  onEscapeClicked(event: KeyboardEvent) {
     if (this.showingPreview) {
       this.closePreview();
     } else {
       this.showingIFrame = !this.showingIFrame;
     }
+  }
+  
+  @HostListener('document:keydown.f1', ['$event'])
+  onKeydownHandler(event: KeyboardEvent) {
+    this.nextBtnClicked();
   }
 
   openPreview(src: string) {
