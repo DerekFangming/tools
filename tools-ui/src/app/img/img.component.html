@@ -37,10 +37,16 @@
       <a class="ml-3" target="_blank" href="{{ post.url }}">View Original</a>
     </div>
     <div class="card-body">
-      <div class="row">
+      <div *ngIf="post.imageNames.length > 0" class="row">
         <div class="col-xl-2 col-lg-4 col-md-12 mt-2 img-container" *ngFor="let imgName of post.imageNames;">
-          <img class="aspect-fill" src="{{ urlPrefix + 'images/' + post.id + '/' + imgName}}"
+          <img class="aspect-fill" src="{{ urlPrefix + 'images/' + post.id + '/' + imgName }}"
           (click)="openPreview(urlPrefix + 'images/' + post.id + '/' + imgName)">
+        </div>
+      </div>
+      <div *ngIf="post.imageNames.length == 0" class="row">
+        <div class="col-xl-2 col-lg-4 col-md-12 mt-2 img-container" *ngFor="let imgUrl of post.imageUrls;">
+          <img class="aspect-fill" src="{{ imgUrl }}"
+          (click)="openPreview(imgUrl)">
         </div>
       </div>
     </div>
