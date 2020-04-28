@@ -16,11 +16,12 @@ repositories {
 dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-	compile 'org.postgresql:postgresql:42.2.5'
+	implementation 'org.postgresql:postgresql:42.2.5'
 	implementation 'org.jsoup:jsoup:1.12.2'
 	implementation 'commons-io:commons-io:2.6'
 	implementation 'org.apache.httpcomponents:httpclient:4.5.11'
 	implementation 'org.modelmapper:modelmapper:2.3.7'
+	implementation 'com.vladmihalcea:hibernate-types-52:2.9.8'
 
 	compileOnly 'org.projectlombok:lombok:1.18.12'
 	annotationProcessor 'org.projectlombok:lombok:1.18.12'

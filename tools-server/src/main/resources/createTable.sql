@@ -18,3 +18,9 @@ create table clips (
 	content text,
 	created timestamp without time zone not null
 );
+
+create table emails (
+	id serial primary key,
+	content text,
+	created timestamp without time zone not null
+);
