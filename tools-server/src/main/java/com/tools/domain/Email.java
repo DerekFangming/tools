@@ -32,19 +32,28 @@ public class Email {
     @GeneratedValue(strategy= GenerationType.IDENTITY)
     private int id;
 
+    @Column(name="from_addr")
     private String from;
 
+    @Column(name="to_addr")
     private String to;
 
+    @Column(name="subject")
     private String subject;
 
+    @Column(name="content")
     private String content;
 
+    @Column(name="html")
     private boolean html;
 
-    @Column(name="sender")
+    @Column(name="sender_type")
     @Enumerated(EnumType.STRING)
     private EmailSenderType senderType;
+
+    @Column(name="final_sender_type")
+    @Enumerated(EnumType.STRING)
+    private EmailSenderType finalSenderType;
 
     @Column(name="address")
     private String address;
@@ -54,7 +63,7 @@ public class Email {
     private Map<String, String> headers;
 
     @Type(type = "jsonb")
-    @Column(name="parameters", columnDefinition = "jsonb")
+    @Column(name="query_params", columnDefinition = "jsonb")
     private Map<String, String> queryParams;
 
     @Column(name="created")
