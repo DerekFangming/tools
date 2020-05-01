@@ -55,7 +55,13 @@ public class PostService {
     private static CloseableHttpClient httpClient;
     private static final String httpAgent = "Mozilla/5.0 (Platform; Security; OS-or-CPU; Localization; rv:1.4) Gecko/20030624 Netscape/7.1 (ax)";
 
-    private static final List<Integer> CATEGORIES = Arrays.asList(798, 96, 103, 135, 136);//427
+    //280 hua original
+    //723 asian original
+    //525 us original
+    //
+    //232 teyao
+    //233 xinpian
+    private static final List<Integer> CATEGORIES = Arrays.asList(798, 96, 103, 135, 136, 280, 723, 525, 232, 233);//427
     private static final int PAGE_READ_PER_CATEGORY = 5;
     private static final int DAYS_TO_KEEP_POST = 21;
     private static final int DEBUG_RANK = -1;
@@ -122,6 +128,7 @@ public class PostService {
 
                     downloadHtml(pagePost);
 
+                    // Load highlights
                     if (page == 1) {
                         AtomicInteger rank = new AtomicInteger(1);
                         Matcher postMatcher = Pattern.compile("(<li><em>[\\s\\S]*?)<\\/ul>").matcher(pagePost.getHtml());
@@ -135,6 +142,7 @@ public class PostService {
                         }
                     }
 
+                    // Load all all others
                     Elements anchorElements = getElementsByTag(pagePost, "a");
                     for (Element e : anchorElements) {
                         if (e.hasClass("s xst")) {
@@ -165,9 +173,14 @@ public class PostService {
             if (existingPostOpt.isPresent() && post.getRank() != DEBUG_RANK) {
                 Post existingPost = existingPostOpt.get();
                 if (existingPost.getRank() == 0 && post.getRank() == 0 && !post.isFirstPage()) {
-                    return false;
-                } else if (existingPost.getRank() != post.getRank()) {
+                    if (existingPost.getCategory() == post.getCategory()) {
+                        return false;
+                    } else {
+                        return true;
+                    }
+                } else if (existingPost.getRank() != post.getRank() && existingPost.getRank() < post.getRank()) {
                     existingPost.setRank(post.getRank());
+                    existingPost.setViewed(null);
                     postRepo.save(existingPost);
                 }
                 return true;

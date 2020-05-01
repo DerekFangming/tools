@@ -12,11 +12,11 @@ import javax.servlet.http.HttpServletRequest;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
-@EnableWebMvc
-@ControllerAdvice
+//@EnableWebMvc
+//@ControllerAdvice
 public class ErrorHandler {
 
-    @ExceptionHandler(Throwable.class)
+//    @ExceptionHandler(Throwable.class)
     public ResponseEntity<ErrorDto> handleException(Throwable ex, HttpServletRequest request) {
 
         Map<String, String> headers = WebUtil.getRequestHeaders(request);
