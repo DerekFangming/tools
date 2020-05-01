@@ -12,3 +12,18 @@ export class Post {
 
 	constructor() {}
 }
+
+export enum PostCatMap {
+    All = 0,
+    Hua = 798,
+    Asian = 96,
+    CloudFast = 427,
+    Cloud = 103,
+    US = 135,
+    AsiDongn = 136,
+    HuaOrig = 280,
+    AsianOrig = 723,
+    USOrig = 525,
+    TeYao = 232,
+    New = 233
+}

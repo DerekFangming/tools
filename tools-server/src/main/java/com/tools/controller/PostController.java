@@ -31,16 +31,23 @@ public class PostController {
     private Timer timer = new Timer();
 
     @GetMapping
-    public ResponseEntity<List<PostDto>> getPosts(@RequestParam("mode") String mode) {
-
+    public ResponseEntity<List<PostDto>> getPosts(@RequestParam(value = "mode", required=false) String mode,
+                                                  @RequestParam(value = "category", required=false) Integer category) {
         List<Post> postList;
+        if (mode == null) mode = "all";
+        if (category == null) category = 0;
+        System.out.println("mode: " + mode + " cat: " + category);
 
         if (mode.equals("flagged")) {
             postList = postRepo.findByViewedAndFlagged(null, true, PageRequest.of(0, 10));
         } else if(mode.equals("ranked")) {
             postList = postRepo.findByViewedAndRankGreaterThan(null, 0, PageRequest.of(0, 10));
         } else {
-            postList = postRepo.findByViewed(null, PageRequest.of(0, 10));
+            if (category == 0) {
+                postList = postRepo.findByViewed(null, PageRequest.of(0, 10));
+            } else {
+                postList = postRepo.findByViewedAndCategory(null, category, PageRequest.of(0, 10));
+            }
         }
 
         return ResponseEntity.ok()
@@ -62,7 +69,7 @@ public class PostController {
         return ResponseEntity.ok().build();
     }
 
-    @PutMapping
+    @PutMapping("/mark-read")
     public ResponseEntity<Void> markPostsAsRead(@RequestBody List<Integer> idList) {
         if (idList != null && idList.size() > 0) {
             postRepo.markAsRead(Instant.now(), idList);

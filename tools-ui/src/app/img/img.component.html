@@ -9,6 +9,14 @@
           <li class="nav-item" [ngClass]="mode == 'all' ? 'active' : ''">
             <a class="nav-link pointer" (click)="modeChanged('all')">Home</a>
           </li>
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle active" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              Category: {{ getCategory(category) }} 
+            </a>
+            <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+              <a class="dropdown-item" (click)="categoryChanged(newCategory)" *ngFor="let newCategory of categories;"> {{ newCategory }}</a>
+            </div>
+          </li>
           <li class="nav-item" [ngClass]="mode == 'flagged' ? 'active' : ''">
             <a class="nav-link pointer" (click)="modeChanged('flagged')">Flagged</a>
           </li>

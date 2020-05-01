@@ -2,7 +2,8 @@ import { Component, OnInit, HostListener } from '@angular/core';
 import { Title } from '@angular/platform-browser';
 import { HttpClient, HttpParams, HttpResponse } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
-import { Post } from '../model/post';
+import { Post, PostCatMap } from '../model/post';
+import { ActivatedRoute, Router } from '@angular/router';
 
 @Component({
   selector: 'app-img',
@@ -20,22 +21,26 @@ export class ImgComponent implements OnInit {
   showingPreview = false;
 
   mode = 'all';
+  category = PostCatMap.All;//PostCatMap[PostCatMap.All];
+  categories = Object.keys(PostCatMap).filter(value => isNaN(Number(value)));
 
   reloadBtnText = 'Reload';
   urlPrefix = environment.urlPrefix;
 
-  constructor(private http: HttpClient, private title: Title) {
+  constructor(private http: HttpClient, private title: Title, private activatedRoute: ActivatedRoute, private router: Router) {
     this.title.setTitle('Images');
-    this.loadNextPage();
+    this.mode = this.activatedRoute.snapshot.queryParamMap.get('mode');
+    this.category = Number(this.activatedRoute.snapshot.queryParamMap.get('category'));
+    this.loadPosts();
   }
 
   ngOnInit() {
   }
 
-  loadNextPage() {
+  loadPosts() {
     this.loadingNextPage = true;
     const httpOptions = {
-      params: { 'mode': this.mode},
+      params: new HttpParams().set('mode', this.mode).set('category', this.category.toString()),
       observe: 'response' as 'response'
     };
     this.http.get<Post[]>(environment.urlPrefix + 'api/posts', httpOptions).subscribe(res => {
@@ -53,8 +58,8 @@ export class ImgComponent implements OnInit {
     var idList = this.posts.map(p => p.id);
     this.posts = [];
     
-    this.http.put(environment.urlPrefix + 'api/posts', idList).subscribe(() => {
-      this.loadNextPage();
+    this.http.put(environment.urlPrefix + 'api/posts/mark-read', idList).subscribe(() => {
+      this.loadPosts();
     }, error => {
       this.loadingNextPage = false;
       console.log(error.error);
@@ -95,22 +100,7 @@ export class ImgComponent implements OnInit {
   }
 
   getCategory(forumId: number) {
-    switch (forumId) {
-      case 798:
-        return 'Hua'
-      case 96:
-        return 'Asian';
-      case 427:
-        return 'Cloud Fast';
-      case 103:
-        return 'Cloud';
-      case 135:
-        return 'U.S.';
-      case 136:
-        return 'Dong';
-      default:
-        return 'Unknown id: ' + forumId;
-    }
+    return PostCatMap[forumId];
   }
 
   getRankTheme(rank: number) {
@@ -150,7 +140,27 @@ export class ImgComponent implements OnInit {
   modeChanged(mode: string) {
     if (this.mode != mode) {
       this.mode = mode;
-      this.loadNextPage();
+      this.loadPosts();
+
+      this.router.navigate([], {
+        relativeTo: this.activatedRoute,
+        queryParams: { mode: mode },
+        queryParamsHandling: 'merge'
+      });
+    }
+  }
+
+  categoryChanged(categoryString: string) {
+    let category = PostCatMap[categoryString];
+    if (this.category != category) {
+      this.category = category;
+      this.loadPosts();
+
+      this.router.navigate([], {
+        relativeTo: this.activatedRoute,
+        queryParams: { category: category },
+        queryParamsHandling: 'merge'
+      });
     }
   }
 

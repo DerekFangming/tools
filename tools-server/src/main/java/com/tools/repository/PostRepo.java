@@ -15,6 +15,7 @@ import java.util.List;
 public interface PostRepo extends CrudRepository<Post, Integer> {
 
     List<Post> findByViewed(Instant viewed, Pageable pageable);
+    List<Post> findByViewedAndCategory(Instant viewed, int category, Pageable pageable);
 
     Long countByViewed(Instant viewed);
 
