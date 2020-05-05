@@ -21,15 +21,17 @@ create table clips (
 
 create table emails (
 	id serial primary key,
-	from text,
-	to text,
+	from_addr text,
+	replacement_from_addr text,
+	to_addr text,
 	subject text,
 	content text,
 	html boolean,
 	sender_type text,
-	address text,
-	headers jsonb,
-	query_params text,
+	replacement_sender_type text,
+	request_address  text,
+	request_headers jsonb,
+	request_params jsonb,
 	created timestamp without time zone not null,
 	error text
 );

@@ -35,6 +35,9 @@ public class Email {
     @Column(name="from_addr")
     private String from;
 
+    @Column(name="replacement_from_addr")
+    private String replacement_from;
+
     @Column(name="to_addr")
     private String to;
 
@@ -51,20 +54,20 @@ public class Email {
     @Enumerated(EnumType.STRING)
     private EmailSenderType senderType;
 
-    @Column(name="final_sender_type")
+    @Column(name="replacement_sender_type")
     @Enumerated(EnumType.STRING)
-    private EmailSenderType finalSenderType;
+    private EmailSenderType replacementSenderType;
 
-    @Column(name="address")
-    private String address;
-
-    @Type(type = "jsonb")
-    @Column(name="headers", columnDefinition = "jsonb")
-    private Map<String, String> headers;
+    @Column(name="request_address")
+    private String requestAddress;
 
     @Type(type = "jsonb")
-    @Column(name="query_params", columnDefinition = "jsonb")
-    private Map<String, String> queryParams;
+    @Column(name="request_headers", columnDefinition = "jsonb")
+    private Map<String, String> requestHeaders;
+
+    @Type(type = "jsonb")
+    @Column(name="request_params", columnDefinition = "jsonb")
+    private Map<String, String> requestParams;
 
     @Column(name="created")
     private Instant created;

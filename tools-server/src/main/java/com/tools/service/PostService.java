@@ -55,12 +55,6 @@ public class PostService {
     private static CloseableHttpClient httpClient;
     private static final String httpAgent = "Mozilla/5.0 (Platform; Security; OS-or-CPU; Localization; rv:1.4) Gecko/20030624 Netscape/7.1 (ax)";
 
-    //280 hua original
-    //723 asian original
-    //525 us original
-    //
-    //232 teyao
-    //233 xinpian
     private static final List<Integer> CATEGORIES = Arrays.asList(798, 96, 103, 135, 136, 280, 723, 525, 232, 233);//427
     private static final int PAGE_READ_PER_CATEGORY = 5;
     private static final int DAYS_TO_KEEP_POST = 21;
