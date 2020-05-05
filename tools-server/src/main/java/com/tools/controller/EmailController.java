@@ -62,14 +62,10 @@ public class EmailController {
         Email email = new Email();
 
 
-        email.setRequestAddress(request.getRemoteAddr());
+        email.setRequestAddress(WebUtil.getClientIpAddress(request));
         email.setRequestHeaders(WebUtil.getRequestHeaders(request));
         email.setRequestParams(WebUtil.getQueryParams(request));
         email.setCreated(Instant.now());
-
-        String log = request.getRemoteHost() + "\n";
-        log += request.getRemotePort();
-        email.setError(log);
 
         emailService.send(email);
         return ResponseEntity.ok(Collections.emptyMap());

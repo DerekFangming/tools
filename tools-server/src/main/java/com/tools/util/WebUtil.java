@@ -5,6 +5,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Map;
+import java.util.StringTokenizer;
 import java.util.stream.Collectors;
 
 public class WebUtil {
@@ -24,5 +25,14 @@ public class WebUtil {
         return Collections.list(request.getParameterNames())
                 .stream()
                 .collect(Collectors.toMap(parameterName -> parameterName, parameterName -> String.join(",", request.getParameterValues(parameterName))));
+    }
+
+    public static String getClientIpAddress(HttpServletRequest request) {
+        String xForwardedForHeader = request.getHeader("X-Forwarded-For");
+        if (xForwardedForHeader == null) {
+            return request.getRemoteAddr();
+        } else {
+            return new StringTokenizer(xForwardedForHeader, ",").nextToken().trim();
+        }
     }
 }
