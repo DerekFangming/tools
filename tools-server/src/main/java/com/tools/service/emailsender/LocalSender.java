@@ -14,11 +14,15 @@ public class LocalSender implements EmailSender {
         if (email.getSenderType() != EmailSenderType.LOCAL) {
             email.setReplacementSenderType(EmailSenderType.LOCAL);
         }
-        log.info("Send through local");
+        log.info("Sent through local");
     }
 
     @Override
     public boolean isAbleToSend() {
         return true;
+    }
+
+    @Override
+    public void resetThreshold() {
     }
 }

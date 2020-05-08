@@ -27,6 +27,7 @@ create table emails (
 	subject text,
 	content text,
 	html boolean,
+	attachment text,
 	sender_type text,
 	replacement_sender_type text,
 	request_address  text,

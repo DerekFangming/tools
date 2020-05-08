@@ -9,6 +9,7 @@ public class EmailDto {
     private String to;
     private String subject;
     private String content;
+    private String attachment;
     private boolean html;
     private EmailSenderType senderType;
 }

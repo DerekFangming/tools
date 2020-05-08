@@ -50,6 +50,9 @@ public class Email {
     @Column(name="html")
     private boolean html;
 
+    @Column(name="attachment")
+    private String attachment;
+
     @Column(name="sender_type")
     @Enumerated(EnumType.STRING)
     private EmailSenderType senderType;

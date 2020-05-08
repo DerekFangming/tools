@@ -12,7 +12,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.activation.DataSource;
+import javax.activation.FileDataSource;
 import javax.servlet.http.HttpServletRequest;
+import java.io.File;
 import java.time.Instant;
 import java.util.*;
 
@@ -30,7 +33,7 @@ public class EmailController {
     public ResponseEntity<Void> post(@RequestBody EmailDto emailDto, HttpServletRequest request) {
 
         Email email = modelMapper.map(emailDto, Email.class);
-        email.setRequestAddress(request.getRemoteAddr());
+        email.setRequestAddress(WebUtil.getClientIpAddress(request));
         email.setRequestHeaders(WebUtil.getRequestHeaders(request));
         email.setRequestParams(WebUtil.getQueryParams(request));
         email.setCreated(Instant.now());
@@ -71,22 +74,14 @@ public class EmailController {
         return ResponseEntity.ok(Collections.emptyMap());
     }
 
-    @PostMapping("/2")
+    @GetMapping("/2")
     public ResponseEntity<Map<String, Object>> test2() {
 
-        Timer timer = new Timer();
+        DataSource source = new FileDataSource("D:\\php\\glib-2.dll");
+        log.info(source.getName());
 
-        timer.schedule(
-                new java.util.TimerTask() {
-                    @Override
-                    public void run() {
-
-                        String a = null;
-                        a.trim();
-                    }
-                },
-                5000
-        );
+        File f = new File("D:\\php\\glib-2.dll");
+        log.warn(f.getName());
 
         return ResponseEntity.ok(Collections.emptyMap());
     }
