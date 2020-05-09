@@ -21,7 +21,7 @@ public class EmailService {
 
     @PostConstruct
     public void init() {
-        emailSender = new SendInBlueSender(new SendGridSender(new GmailSender(new LocalSender())));
+        emailSender = new MailGunSender(new SendInBlueSender(new SendGridSender(new GmailSender(new LocalSender()))));
         emailSender.resetThreshold();
     }
 

@@ -17,7 +17,6 @@ import java.util.Collections;
 public class SendInBlueSender implements EmailSender {
 
     int threshold;
-
     EmailSender delegate;
 
     public SendInBlueSender(EmailSender delegate) {
