@@ -4,6 +4,7 @@ import com.tools.domain.Email;
 import com.tools.dto.EmailDto;
 import com.tools.repository.EmailRepo;
 import com.tools.service.EmailService;
+import com.tools.type.EmailSenderType;
 import com.tools.util.WebUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.apachecommons.CommonsLog;
@@ -40,35 +41,19 @@ public class EmailController {
 
         emailService.send(email);
 
-        log.info("Error");
-
-        System.out.println(request.getRemoteAddr());
-
-//        Map<String, String> headers = WebUtil.getRequestHeaders(request);
-//
-//        System.out.println(headers);
-//
-//        Map<String, String> cookies = WebUtil.getRequestCookies(request);
-//        System.out.println(cookies);
-
-
-//        Map<String, Object> map = new HashMap<>();
-//        map.put("key", "value");
-//        Email email = Email.builder().content(map).build();
-//        emailRepo.save(email);
-
         return ResponseEntity.ok().build();
     }
 
     @GetMapping("/1")
     public ResponseEntity<Map<String, Object>> test1(HttpServletRequest request) {
-        Email email = new Email();
-
-
-        email.setRequestAddress(WebUtil.getClientIpAddress(request));
-        email.setRequestHeaders(WebUtil.getRequestHeaders(request));
-        email.setRequestParams(WebUtil.getQueryParams(request));
-        email.setCreated(Instant.now());
+        Email email = Email.builder()
+                .from("admin@fmning.com")
+                .to("synfm123@gmail.com")//noreply.fmning@gmail.com
+                .subject("Monthly SIG refresh")
+                .content(Instant.now().toString())
+                .senderType(EmailSenderType.SEND_IN_BLUE)
+                .created(Instant.now())
+                .build();
 
         emailService.send(email);
         return ResponseEntity.ok(Collections.emptyMap());

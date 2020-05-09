@@ -68,13 +68,13 @@ public class SendGridSender implements EmailSender {
 
         //Check and add attachment
         if (email.getAttachment() != null) {
-            File file = new File(email.getAttachment());
-            byte[] encoded = Base64.encodeBase64(FileUtils.readFileToByteArray(file));
+            File attachment = new File(email.getAttachment());
+            byte[] encoded = Base64.encodeBase64(FileUtils.readFileToByteArray(attachment));
 
             Attachments attachments = new Attachments();
             attachments.setContent(new String(encoded, StandardCharsets.US_ASCII));
-            attachments.setType(Files.probeContentType(file.toPath()));
-            attachments.setFilename(file.getName());
+            attachments.setType(Files.probeContentType(attachment.toPath()));
+            attachments.setFilename(attachment.getName());
             attachments.setDisposition("attachment");
             mail.addAttachments(attachments);
         }
@@ -89,7 +89,7 @@ public class SendGridSender implements EmailSender {
         if (response.getStatusCode() >= 300) {
             throw new IllegalStateException("Failed to send email with Send Grid" + response.toString());
         }
-        log.info("Sent through send in grid");
+        log.info("Sent through send grid");
     }
 
     @Override
