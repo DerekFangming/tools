@@ -5,6 +5,7 @@ import com.tools.repository.EmailRepo;
 import com.tools.service.emailsender.EmailSender;
 import com.tools.service.emailsender.GmailSender;
 import com.tools.service.emailsender.LocalSender;
+import com.tools.service.emailsender.SendGridSender;
 import com.tools.type.EmailSenderType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +22,7 @@ public class EmailService {
 
     @PostConstruct
     public void init() {
-        emailSender = new GmailSender(new LocalSender());
+        emailSender = new SendGridSender(new GmailSender(new LocalSender()));
         emailSender.resetThreshold();
     }
 
