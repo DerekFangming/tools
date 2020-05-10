@@ -2,6 +2,7 @@ package com.tools.controller;
 
 import com.tools.domain.Email;
 import com.tools.dto.EmailDto;
+import com.tools.dto.PostDto;
 import com.tools.repository.EmailRepo;
 import com.tools.service.EmailService;
 import com.tools.type.EmailSenderType;
@@ -10,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.apachecommons.CommonsLog;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,6 +21,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.File;
 import java.time.Instant;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping(value = "/api/email")
@@ -30,6 +33,14 @@ public class EmailController {
     private final EmailService emailService;
     private final ModelMapper modelMapper;
 
+    @GetMapping
+    public ResponseEntity<List<EmailDto>> getEmails(@RequestParam(value = "type", required=false) String type){
+        List<Email> emailList = emailRepo.findAllByOrderByIdDesc(PageRequest.of(1, 10));
+        return ResponseEntity.ok()//postRepo.countByViewed(null)
+                .header("X-Total-Count", String.valueOf(1))
+                .body(emailList.stream().map(p -> modelMapper.map(p, EmailDto.class)).collect(Collectors.toList()));
+    }
+
     @PostMapping
     public ResponseEntity<Void> post(@RequestBody EmailDto emailDto, HttpServletRequest request) {
 
@@ -39,7 +50,7 @@ public class EmailController {
         email.setRequestParams(WebUtil.getQueryParams(request));
         email.setCreated(Instant.now());
 
-        emailService.send(email);
+//        emailService.send(email);
 
         return ResponseEntity.ok().build();
     }

@@ -34,5 +34,6 @@ create table emails (
 	request_headers jsonb,
 	request_params jsonb,
 	created timestamp without time zone not null,
-	error text
+	error text,
+	read boolean default false
 );

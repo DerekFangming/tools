@@ -53,7 +53,7 @@ public class MailGunSender implements EmailSender {
                     throw new IllegalStateException("Failed to send email with Mail Gun" + response.responseMessage());
                 }
 
-                email.setReplacement_from(FROM_ADDRESS);
+                email.setReplacementFrom(FROM_ADDRESS);
                 log.info("Sent through send in blue");
             } catch (Exception e) {
                 email.setError(e.getMessage());

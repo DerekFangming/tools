@@ -36,7 +36,7 @@ public class Email {
     private String from;
 
     @Column(name="replacement_from_addr")
-    private String replacement_from;
+    private String replacementFrom;
 
     @Column(name="to_addr")
     private String to;
@@ -74,6 +74,9 @@ public class Email {
 
     @Column(name="created")
     private Instant created;
+
+    @Column(name="read")
+    private boolean read;
 
     @Column(name="error")
     private String error;

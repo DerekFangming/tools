@@ -50,7 +50,7 @@ public class GmailSender implements EmailSender {
             }
             try {
                 send(email, from);
-                email.setReplacement_from(from);
+                email.setReplacementFrom(from);
             } catch (Exception e) {
                 email.setError(e.getMessage());
                 delegate.send(email);
