@@ -18,7 +18,7 @@ import java.util.Properties;
 public class GmailSender implements EmailSender {
 
     private static final String HOST = "smtp.gmail.com";
-    private static final String GMAIL_PASSWORD = System.getenv("GMAIL_PASSWORD");
+    private static final String GMAIL_PASSWORD = System.getenv("TL_GMAIL_PASSWORD");
 
     int accountOneThreshold;
     int accountTwoThreshold;

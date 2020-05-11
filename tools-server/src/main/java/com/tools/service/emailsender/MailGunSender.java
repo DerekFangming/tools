@@ -28,7 +28,7 @@ public class MailGunSender implements EmailSender {
             try {
                 Configuration configuration = new Configuration()
                         .domain("fmning.com")
-                        .apiKey(System.getenv("MAIL_GUN_API_KEY"))
+                        .apiKey(System.getenv("TL_MAIL_GUN_API_KEY"))
                         .from(FROM_ADDRESS);
 
                 MailBuilder builder = Mail.using(configuration);

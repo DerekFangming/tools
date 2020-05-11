@@ -29,7 +29,7 @@ public class SendInBlueSender implements EmailSender {
             try {
                 ApiClient defaultClient = Configuration.getDefaultApiClient();
                 ApiKeyAuth apiKey = (ApiKeyAuth) defaultClient.getAuthentication("api-key");
-                apiKey.setApiKey(System.getenv("SEND_IN_BLUE_API_KEY"));
+                apiKey.setApiKey(System.getenv("TL_SEND_IN_BLUE_API_KEY"));
 
                 SmtpApi apiInstance = new SmtpApi();
 

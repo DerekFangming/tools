@@ -36,10 +36,10 @@ public class SendGridSender implements EmailSender {
             String sendGridApiKey;
             if (accountOneThreshold > 0) {
                 accountOneThreshold --;
-                sendGridApiKey = System.getenv("SEND_GRID_API_KEY_1");
+                sendGridApiKey = System.getenv("TL_SEND_GRID_API_KEY_1");
             } else {
                 accountTwoThreshold --;
-                sendGridApiKey = System.getenv("SEND_GRID_API_KEY_2");
+                sendGridApiKey = System.getenv("TL_SEND_GRID_API_KEY_2");
             }
             try {
                 send(email, sendGridApiKey);
