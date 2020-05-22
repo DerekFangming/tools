@@ -10,10 +10,15 @@ import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.io.IOException;
+import java.security.Principal;
 
 @RestController
 @RequiredArgsConstructor(onConstructor_={@Autowired})
@@ -22,12 +27,28 @@ public class Controller {
 	private final PostService postService;
 	private final PostRepo postRepo;
 	private final QueryService queryService;
+
+	@GetMapping("/whoami")
+	public String whoami(String name) {
+		SecurityContext securityContext = SecurityContextHolder.getContext();
+		return "";
+	}
+
+	@GetMapping("/user/me")
+	public Principal getPrincipal(@RequestHeader("Authorization") String token) {
+		return () -> "user!";
+	}
 	
 	@GetMapping("/test")
 	public ResponseEntity<Dto> test() throws IOException, InterruptedException {
 
 		System.out.println(111);
 		return ResponseEntity.ok(new Dto());
+	}
+
+	@GetMapping("/login")
+	public ResponseEntity login() {
+		return ResponseEntity.ok().build();
 	}
 
 	@Data
