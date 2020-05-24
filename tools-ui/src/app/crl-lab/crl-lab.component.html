@@ -10,3 +10,36 @@
     <button class="btn btn-outline-light my-2 my-sm-0" (click)="onAddBtnClicked()">Add equipment</button>
   </div>
 </nav>
+
+<div class="container">
+  <div *ngIf="!loading" class="row">
+    <div class="col mt-4">
+      <table class="table">
+        <thead>
+          <tr>
+            <th scope="col">Name</th>
+            <th scope="col">Serial number</th>
+            <th scope="col">Status</th>
+            <th scope="col">Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let equipment of equipmentList;">
+            <th scope="row"> {{ equipment.name }} </th>
+            <td> {{ equipment.serialNumber }} </td>
+            <td [ngClass]="equipment.borrower == null ? 'text-success' : 'text-danger'"> {{ equipment.borrower == null ? 'Available' : 'Borrowed by ' + equipment.borrower }} </td>
+            <td>
+              <button *ngIf="equipment.borrower == null" type="button" class="btn btn-primary">Borrow</button>
+              <button *ngIf="equipment.borrower != null" type="button" class="btn btn-primary">Return</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div *ngIf="loading" class="row my-5">
+    <div class="col text-center my-5">
+      <i class="fa fa-refresh fa-spin fa-3x" aria-hidden="true"></i>
+    </div>
+  </div>
+</div>

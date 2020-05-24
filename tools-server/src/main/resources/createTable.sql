@@ -37,3 +37,22 @@ create table emails (
 	error text,
 	read boolean default false
 );
+
+create table crl_equipments (
+	id serial primary key,
+	name text,
+    description text,
+	picture text,
+	serial_number text,
+	created timestamp without time zone not null,
+	borrower text
+);
+
+create table crl_borrower_logs (
+	id serial primary key,
+	equipment_id integer references crl_equipments,
+	name text,
+	ut_eid text,
+	borrow_date timestamp without time zone,
+	return_date timestamp without time zone
+);

@@ -1,4 +1,8 @@
 import { Component, OnInit } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Title } from '@angular/platform-browser';
+import { CrlEquipment } from '../model/cli-equipment';
+import { environment } from '../../environments/environment';
 
 @Component({
   selector: 'app-crl-lab',
@@ -7,7 +11,19 @@ import { Component, OnInit } from '@angular/core';
 })
 export class CrlLabComponent implements OnInit {
 
-  constructor() { }
+  loading = true;
+  equipmentList: CrlEquipment[];
+
+  constructor(private http: HttpClient, private title: Title) {
+    this.title.setTitle('CRL lab');
+    this.http.get<CrlEquipment[]>(environment.urlPrefix + 'api/crl/equipment').subscribe(equipmentList => {
+      this.loading = false;
+      this.equipmentList = equipmentList;
+    }, error => {
+      this.loading = false;
+      console.log(error.error);
+    });
+  }
 
   ngOnInit() {
   }
