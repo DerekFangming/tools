@@ -7,12 +7,12 @@
         (input)="onSearchChange($event.target.value)">
     </form>
 
-    <button class="btn btn-outline-light my-2 my-sm-0" (click)="onAddBtnClicked()">Add equipment</button>
+    <button class="btn btn-outline-light my-2 my-sm-0" (click)="onAddBtnClicked()" data-toggle="modal" data-target="#addEquipmentModal">Add equipment</button>
   </div>
 </nav>
 
 <div class="container">
-  <div *ngIf="!loading" class="row">
+  <div *ngIf="!loadingEquipment" class="row">
     <div class="col mt-4">
       <table class="table">
         <thead>
@@ -25,10 +25,12 @@
         </thead>
         <tbody>
           <tr *ngFor="let equipment of equipmentList;">
-            <th scope="row"> {{ equipment.name }} </th>
-            <td> {{ equipment.serialNumber }} </td>
-            <td [ngClass]="equipment.borrower == null ? 'text-success' : 'text-danger'"> {{ equipment.borrower == null ? 'Available' : 'Borrowed by ' + equipment.borrower }} </td>
-            <td>
+            <th [hidden]="equipment.isHidden" scope="row"> {{ equipment.name }} </th>
+            <td [hidden]="equipment.isHidden"> {{ equipment.serialNumber }} </td>
+            <td [hidden]="equipment.isHidden" [ngClass]="equipment.borrower == null ? 'text-success' : 'text-danger'">
+              {{ equipment.borrower == null ? 'Available' : 'Borrowed by ' + equipment.borrower }}
+            </td>
+            <td [hidden]="equipment.isHidden">
               <button *ngIf="equipment.borrower == null" type="button" class="btn btn-primary">Borrow</button>
               <button *ngIf="equipment.borrower != null" type="button" class="btn btn-primary">Return</button>
             </td>
@@ -37,9 +39,99 @@
       </table>
     </div>
   </div>
-  <div *ngIf="loading" class="row my-5">
+  <div *ngIf="loadingEquipment" class="row my-5">
     <div class="col text-center my-5">
       <i class="fa fa-refresh fa-spin fa-3x" aria-hidden="true"></i>
+    </div>
+  </div>
+</div>
+
+<!-- <div id="addEquipmentModal" class="modal fade">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalCenterTitle">Add equipment</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+	  
+	  <div class="modal-body">
+      
+	  </div>
+	  
+    </div>
+  </div>
+</div> -->
+
+
+<button class="btn btn-primary my-2 my-sm-0" (click)="onAddBtnClicked()">Add equipment</button>
+<ng-template #addEquipmentModal let-modal>
+  <div class="modal-header">
+    <h4 class="modal-title">Add equipment</h4>
+    <button *ngIf="!addingEquipment" type="button" class="close" (click)="modal.dismiss('Cross click')">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+    <div *ngIf="formError != ''" class="alert alert-danger" role="alert">{{formError}}</div>
+    <div class="row">
+      <div class="col">
+        <form>
+          <label for="basic-url">Equipment name <span style="color:red">*</span></label>
+          <div class="input-group mb-3">
+            <input type="text" class="form-control" [value]="newEquipment.name" (input)="newEquipment.name = $event.target.value">
+          </div>
+
+          <label for="basic-url">Serial number <span style="color:red">*</span></label>
+          <div class="input-group mb-3">
+            <input type="text" class="form-control">
+          </div>
+
+          <label for="basic-url">Description</label>
+          <div class="input-group mb-3">
+            <input type="text" class="form-control">
+          </div>
+
+        </form>
+      </div>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-secondary" [disabled]="addingEquipment" (click)="modal.dismiss('Cross click')">Cancel</button>
+    <button type="button" class="btn btn-danger" [disabled]="addingEquipment" (click)="onAdd()">
+      <i class="fa fa-refresh fa-spin mr-2" *ngIf=addingEquipment></i>Add
+    </button>
+  </div>
+</ng-template>
+
+
+
+
+
+
+
+
+
+
+
+
+<button id="s8ShowPreviewButton" [hidden]="true" data-toggle="modal" data-target="#s8ImgPreview"></button>
+<button id="s8HidePreviewButton" [hidden]="true" data-toggle="modal" data-target="#s8ImgPreview" data-dismiss="modal"></button>
+<div id="s8ImgPreview" class="modal fade bd-example-modal-xl">
+  <div class="modal-dialog modal-xl" (click)="closePreview()">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalCenterTitle">Add equipment</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+	  
+	  <div class="modal-body">
+      
+	  </div>
+	  
     </div>
   </div>
 </div>

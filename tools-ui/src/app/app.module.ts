@@ -10,6 +10,7 @@ import { HeicComponent } from './heic/heic.component';
 import { ImgComponent } from './img/img.component';
 import { CrlLabComponent } from './crl-lab/crl-lab.component';
 import { HomeComponent } from './home/home.component';
+import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 
 @NgModule({
   declarations: [
@@ -24,7 +25,8 @@ import { HomeComponent } from './home/home.component';
     BrowserModule,
     AppRoutingModule,
     HttpClientModule,
-    MonacoEditorModule.forRoot()
+    MonacoEditorModule.forRoot(),
+    NgbModule
   ],
   providers: [],
   bootstrap: [AppComponent]
