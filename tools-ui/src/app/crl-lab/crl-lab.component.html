@@ -1,6 +1,6 @@
-<nav class="navbar navbar-dark" style="background-color: #BF5700;">
+<nav class="navbar navbar-dark navbar-ut">
   <div class="container">
-    <a class="navbar-brand">CRL lab</a>
+    <a class="navbar-brand">UT CRL lab</a>
 
     <form class="form-inline" style="width: 50%;">
       <input class="form-control" style="width: 100%;" type="search" placeholder="Search by equipment name or borrower name" aria-label="Search"
@@ -27,11 +27,11 @@
           <tr *ngFor="let equipment of equipmentList;">
             <th [hidden]="equipment.isHidden" scope="row"> {{ equipment.name }} </th>
             <td [hidden]="equipment.isHidden"> {{ equipment.serialNumber }} </td>
-            <td [hidden]="equipment.isHidden" [ngClass]="equipment.borrower == null ? 'text-success' : 'text-danger'">
+            <td [hidden]="equipment.isHidden" [ngClass]="equipment.borrower == null ? 'text-success' : 'text-ut'">
               {{ equipment.borrower == null ? 'Available' : 'Borrowed by ' + equipment.borrower }}
             </td>
             <td [hidden]="equipment.isHidden">
-              <button type="button" class="btn btn-primary" (click)="onBorrowBtnClicked(equipment)">
+              <button type="button" class="btn btn-ut-outline" (click)="onBorrowBtnClicked(equipment)">
                 {{ equipment.borrower == null ? 'Borrow' : 'Return' }}
               </button>
             </td>

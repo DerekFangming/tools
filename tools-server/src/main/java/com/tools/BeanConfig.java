@@ -33,7 +33,7 @@ public class BeanConfig {
                 .addMappings(mapper -> {
                     mapper.using((Converter<Integer, List<String>>) context -> {
                         List<String> imageNames = new ArrayList<>();
-                        File folder = new File(PostService.imgDir + context.getSource());
+                        File folder = new File(PostService.IMG_DIR + context.getSource());
                         if (folder.listFiles() != null) {
                             for (File f : Objects.requireNonNull(folder.listFiles())) {
                                 String[] components = f.getAbsolutePath().replace("\\", "/").split("/");

@@ -21,7 +21,8 @@ export class ImgComponent implements OnInit {
   showingPreview = false;
 
   mode = 'all';
-  category = PostCatMap.All;//PostCatMap[PostCatMap.All];
+  pwd = '';
+  category = PostCatMap.All;
   categories = Object.keys(PostCatMap).filter(value => isNaN(Number(value)));
 
   reloadBtnText = 'Reload';
@@ -30,6 +31,7 @@ export class ImgComponent implements OnInit {
   constructor(private http: HttpClient, private title: Title, private activatedRoute: ActivatedRoute, private router: Router) {
     this.title.setTitle('Images');
     this.mode = this.activatedRoute.snapshot.queryParamMap.get('mode');
+    this.pwd = this.activatedRoute.snapshot.queryParamMap.get('pwd');
     this.category = Number(this.activatedRoute.snapshot.queryParamMap.get('category'));
     this.loadPosts();
   }
@@ -40,7 +42,7 @@ export class ImgComponent implements OnInit {
   loadPosts() {
     this.loadingNextPage = true;
     const httpOptions = {
-      params: new HttpParams().set('mode', this.mode).set('category', this.category.toString()),
+      params: new HttpParams().set('mode', this.mode).set('pwd', this.pwd).set('category', this.category.toString()),
       observe: 'response' as 'response'
     };
     this.http.get<Post[]>(environment.urlPrefix + 'api/posts', httpOptions).subscribe(res => {

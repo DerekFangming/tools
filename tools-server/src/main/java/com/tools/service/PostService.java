@@ -50,7 +50,8 @@ public class PostService {
 
     private String matcher;
     private String rootUrl;
-    public static final String imgDir = System.getenv("TL_IMG_DIR");
+    public static final String IMG_DIR = System.getenv("TL_IMG_DIR");
+    public static final String IMG_PWD = System.getenv("TL_IMG_PWD");
 
     private static CloseableHttpClient httpClient;
     private static final String httpAgent = "Mozilla/5.0 (Platform; Security; OS-or-CPU; Localization; rv:1.4) Gecko/20030624 Netscape/7.1 (ax)";
@@ -103,7 +104,7 @@ public class PostService {
         for (Post p : postList) {
             postRepo.delete(p);
             try {
-                File folder = new File(imgDir + p.getId());
+                File folder = new File(IMG_DIR + p.getId());
                 FileUtils.deleteDirectory(folder);
             } catch (Exception ignored){}
         }
@@ -192,7 +193,7 @@ public class PostService {
     }
 
     private void downloadImageFromPost(Post post){
-        String folderPath = imgDir + post.getId() + "/";
+        String folderPath = IMG_DIR + post.getId() + "/";
         new File(folderPath).mkdirs();
         post.setUrl(rootUrl + "thread-" + post.getId() + "-1-1.html");
         downloadHtml(post);

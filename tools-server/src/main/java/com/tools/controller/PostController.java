@@ -27,18 +27,19 @@ public class PostController {
     private final PostService postService;
     private final PostRepo postRepo;
 
-
     private Timer timer = new Timer();
 
     @GetMapping
     public ResponseEntity<List<PostDto>> getPosts(@RequestParam(value = "mode", required=false) String mode,
-                                                  @RequestParam(value = "category", required=false) Integer category) {
+                                                  @RequestParam(value = "category", required=false) Integer category,
+                                                  @RequestParam(value = "pwd", required=false) String pwd) {
         List<Post> postList;
         if (mode == null) mode = "all";
         if (category == null) category = 0;
-        System.out.println("mode: " + mode + " cat: " + category);
 
-        if (mode.equals("flagged")) {
+        if (!PostService.IMG_PWD.equals(pwd)) {
+            postList = Collections.emptyList();
+        } else if (mode.equals("flagged")) {
             postList = postRepo.findByViewedAndFlagged(null, true, PageRequest.of(0, 10));
         } else if(mode.equals("ranked")) {
             postList = postRepo.findByViewedAndRankGreaterThan(null, 0, PageRequest.of(0, 10));
@@ -51,7 +52,7 @@ public class PostController {
         }
 
         return ResponseEntity.ok()
-                .header("X-Total-Count", String.valueOf(postRepo.countByViewed(null)))
+                .header("X-Total-Count", String.valueOf(PostService.IMG_PWD.equals(pwd) ? postRepo.countByViewed(null) : 0))
                 .body(postList.stream().map(p -> modelMapper.map(p, PostDto.class)).collect(Collectors.toList()));
     }
 
