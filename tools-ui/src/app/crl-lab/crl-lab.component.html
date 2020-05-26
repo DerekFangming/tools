@@ -31,7 +31,7 @@
               {{ equipment.borrower == null ? 'Available' : 'Borrowed by ' + equipment.borrower }}
             </td>
             <td [hidden]="equipment.isHidden">
-              <button type="button" class="btn btn-ut-outline" (click)="onBorrowBtnClicked(equipment)">
+              <button type="button" class="btn" [ngClass]="equipment.borrower == null ? 'btn-ut' : 'btn-ut-outline'" (click)="onBorrowBtnClicked(equipment)">
                 {{ equipment.borrower == null ? 'Borrow' : 'Return' }}
               </button>
             </td>
@@ -77,7 +77,7 @@
   </div>
   <div class="modal-footer">
     <button type="button" class="btn btn-secondary" [disabled]="addingEquipment" (click)="modal.dismiss('Cross click')">Cancel</button>
-    <button type="button" class="btn btn-danger" [disabled]="addingEquipment" (click)="onAdd()">
+    <button type="button" class="btn btn-ut" [disabled]="addingEquipment" (click)="onAdd()">
       <i class="fa fa-refresh fa-spin mr-2" *ngIf=addingEquipment></i>Add
     </button>
   </div>
@@ -110,7 +110,7 @@
   </div>
   <div class="modal-footer">
     <button type="button" class="btn btn-secondary" [disabled]="borrowingEquipment" (click)="modal.dismiss('Cross click')">Cancel</button>
-    <button type="button" class="btn btn-danger" [disabled]="borrowingEquipment" (click)="onBorrow()">
+    <button type="button" class="btn btn-ut" [disabled]="borrowingEquipment" (click)="onBorrow()">
       <i class="fa fa-refresh fa-spin mr-2" *ngIf=borrowingEquipment></i>{{ borrowEquipment.borrower == null ? 'Borrow' : 'Return'}}
     </button>
   </div>
