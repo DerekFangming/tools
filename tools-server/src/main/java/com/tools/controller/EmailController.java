@@ -1,5 +1,6 @@
 package com.tools.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tools.domain.Email;
 import com.tools.dto.EmailDto;
 import com.tools.dto.PostDto;
@@ -13,6 +14,11 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.jwt.Jwt;
+import org.springframework.security.jwt.JwtHelper;
 import org.springframework.web.bind.annotation.*;
 
 import javax.activation.DataSource;
@@ -35,6 +41,12 @@ public class EmailController {
 
     @GetMapping
     public ResponseEntity<List<EmailDto>> getEmails(@RequestParam(value = "type", required=false) String type){
+//        ObjectMapper objectMapper = new ObjectMapper();
+//        SecurityContext securityContext = SecurityContextHolder.getContext();
+//        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+//        Map<String, Object> map = objectMapper.convertValue(authentication.getDetails(), Map.class);
+//        Jwt jwt = JwtHelper.decode(map.get("tokenValue").toString());
+
         List<Email> emailList = emailRepo.findAllByOrderByIdDesc(PageRequest.of(1, 10));
         return ResponseEntity.ok()//postRepo.countByViewed(null)
                 .header("X-Total-Count", String.valueOf(1))

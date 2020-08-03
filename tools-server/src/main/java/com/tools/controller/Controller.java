@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -29,7 +30,15 @@ public class Controller {
 	private final QueryService queryService;
 
 	@GetMapping("/whoami")
+//	@PreAuthorize("hasRole('USER')")
 	public String whoami(String name) {
+		SecurityContext securityContext = SecurityContextHolder.getContext();
+		return "";
+	}
+
+	@GetMapping("/whoami1")
+	@PreAuthorize("hasRole('ROLE_USER')")
+	public String whoami1(String name) {
 		SecurityContext securityContext = SecurityContextHolder.getContext();
 		return "";
 	}
@@ -46,10 +55,10 @@ public class Controller {
 		return ResponseEntity.ok(new Dto());
 	}
 
-	@GetMapping("/login")
-	public ResponseEntity login() {
-		return ResponseEntity.ok().build();
-	}
+//	@GetMapping("/login")
+//	public ResponseEntity login() {
+//		return ResponseEntity.ok().build();
+//	}
 
 	@Data
 	@Getter
