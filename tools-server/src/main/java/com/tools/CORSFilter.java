@@ -14,6 +14,8 @@ import static org.springframework.core.Ordered.HIGHEST_PRECEDENCE;
 @Order(HIGHEST_PRECEDENCE)
 public class CORSFilter implements Filter {
 
+    public void init(FilterConfig filterConfig) throws ServletException {}
+
     @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain)
             throws IOException, ServletException {
@@ -31,5 +33,8 @@ public class CORSFilter implements Filter {
         } else {
             filterChain.doFilter(servletRequest, servletResponse);
         }
+
+
     }
+
 }
