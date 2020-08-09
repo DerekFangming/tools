@@ -15,4 +15,9 @@ public class LoginController {
         httpServletResponse.setHeader(HttpHeaders.LOCATION, gotoUrl);
         httpServletResponse.setStatus(HttpServletResponse.SC_MOVED_TEMPORARILY);
     }
+
+    @GetMapping("/ping")
+    public String ping() {
+        return "pong";
+    }
 }
