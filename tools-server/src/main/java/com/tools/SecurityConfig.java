@@ -20,7 +20,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         http.antMatcher("/**")
                 .authorizeRequests()
 //                .antMatchers("/**").permitAll()
-                .antMatchers("/login-redirect", "ping")///api/posts/**
+                .antMatchers("/login-redirect", "/ping")///api/posts/**
                 //.permitAll()
                 //.anyRequest()
                 .authenticated()
