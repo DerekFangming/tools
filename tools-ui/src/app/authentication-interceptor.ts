@@ -16,8 +16,10 @@ export class AuthenticationInterceptor implements HttpInterceptor {
             tap(() => {
             }),
             catchError((response: any) => {
+                console.log('AAAAAAAAAAAAAAAAAAAAAAAAAAAAA');
+                console.log(response.url);
                 if(response instanceof HttpErrorResponse) {
-                    if (response.url.includes('sso/login')) {
+                    if (response.url.includes('authentication/login')) {
                         window.location.href = environment.urlPrefix + 'login-redirect?goto=' + window.location.href;
                         return;
                     }
