@@ -51,7 +51,6 @@ public class PostService {
     private String matcher;
     private String rootUrl;
     public static final String IMG_DIR = System.getenv("TL_IMG_DIR");
-    public static final String IMG_PWD = System.getenv("TL_IMG_PWD");
 
     private static CloseableHttpClient httpClient;
     private static final String httpAgent = "Mozilla/5.0 (Platform; Security; OS-or-CPU; Localization; rv:1.4) Gecko/20030624 Netscape/7.1 (ax)";

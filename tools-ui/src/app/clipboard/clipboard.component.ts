@@ -1,9 +1,9 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { NgxEditorModel } from 'ngx-monaco-editor';
 import { environment } from 'src/environments/environment';
 import { Clipboard } from '../model/clipboard';
 import { Title } from '@angular/platform-browser';
+import { DOCUMENT } from '@angular/common';
 
 @Component({
   selector: 'app-clipboard',
@@ -12,47 +12,32 @@ import { Title } from '@angular/platform-browser';
 })
 export class ClipboardComponent implements OnInit {
 
-  editor: any;
+  value = '';
 
-  editorOptions = {language: 'javascript'};
-
-  model: NgxEditorModel = {
-    value: '',
-    language: 'text'
-  };
-
-  constructor(private http: HttpClient, private title: Title) {
+  constructor(private http: HttpClient, private title: Title, @Inject(DOCUMENT) private document: Document) {
     this.title.setTitle("Clipboard");
     this.http.get<Clipboard>(environment.urlPrefix + 'api/clipboard').subscribe(cb => {
-      if (this.editor == null) {
-        this.model.value = cb.content;
-      } else {
-        this.editor.setValue(cb.content);
-      }
+      this.value = cb.content;
     });
   }
 
   ngOnInit() { }
-  
-  onEditorInit(editor: any) {
-    this.editor = editor;
-    this.editor.getModel().onDidChangeContent(_ => {
-      let clipboard = new Clipboard(this.editor.getValue());
-      this.http.post<Clipboard>(environment.urlPrefix + 'api/clipboard', clipboard).subscribe(_ => {
-      });
-    });
+
+  onTextchanged() {
+    let clipboard = new Clipboard(this.value);
+    this.http.post<Clipboard>(environment.urlPrefix + 'api/clipboard', clipboard).subscribe(_ => {});
   }
 
   undo() {
-    this.editor.trigger('', 'undo', '');
+    document.execCommand('undo');
   }
 
   redo() {
-    this.editor.trigger('', 'redo', '');
+    document.execCommand('redo');
   }
 
   clear() {
-    this.editor.setValue('');
+    this.value = '';
   }
 
   copyToClipboard(){
@@ -61,7 +46,7 @@ export class ClipboardComponent implements OnInit {
     selBox.style.left = '0';
     selBox.style.top = '0';
     selBox.style.opacity = '0';
-    selBox.value = this.editor.getValue();
+    selBox.value = this.value;
     document.body.appendChild(selBox);
     selBox.focus();
     selBox.select();

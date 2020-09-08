@@ -24,8 +24,8 @@
   </div>
 
   <div class="row mt-2">
-    <div class="col ml-4 mr-3 border" style="height: 720px">
-      <ngx-monaco-editor style="height: 100%" [options]="editorOptions" [model]="model" (onInit)="onEditorInit($event)"></ngx-monaco-editor>
+    <div class="col mx-1" style="height: 720px">
+      <textarea class="form-control" rows="30" [(ngModel)]="value" (input)="onTextchanged()"></textarea>
     </div>
   </div>
 </div>

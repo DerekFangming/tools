@@ -10,6 +10,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.File;
@@ -30,16 +31,14 @@ public class PostController {
     private Timer timer = new Timer();
 
     @GetMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<PostDto>> getPosts(@RequestParam(value = "mode", required=false) String mode,
-                                                  @RequestParam(value = "category", required=false) Integer category,
-                                                  @RequestParam(value = "pwd", required=false) String pwd) {
+                                                  @RequestParam(value = "category", required=false) Integer category) {
         List<Post> postList;
         if (mode == null) mode = "all";
         if (category == null) category = 0;
 
-        if (!PostService.IMG_PWD.equals(pwd)) {
-            postList = Collections.emptyList();
-        } else if (mode.equals("flagged")) {
+        if (mode.equals("flagged")) {
             postList = postRepo.findByViewedAndFlagged(null, true, PageRequest.of(0, 10));
         } else if(mode.equals("ranked")) {
             postList = postRepo.findByViewedAndRankGreaterThan(null, 0, PageRequest.of(0, 10));
@@ -52,7 +51,7 @@ public class PostController {
         }
 
         return ResponseEntity.ok()
-                .header("X-Total-Count", String.valueOf(PostService.IMG_PWD.equals(pwd) ? postRepo.countByViewed(null) : 0))
+                .header("X-Total-Count", String.valueOf(postRepo.countByViewed(null)))
                 .body(postList.stream().map(p -> modelMapper.map(p, PostDto.class)).collect(Collectors.toList()));
     }
 
