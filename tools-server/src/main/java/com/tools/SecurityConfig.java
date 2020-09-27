@@ -1,5 +1,7 @@
 package com.tools;
 
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.security.oauth2.client.EnableOAuth2Sso;
 import org.springframework.boot.autoconfigure.security.oauth2.resource.PrincipalExtractor;
 import org.springframework.context.annotation.Bean;
@@ -10,17 +12,24 @@ import org.springframework.security.oauth2.config.annotation.web.configuration.E
 import org.springframework.security.oauth2.provider.token.AccessTokenConverter;
 import org.springframework.security.oauth2.provider.token.DefaultAccessTokenConverter;
 import org.springframework.security.oauth2.provider.token.UserAuthenticationConverter;
+import org.springframework.security.web.access.ExceptionTranslationFilter;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 
 @Configuration
 @EnableOAuth2Sso
+//@RequiredArgsConstructor(onConstructor_={@Autowired})
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
+
+    //private final LoginUrlFilter loginUrlFilter;
+
     @Override
     public void configure(HttpSecurity http) throws Exception {
-        http.antMatcher("/**")
+        http
+//                .addFilterBefore(loginUrlFilter, ExceptionTranslationFilter.class)
+                .antMatcher("/**")
                 .authorizeRequests()
 //                .antMatchers("/**").permitAll()
-                .antMatchers("/login-redirect", "/api/posts/**")///api/posts/**
+                .antMatchers("/login-redirect")///api/posts/**
                 //.permitAll()
                 //.anyRequest()
                 .authenticated()
@@ -28,7 +37,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .anyRequest().permitAll()
                 .and()
                 .logout().logoutSuccessUrl("/").permitAll()
-                .and().csrf().disable();
+                .and().csrf().disable()
+
+                ;
+//        http.addFilterAfter(loginUrlFilter, ExceptionTranslationFilter.class);
 //                .and().csrf().csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse());
     }
 

@@ -31,7 +31,7 @@ public class PostController {
     private Timer timer = new Timer();
 
     @GetMapping
-    @PreAuthorize("hasRole('ADMIN')")
+    //@PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<PostDto>> getPosts(@RequestParam(value = "mode", required=false) String mode,
                                                   @RequestParam(value = "category", required=false) Integer category) {
         List<Post> postList;
