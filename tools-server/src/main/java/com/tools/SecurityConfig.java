@@ -24,12 +24,13 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     public void configure(HttpSecurity http) throws Exception {
+        String[] urls = {"/login-redirect", "/api/posts/**", "/ping"};
         http
 //                .addFilterBefore(loginUrlFilter, ExceptionTranslationFilter.class)
                 .antMatcher("/**")
                 .authorizeRequests()
 //                .antMatchers("/**").permitAll()
-                .antMatchers("/login-redirect")///api/posts/**
+                .antMatchers(urls)// /api/posts/**
                 //.permitAll()
                 //.anyRequest()
                 .authenticated()
