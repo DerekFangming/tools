@@ -16,12 +16,18 @@ export class AuthenticationInterceptor implements HttpInterceptor {
             tap(() => {
             }),
             catchError((response: any) => {
+                let logs = response.url;
                 if(response instanceof HttpErrorResponse) {
+                    logs = 1 + logs;
                     if (response.url.includes('authentication/login')) {
                         window.location.href = environment.urlPrefix + 'login-redirect?goto=' + window.location.href;
+                        logs = 2 + logs;
+                        console.log(logs);
                         return;
                     }
+                    logs = 3 + logs;
                 }
+                console.log(logs);
                 return of(response);
             }));
 	}
