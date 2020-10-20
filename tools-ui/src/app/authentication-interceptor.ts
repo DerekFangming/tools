@@ -24,7 +24,7 @@ export class AuthenticationInterceptor implements HttpInterceptor {
                         logs = 2 + logs;
                         console.log(logs);
                         return;
-                    } else if (response.url.includes('tools/login')) {
+                    } else if (response.status == 0) {
                         window.location.href = environment.urlPrefix + 'login-redirect?goto=' + window.location.href;
                         logs = 9 + logs;
                         console.log(logs);
@@ -33,6 +33,8 @@ export class AuthenticationInterceptor implements HttpInterceptor {
                     logs = 3 + logs;
                 }
                 console.log(logs);
+                console.log(response);
+                console.log(response.status);
                 return of(response);
             }));
 	}
