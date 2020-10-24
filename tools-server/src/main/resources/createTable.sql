@@ -1,4 +1,4 @@
-create table posts (
+create table tl_posts (
 	id serial primary key,
 	title text,
 	img_urls text,
@@ -13,13 +13,13 @@ create table posts (
 	flagged boolean
 );
 
-create table clips (
+create table tl_clips (
 	id serial primary key,
 	content text,
 	created timestamp without time zone not null
 );
 
-create table emails (
+create table tl_emails (
 	id serial primary key,
 	from_addr text,
 	replacement_from_addr text,
@@ -38,7 +38,7 @@ create table emails (
 	read boolean default false
 );
 
-create table crl_equipments (
+create table tl_crl_equipments (
 	id serial primary key,
 	name text,
     description text,
@@ -48,9 +48,9 @@ create table crl_equipments (
 	borrower text
 );
 
-create table crl_borrower_logs (
+create table tl_crl_borrower_logs (
 	id serial primary key,
-	equipment_id integer references crl_equipments,
+	equipment_id integer references tl_crl_equipments,
 	name text,
 	ut_eid text,
 	borrow_date timestamp without time zone,

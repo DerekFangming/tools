@@ -16,7 +16,7 @@ import java.time.Instant;
 import java.util.Map;
 
 @Entity
-@Table(name="emails")
+@Table(name="tl_emails")
 @DynamicUpdate
 @Data
 @Builder

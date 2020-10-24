@@ -13,7 +13,7 @@ import java.io.StringWriter;
 import java.time.Instant;
 
 @Entity
-@Table(name="posts")
+@Table(name="tl_posts")
 @DynamicUpdate
 @Data
 @Builder

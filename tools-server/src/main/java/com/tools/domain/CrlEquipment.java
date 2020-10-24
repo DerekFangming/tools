@@ -10,7 +10,7 @@ import javax.persistence.*;
 import java.time.Instant;
 
 @Entity
-@Table(name="crl_equipments")
+@Table(name="tl_crl_equipments")
 @DynamicUpdate
 @Data
 @Builder
