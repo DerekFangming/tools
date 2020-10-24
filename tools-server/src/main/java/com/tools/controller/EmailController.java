@@ -54,7 +54,7 @@ public class EmailController {
     }
 
     @PostMapping
-    public ResponseEntity<Void> post(@RequestBody EmailDto emailDto, HttpServletRequest request) {
+    public ResponseEntity<EmailDto> post(@RequestBody EmailDto emailDto, HttpServletRequest request) {
 
         Email email = modelMapper.map(emailDto, Email.class);
         email.setRequestAddress(WebUtil.getClientIpAddress(request));
@@ -62,9 +62,9 @@ public class EmailController {
         email.setRequestParams(WebUtil.getQueryParams(request));
         email.setCreated(Instant.now());
 
-//        emailService.send(email);
+        emailService.send(email);
 
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok(emailDto);
     }
 
     @GetMapping("/1")

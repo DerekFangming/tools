@@ -1,7 +1,34 @@
-<div class="container-fluid my-5">
-    <div class="row my-5">
-        <div class="col my-5 text-center">
-            <h1 class="display-2 my-5">Nothing to see here</h1>
+<div class="container my-5">
+    <div class="row mt-5">
+        <div class="col text-center">
+            <h1 class="display-2 my-5">Tools</h1>
         </div>
     </div>
+
+    <div class="row my-3">
+        <div class="col">
+            <button type="button" class="btn btn-outline-secondary btn-block button-height" [routerLink]="'/clipboard'">
+                <h1 class="display-4">Clipboard</h1>
+            </button>
+        </div>
+        <div class="col">
+            <button type="button" class="btn btn-outline-secondary btn-block button-height" [routerLink]="'/heic'">
+                <h1 class="display-4">Heic converter</h1>
+            </button>
+        </div>
+    </div>
+
+    <div class="row my-3">
+        <div class="col">
+            <button type="button" class="btn btn-outline-secondary btn-block button-height" [routerLink]="'/crl'">
+                <h1 class="display-4">UT Crl Lab</h1>
+            </button>
+        </div>
+        <div class="col">
+            <button type="button" class="btn btn-outline-secondary btn-block button-height" [routerLink]="'/email'">
+                <h1 class="display-4">Email</h1>
+            </button>
+        </div>
+    </div>
+
 </div>
