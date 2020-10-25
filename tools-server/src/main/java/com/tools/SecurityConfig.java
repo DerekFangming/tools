@@ -8,41 +8,27 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.oauth2.config.annotation.web.configuration.EnableResourceServer;
-import org.springframework.security.oauth2.provider.token.AccessTokenConverter;
-import org.springframework.security.oauth2.provider.token.DefaultAccessTokenConverter;
-import org.springframework.security.oauth2.provider.token.UserAuthenticationConverter;
-import org.springframework.security.web.access.ExceptionTranslationFilter;
-import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 
 @Configuration
 @EnableOAuth2Sso
-//@RequiredArgsConstructor(onConstructor_={@Autowired})
+@RequiredArgsConstructor(onConstructor_={@Autowired})
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
-    //private final LoginUrlFilter loginUrlFilter;
+    private final ToolsProperties toolsProperties;
 
     @Override
     public void configure(HttpSecurity http) throws Exception {
-        String[] urls = {"/login-redirect", "/ping"};//, "/api/posts/**"
+        String[] urls = toolsProperties.isProduction() ? new String[]{"/login-redirect", "/ping", "/api/posts/**"} : new String[]{};//, "/api/posts/**"
         http
-//                .addFilterBefore(loginUrlFilter, ExceptionTranslationFilter.class)
                 .antMatcher("/**")
                 .authorizeRequests()
-//                .antMatchers("/**").permitAll()
-                .antMatchers(urls)// /api/posts/**
-                //.permitAll()
-                //.anyRequest()
+                .antMatchers(urls)
                 .authenticated()
 
                 .anyRequest().permitAll()
                 .and()
                 .logout().logoutSuccessUrl("/").permitAll()
-                .and().csrf().disable()
-
-                ;
-//        http.addFilterAfter(loginUrlFilter, ExceptionTranslationFilter.class);
-//                .and().csrf().csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse());
+                .and().csrf().disable();
     }
 
     @Bean
