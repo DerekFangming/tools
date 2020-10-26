@@ -18,7 +18,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     public void configure(HttpSecurity http) throws Exception {
-        String[] urls = toolsProperties.isProduction() ? new String[]{"/login-redirect", "/ping", "/api/posts/**"} : new String[]{};//, "/api/posts/**"
+        String[] urls = toolsProperties.isProduction() ? new String[]{"/login-redirect", "/api/posts/**"} : new String[]{};
         http
                 .antMatcher("/**")
                 .authorizeRequests()

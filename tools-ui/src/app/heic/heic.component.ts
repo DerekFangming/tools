@@ -1,7 +1,5 @@
 import { Component, OnInit } from '@angular/core';
 import { Title } from '@angular/platform-browser';
-import { HttpClient } from '@angular/common/http';
-import { environment } from 'src/environments/environment';
 
 @Component({
   selector: 'app-heic',
@@ -10,9 +8,8 @@ import { environment } from 'src/environments/environment';
 })
 export class HeicComponent implements OnInit {
 
-  constructor(private title: Title, private http: HttpClient) {
+  constructor(private title: Title) {
     this.title.setTitle("Heic converter");
-    this.http.get(environment.urlPrefix + 'ping').subscribe(_ => {});
   }
 
   ngOnInit() {

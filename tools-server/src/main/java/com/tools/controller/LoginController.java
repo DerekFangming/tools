@@ -26,9 +26,4 @@ public class LoginController {
         return "pong";
     }
 
-    @GetMapping("/ping1")
-    public String ping1() {
-        return "pong " + toolsProperties.isProduction();
-    }
-
 }

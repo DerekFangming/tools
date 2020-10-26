@@ -12,6 +12,7 @@ import { HomeComponent } from './home/home.component';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { AuthenticationInterceptor } from './authentication-interceptor';
 import { FormsModule } from '@angular/forms';
+import { EmailComponent } from './email/email.component';
 
 @NgModule({
   declarations: [
@@ -20,7 +21,8 @@ import { FormsModule } from '@angular/forms';
     HeicComponent,
     ImgComponent,
     CrlLabComponent,
-    HomeComponent
+    HomeComponent,
+    EmailComponent
   ],
   imports: [
     BrowserModule,

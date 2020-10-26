@@ -1,0 +1,56 @@
+<nav class="navbar navbar-light bg-light">
+  <div class="container">
+    <a class="navbar-brand ml-2" href="#">Email</a>
+  </div>
+</nav>
+<div class="container">
+  <div *ngIf="!loadingEmails" class="row">
+    <div class="col mt-4">
+      <table class="table">
+        <thead>
+          <tr>
+            <th scope="col">Subject</th>
+            <th scope="col">From</th>
+            <th scope="col">To</th>
+            <th scope="col">Type</th>
+            <th scope="col">Date</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let email of emailList;">
+            <th scope="row"> {{ email.subject }} </th>
+            <td> {{ email.from }} </td>
+            <td> {{ email.to }} </td>
+            <td> {{ email.senderType }} </td>
+            <td> {{ getCreatedTime(email.created) }} </td>
+            <!-- <th [hidden]="equipment.isHidden" scope="row"> {{ equipment.name }} </th>
+            <td [hidden]="equipment.isHidden"> {{ equipment.serialNumber }} </td>
+            <td [hidden]="equipment.isHidden" [ngClass]="equipment.borrower == null ? 'text-success' : 'text-ut'">
+              {{ equipment.borrower == null ? 'Available' : 'Borrowed by ' + equipment.borrower }}
+            </td>
+            <td [hidden]="equipment.isHidden">
+              <button type="button" class="btn" [ngClass]="equipment.borrower == null ? 'btn-ut' : 'btn-ut-outline'" (click)="onBorrowBtnClicked(equipment)">
+                {{ equipment.borrower == null ? 'Borrow' : 'Return' }}
+              </button>
+            </td> -->
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="col-12 mt-4">
+      <div class="btn-toolbar mb-3 justify-content-center" role="toolbar" aria-label="Toolbar with button groups">
+        <div class="btn-group mr-2" role="group" aria-label="First group">
+          <button *ngFor='let key of [].constructor(totalPages); let i = index' type="button" class="btn"
+            [ngClass]="i + 1 == currentPage ? 'btn-secondary' : 'btn-outline-secondary'" (click)="onPageIndexSelected(i + 1)">
+            {{ i + 1 }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div *ngIf="loadingEmails" class="row my-5">
+    <div class="col text-center my-5">
+      <i class="fa fa-refresh fa-spin fa-3x" aria-hidden="true"></i>
+    </div>
+  </div>
+</div>

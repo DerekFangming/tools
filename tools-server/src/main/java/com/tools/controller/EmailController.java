@@ -40,16 +40,18 @@ public class EmailController {
     private final ModelMapper modelMapper;
 
     @GetMapping
-    public ResponseEntity<List<EmailDto>> getEmails(@RequestParam(value = "type", required=false) String type){
+    public ResponseEntity<List<EmailDto>> getEmails(@RequestParam(value = "page", defaultValue="0") int page,
+                                                    @RequestParam(value = "size", defaultValue="15") int size){
 //        ObjectMapper objectMapper = new ObjectMapper();
 //        SecurityContext securityContext = SecurityContextHolder.getContext();
 //        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 //        Map<String, Object> map = objectMapper.convertValue(authentication.getDetails(), Map.class);
 //        Jwt jwt = JwtHelper.decode(map.get("tokenValue").toString());
 
-        List<Email> emailList = emailRepo.findAllByOrderByIdDesc(PageRequest.of(1, 10));
+        List<Email> emailList = emailRepo.findAllByOrderByIdDesc(PageRequest.of(page, size));
+
         return ResponseEntity.ok()//postRepo.countByViewed(null)
-                .header("X-Total-Count", String.valueOf(1))
+                .header("X-Total-Count", String.valueOf(emailRepo.count()))
                 .body(emailList.stream().map(p -> modelMapper.map(p, EmailDto.class)).collect(Collectors.toList()));
     }
 
