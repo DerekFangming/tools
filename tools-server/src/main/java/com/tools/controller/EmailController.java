@@ -14,6 +14,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -40,6 +41,7 @@ public class EmailController {
     private final ModelMapper modelMapper;
 
     @GetMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<EmailDto>> getEmails(@RequestParam(value = "page", defaultValue="0") int page,
                                                     @RequestParam(value = "size", defaultValue="15") int size){
 //        ObjectMapper objectMapper = new ObjectMapper();
@@ -50,12 +52,13 @@ public class EmailController {
 
         List<Email> emailList = emailRepo.findAllByOrderByIdDesc(PageRequest.of(page, size));
 
-        return ResponseEntity.ok()//postRepo.countByViewed(null)
+        return ResponseEntity.ok()
                 .header("X-Total-Count", String.valueOf(emailRepo.count()))
                 .body(emailList.stream().map(p -> modelMapper.map(p, EmailDto.class)).collect(Collectors.toList()));
     }
 
     @PostMapping
+    @RequestMapping(value = "/send")
     public ResponseEntity<EmailDto> post(@RequestBody EmailDto emailDto, HttpServletRequest request) {
 
         Email email = modelMapper.map(emailDto, Email.class);
@@ -69,31 +72,31 @@ public class EmailController {
         return ResponseEntity.ok(emailDto);
     }
 
-    @GetMapping("/1")
-    public ResponseEntity<Map<String, Object>> test1(HttpServletRequest request) {
-        Email email = Email.builder()
-                .from("admin@fmning.com")
-                .to("synfm123@gmail.com")//noreply.fmning@gmail.com
-                .subject("Monthly SIG refresh")
-                .content(Instant.now().toString())
-                .senderType(EmailSenderType.SEND_IN_BLUE)
-                .created(Instant.now())
-                .build();
-
-        emailService.send(email);
-        return ResponseEntity.ok(Collections.emptyMap());
-    }
-
-    @GetMapping("/2")
-    public ResponseEntity<Map<String, Object>> test2() {
-
-        DataSource source = new FileDataSource("D:\\php\\glib-2.dll");
-        log.info(source.getName());
-
-        File f = new File("D:\\php\\glib-2.dll");
-        log.warn(f.getName());
-
-        return ResponseEntity.ok(Collections.emptyMap());
-    }
+//    @GetMapping("/1")
+//    public ResponseEntity<Map<String, Object>> test1(HttpServletRequest request) {
+//        Email email = Email.builder()
+//                .from("admin@fmning.com")
+//                .to("synfm123@gmail.com")//noreply.fmning@gmail.com
+//                .subject("Monthly SIG refresh")
+//                .content(Instant.now().toString())
+//                .senderType(EmailSenderType.SEND_IN_BLUE)
+//                .created(Instant.now())
+//                .build();
+//
+//        emailService.send(email);
+//        return ResponseEntity.ok(Collections.emptyMap());
+//    }
+//
+//    @GetMapping("/2")
+//    public ResponseEntity<Map<String, Object>> test2() {
+//
+//        DataSource source = new FileDataSource("D:\\php\\glib-2.dll");
+//        log.info(source.getName());
+//
+//        File f = new File("D:\\php\\glib-2.dll");
+//        log.warn(f.getName());
+//
+//        return ResponseEntity.ok(Collections.emptyMap());
+//    }
 
 }

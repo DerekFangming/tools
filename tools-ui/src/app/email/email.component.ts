@@ -21,15 +21,6 @@ export class EmailComponent implements OnInit {
   constructor(private http: HttpClient, private title: Title) {
     this.title.setTitle('Email');
     this.onPageIndexSelected(1);
-
-    // this.http.get<Email[]>(environment.urlPrefix + 'api/email').subscribe(emailList => {
-    //   this.loadingEmails = false;
-    //   this.emailList = emailList;
-    //   console.log(emailList);
-    // }, error => {
-    //   this.loadingEmails = false;
-    //   console.log(error.error);
-    // });
   }
 
   ngOnInit() {
@@ -37,6 +28,19 @@ export class EmailComponent implements OnInit {
 
   getCreatedTime(time: string) {
     return new Date(time).toLocaleString();
+  }
+
+  getType(input: string) {
+    if (input == null) return '';
+
+    return input
+    .split("_")
+    .reduce((res, word, i) =>
+      `${res}${word.charAt(0).toUpperCase()}${word
+        .substr(1)
+        .toLowerCase()}`,
+      ""
+    );
   }
 
   onPageIndexSelected(newPage: number) {

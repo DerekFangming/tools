@@ -21,7 +21,7 @@
             <th scope="row"> {{ email.subject }} </th>
             <td> {{ email.from }} </td>
             <td> {{ email.to }} </td>
-            <td> {{ email.senderType }} </td>
+            <td> {{ getType(email.senderType) }} </td>
             <td> {{ getCreatedTime(email.created) }} </td>
             <!-- <th [hidden]="equipment.isHidden" scope="row"> {{ equipment.name }} </th>
             <td [hidden]="equipment.isHidden"> {{ equipment.serialNumber }} </td>

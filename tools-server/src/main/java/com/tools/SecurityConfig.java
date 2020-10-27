@@ -18,13 +18,14 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     public void configure(HttpSecurity http) throws Exception {
-        String[] urls = toolsProperties.isProduction() ? new String[]{"/login-redirect", "/api/posts/**"} : new String[]{};
+        String[] urls = toolsProperties.isProduction() ? new String[]{"/login-redirect", "/api/posts/**", "/api/email"}
+            : new String[]{};
+
         http
                 .antMatcher("/**")
                 .authorizeRequests()
                 .antMatchers(urls)
                 .authenticated()
-
                 .anyRequest().permitAll()
                 .and()
                 .logout().logoutSuccessUrl("/").permitAll()
