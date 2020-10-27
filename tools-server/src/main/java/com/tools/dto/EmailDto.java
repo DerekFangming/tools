@@ -9,8 +9,8 @@ import java.util.Map;
 
 @Data
 public class EmailDto {
-    private String from;
-    private String to;
+    private String from = "admin@fmning.com";
+    private String to = "synfm123@gmail.com";
     private String subject;
     private String content;
     private String attachment;

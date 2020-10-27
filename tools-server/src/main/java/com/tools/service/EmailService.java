@@ -42,7 +42,7 @@ public class EmailService {
     public void refreshAPIExpirationDate() {
         Email email = Email.builder()
                 .from("admin@fmning.com")
-                .to("synfm123@gmail.com")//noreply.fmning@gmail.com
+                .to("synfm123@gmail.com")
                 .subject("Monthly SIG refresh")
                 .content(Instant.now().toString())
                 .senderType(EmailSenderType.SEND_IN_BLUE)
