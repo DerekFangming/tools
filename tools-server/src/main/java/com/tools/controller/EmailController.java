@@ -44,11 +44,6 @@ public class EmailController {
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<EmailDto>> getEmails(@RequestParam(value = "page", defaultValue="0") int page,
                                                     @RequestParam(value = "size", defaultValue="15") int size){
-//        ObjectMapper objectMapper = new ObjectMapper();
-//        SecurityContext securityContext = SecurityContextHolder.getContext();
-//        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-//        Map<String, Object> map = objectMapper.convertValue(authentication.getDetails(), Map.class);
-//        Jwt jwt = JwtHelper.decode(map.get("tokenValue").toString());
 
         List<Email> emailList = emailRepo.findAllByOrderByIdDesc(PageRequest.of(page, size));
 
@@ -71,32 +66,5 @@ public class EmailController {
 
         return ResponseEntity.ok(emailDto);
     }
-
-//    @GetMapping("/1")
-//    public ResponseEntity<Map<String, Object>> test1(HttpServletRequest request) {
-//        Email email = Email.builder()
-//                .from("admin@fmning.com")
-//                .to("synfm123@gmail.com")//noreply.fmning@gmail.com
-//                .subject("Monthly SIG refresh")
-//                .content(Instant.now().toString())
-//                .senderType(EmailSenderType.SEND_IN_BLUE)
-//                .created(Instant.now())
-//                .build();
-//
-//        emailService.send(email);
-//        return ResponseEntity.ok(Collections.emptyMap());
-//    }
-//
-//    @GetMapping("/2")
-//    public ResponseEntity<Map<String, Object>> test2() {
-//
-//        DataSource source = new FileDataSource("D:\\php\\glib-2.dll");
-//        log.info(source.getName());
-//
-//        File f = new File("D:\\php\\glib-2.dll");
-//        log.warn(f.getName());
-//
-//        return ResponseEntity.ok(Collections.emptyMap());
-//    }
 
 }

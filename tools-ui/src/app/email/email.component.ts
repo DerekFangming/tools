@@ -1,8 +1,9 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, TemplateRef, ViewChild } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Title } from '@angular/platform-browser';
 import { Email } from '../model/email';
 import { environment } from '../../environments/environment';
+import { NgbModal, NgbModalOptions, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 
 @Component({
   selector: 'app-email',
@@ -17,8 +18,17 @@ export class EmailComponent implements OnInit {
 
   loadingEmails = true;
   emailList: Email[];
+  selectedEmail: Email;
 
-  constructor(private http: HttpClient, private title: Title) {
+  modalRef: NgbModalRef;
+  @ViewChild('emailDetailsModal', { static: true}) emailDetailsModal: TemplateRef<any>;
+  ngbModalOptions: NgbModalOptions = {
+    backdrop : 'static',
+    keyboard : false,
+    centered: true
+  };
+
+  constructor(private http: HttpClient, private title: Title, private modalService: NgbModal) {
     this.title.setTitle('Email');
     this.onPageIndexSelected(1);
   }
@@ -41,6 +51,12 @@ export class EmailComponent implements OnInit {
         .toLowerCase()}`,
       ""
     );
+  }
+
+  onEmailClicked(id: number) {
+    this.selectedEmail = this.emailList.find(e => e.id == id);
+    console.log(this.selectedEmail);
+    this.modalRef = this.modalService.open(this.emailDetailsModal, this.ngbModalOptions);
   }
 
   onPageIndexSelected(newPage: number) {

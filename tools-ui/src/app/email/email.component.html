@@ -17,22 +17,12 @@
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let email of emailList;">
+          <tr class="pointer" *ngFor="let email of emailList;" (click)=onEmailClicked(email.id)>
             <th scope="row"> {{ email.subject }} </th>
             <td> {{ email.from }} </td>
             <td> {{ email.to }} </td>
             <td> {{ getType(email.senderType) }} </td>
             <td> {{ getCreatedTime(email.created) }} </td>
-            <!-- <th [hidden]="equipment.isHidden" scope="row"> {{ equipment.name }} </th>
-            <td [hidden]="equipment.isHidden"> {{ equipment.serialNumber }} </td>
-            <td [hidden]="equipment.isHidden" [ngClass]="equipment.borrower == null ? 'text-success' : 'text-ut'">
-              {{ equipment.borrower == null ? 'Available' : 'Borrowed by ' + equipment.borrower }}
-            </td>
-            <td [hidden]="equipment.isHidden">
-              <button type="button" class="btn" [ngClass]="equipment.borrower == null ? 'btn-ut' : 'btn-ut-outline'" (click)="onBorrowBtnClicked(equipment)">
-                {{ equipment.borrower == null ? 'Borrow' : 'Return' }}
-              </button>
-            </td> -->
           </tr>
         </tbody>
       </table>
@@ -54,3 +44,49 @@
     </div>
   </div>
 </div>
+
+<ng-template #emailDetailsModal let-modal>
+  <div class="modal-header">
+    <h4 class="modal-title">Email details</h4>
+    <button *ngIf="!addingEquipment" type="button" class="close" (click)="modal.dismiss('Cross click')">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+    <div class="row">
+      <div class="col">
+        <label><b>Subject</b></label>
+        <p>{{selectedEmail.subject}}</p>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col">
+        <label><b>From</b></label>
+        <p>{{selectedEmail.from}}</p>
+      </div>
+      <div class="col">
+        <label><b>To</b></label>
+        <p>{{selectedEmail.to}}</p>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col">
+        <label><b>Content</b></label>
+        <div>{{ selectedEmail.content}}</div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col">
+        <label><b>Type</b></label>
+        <p>{{getType(selectedEmail.senderType)}}</p>
+      </div>
+      <div class="col">
+        <label><b>Sent at</b></label>
+        <p>{{getCreatedTime(selectedEmail.created)}}</p>
+      </div>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-secondary" (click)="modal.dismiss('Cross click')">Close</button>
+  </div>
+</ng-template>
