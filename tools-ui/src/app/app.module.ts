@@ -13,6 +13,7 @@ import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { AuthenticationInterceptor } from './authentication-interceptor';
 import { FormsModule } from '@angular/forms';
 import { EmailComponent } from './email/email.component';
+import { ImgUploadComponent } from './img-upload/img-upload.component';
 
 @NgModule({
   declarations: [
@@ -22,7 +23,8 @@ import { EmailComponent } from './email/email.component';
     ImgComponent,
     CrlLabComponent,
     HomeComponent,
-    EmailComponent
+    EmailComponent,
+    ImgUploadComponent
   ],
   imports: [
     BrowserModule,

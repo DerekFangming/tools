@@ -1,0 +1,29 @@
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+  <div class="container">
+    <a class="navbar-brand">Image uploader</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse">
+      <ul class="navbar-nav">
+        <li class="nav-item" [ngClass]="{'active': uploader}">
+          <a class="nav-link pointer" (click)="onUploadClicked()">Upload new images</a>
+        </li>
+        <li class="nav-item" [ngClass]="{'active': !uploader}">
+          <a class="nav-link pointer" (click)="onBrowseClicked()">History</a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<!-- <div class="container-fluid fill px-3 py-3" [ngClass]="{'bg-light border border-secondary': !dragOver}" (drop)="onDrop($event)" (dragover)="onDragOver($event)"
+  (dragenter)="onDragEnter($event)" (dragleave)="onDragLeave($event)">
+</div> -->
+
+<div class="sticky-top" style="height: 90vh; width: 100%;">
+
+</div>
+
+<div class="container" style="position: absolute; background-color: rgb(189, 113, 14); height: 1500px">
+</div>

@@ -1,0 +1,17 @@
+.pointer {
+  cursor: pointer;
+}
+
+.fill {
+  height: 90vh;
+}
+
+.dotted-border {
+  /* border: 20px; 
+  border:20px dotted #000; */
+  border: 2px;
+    border-bottom:thin dashed black;
+    padding-bottom:0;
+    outline:none;
+}
+
