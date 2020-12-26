@@ -45,7 +45,7 @@ public class DiscordService {
             // yf apex link donuuttt
             // yf apex 2=1
 
-            if(content.startsWith("yf")) {
+            if(content.toLowerCase().startsWith("yf")) {
 
                 String[] command = content.split(" ");
 
