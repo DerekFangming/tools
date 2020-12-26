@@ -3,6 +3,8 @@ package com.tools;
 import com.tools.domain.Post;
 import com.tools.dto.PostDto;
 import com.tools.service.PostService;
+import discord4j.core.DiscordClientBuilder;
+import discord4j.core.GatewayDiscordClient;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.Converter;
 import org.modelmapper.ModelMapper;
@@ -57,4 +59,12 @@ public class BeanConfig {
 
         return modelMapper;
     }
+
+//    @Bean
+//    public GatewayDiscordClient gatewayDiscordClient() {
+//        return DiscordClientBuilder.create("NzkxODkzODQyNzQ3OTgxODM0.X-VynA.3CnhB2opXCOmsxWYpnY6MX6b1y8")
+//                .build()
+//                .login()
+//                .block();
+//    }
 }
