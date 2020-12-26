@@ -1,11 +1,28 @@
 package com.tools;
 
+import com.google.gson.JsonArray;
 import com.tools.domain.Post;
 import com.tools.dto.PostDto;
 import com.tools.service.PostService;
+import discord4j.common.util.Snowflake;
 import discord4j.core.DiscordClientBuilder;
 import discord4j.core.GatewayDiscordClient;
+import discord4j.core.event.domain.message.MessageCreateEvent;
+import discord4j.core.object.entity.Guild;
+import discord4j.core.object.entity.Member;
+import discord4j.core.object.entity.Message;
+import discord4j.core.object.entity.channel.MessageChannel;
 import lombok.RequiredArgsConstructor;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.entity.ContentType;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
+import org.apache.http.util.EntityUtils;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.modelmapper.Converter;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +31,7 @@ import org.springframework.context.annotation.Configuration;
 
 import javax.annotation.PostConstruct;
 import java.io.File;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 @Configuration
@@ -21,6 +39,7 @@ import java.util.*;
 public class BeanConfig {
 
     private final PostService postService;
+    private final ToolsProperties toolsProperties;
 
     @PostConstruct
     private void init() {
@@ -60,11 +79,18 @@ public class BeanConfig {
         return modelMapper;
     }
 
-//    @Bean
-//    public GatewayDiscordClient gatewayDiscordClient() {
-//        return DiscordClientBuilder.create("NzkxODkzODQyNzQ3OTgxODM0.X-VynA.3CnhB2opXCOmsxWYpnY6MX6b1y8")
-//                .build()
-//                .login()
-//                .block();
-//    }
+    @Bean
+    public HttpClient httpClient() {
+        return HttpClients.custom()
+                .setConnectionManager(new PoolingHttpClientConnectionManager())
+                .build();
+    }
+
+    @Bean
+    public GatewayDiscordClient gatewayDiscordClient() {
+        return DiscordClientBuilder.create(toolsProperties.getDcBotToken())
+                .build()
+                .login()
+                .block();
+    }
 }

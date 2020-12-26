@@ -11,4 +11,6 @@ public class ToolsProperties {
     public boolean isProduction() {
         return Boolean.parseBoolean(production);
     }
+
+    private String dcBotToken;
 }

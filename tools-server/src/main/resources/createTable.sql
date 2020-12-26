@@ -56,3 +56,10 @@ create table tl_crl_borrower_logs (
 	borrow_date timestamp without time zone,
 	return_date timestamp without time zone
 );
+
+create table tl_discord_users (
+	id bigint primary key,
+	name text,
+	guild_id bigint,
+	apex_id text
+);
