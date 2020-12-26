@@ -37,17 +37,13 @@ public class DiscordService {
     @PostConstruct
     public void setup() {
         gateway.on(MessageCreateEvent.class).subscribe(event -> {
-
             try {
                 Message message = event.getMessage();
                 String content = message.getContent();
 
-                // yf apex link donuuttt
-                // yf apex 2=1
+                if (content.toLowerCase().startsWith("yf")) {
 
-                if (content.startsWith("yf")) {
-
-                    String[] command = content.split(" ");
+                    String[] command = content.split("\\s+");
 
                     MessageChannel channel = message.getChannel().block();
                     Member member = event.getMember().get();
