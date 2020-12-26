@@ -45,7 +45,7 @@ public class DiscordService {
             // yf apex link donuuttt
             // yf apex 2=1
 
-            if(content.toLowerCase().startsWith("yf")) {
+            if(content.startsWith("yf")) {
 
                 String[] command = content.split(" ");
 
@@ -128,21 +128,25 @@ public class DiscordService {
                         }
                     }
 
-                    String finalRankAvatar = rankAvatar;
-                    String finalRankName = rankName;
-                    String finalKills = kills;
-                    String finalExtras = extras;
-                    String finalInviteUrl = inviteUrl;
-                    channel.createEmbed(spec ->
-                            spec.setAuthor(member.getUsername(),
-                                    member.getAvatarUrl(),
-                                    member.getAvatarUrl())
-                                    .setThumbnail(finalRankAvatar)
-                                    .setTitle(finalExtras)
-                                    .setDescription(finalInviteUrl)
-                                    .addField("Origin", discordUser.getApexId(), true)
-                                    .addField("排位", finalRankName, true)
-                                    .addField("击杀", finalKills, true)).block();
+                    try {
+                        String finalRankAvatar = rankAvatar == null ? "" : rankAvatar;
+                        String finalRankName = rankName == null ? "" : rankName;
+                        String finalKills = kills == null ? "" : kills;
+                        String finalExtras = extras == null ? "" : extras;
+                        String finalInviteUrl = inviteUrl == null ? "" : inviteUrl;
+                        channel.createEmbed(spec ->
+                                spec.setAuthor(member.getUsername(),
+                                        member.getAvatarUrl(),
+                                        member.getAvatarUrl())
+                                        .setThumbnail(finalRankAvatar)
+                                        .setTitle(finalExtras)
+                                        .setDescription(finalInviteUrl)
+                                        .addField("Origin", discordUser.getApexId(), true)
+                                        .addField("排位", finalRankName, true)
+                                        .addField("击杀", finalKills, true)).block();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
 
                 }
 
