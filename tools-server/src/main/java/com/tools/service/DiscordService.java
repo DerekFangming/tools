@@ -1,15 +1,24 @@
 package com.tools.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.tools.domain.DiscordGuild;
 import com.tools.domain.DiscordUser;
 import com.tools.dto.DiscordObjectDto;
+import com.tools.dto.DiscordWelcomeDto;
+import com.tools.repository.DiscordGuildRepo;
 import com.tools.repository.DiscordUserRepo;
 import discord4j.common.util.Snowflake;
 import discord4j.core.GatewayDiscordClient;
+import discord4j.core.event.domain.guild.MemberJoinEvent;
+import discord4j.core.event.domain.guild.MemberLeaveEvent;
 import discord4j.core.event.domain.message.MessageCreateEvent;
 import discord4j.core.object.ExtendedInvite;
 import discord4j.core.object.VoiceState;
+import discord4j.core.object.entity.Guild;
 import discord4j.core.object.entity.Member;
 import discord4j.core.object.entity.Message;
+import discord4j.core.object.entity.channel.Channel;
 import discord4j.core.object.entity.channel.MessageChannel;
 import discord4j.core.object.entity.channel.TextChannel;
 import discord4j.core.object.entity.channel.VoiceChannel;
@@ -36,6 +45,8 @@ public class DiscordService {
 
     private final HttpClient httpClient;
     private final GatewayDiscordClient gateway;
+    private final ObjectMapper objectMapper;
+    private final DiscordGuildRepo discordGuildRepo;
     private final DiscordUserRepo discordUserRepo;
 
     @PostConstruct
@@ -152,7 +163,47 @@ public class DiscordService {
 
                 }
             } catch (Exception e) {
-                e.printStackTrace();
+                e.printStackTrace();// TODO
+            }
+        });
+
+        gateway.on(MemberLeaveEvent.class).subscribe(event -> {
+            Optional<DiscordGuild> gg = discordGuildRepo.findById(event.getGuildId().asLong());
+            System.out.println(event.getGuildId().asLong());
+        });
+
+        gateway.on(MemberJoinEvent.class).subscribe(event -> {
+            System.out.println(event.getGuildId().asLong());
+            try {
+                discordGuildRepo.findById(event.getGuildId().asLong()).ifPresent(g -> {
+                    if (g.isWelcomeEnabled()) {
+                        DiscordWelcomeDto dto;
+                        try {
+                            dto = objectMapper.readValue(g.getWelcomeSetting(), DiscordWelcomeDto.class);
+                        } catch (JsonProcessingException e) {
+                            throw new IllegalStateException(e);
+                        }
+
+                        // Welcome message
+                        MessageChannel channel = (MessageChannel) gateway.getChannelById(Snowflake.of(dto.getChannelId())).block(Duration.ofSeconds(3));
+                        Member member = event.getMember();
+                        channel.createEmbed(spec -> spec
+                                .setFooter(dto.getFooter(), null)
+                                .setTitle(replacePlaceHolder(dto.getTitle(), member))
+                                .setDescription(replacePlaceHolder(dto.getDescription(), member))
+                                .setThumbnail(dto.getThumbnail())
+                                .setFooter(dto.getFooter(), null)
+                        ).block(Duration.ofSeconds(3));
+
+                        // Role
+                        if (dto.getRoleId() != 0) {
+                            member.addRole(Snowflake.of(dto.getRoleId())).block(Duration.ofSeconds(3));
+                        }
+
+                    }
+                });
+            } catch (Exception e) {
+                e.printStackTrace();// TODO
             }
         });
     }
@@ -176,6 +227,11 @@ public class DiscordService {
                         .build())
                 .collectList()
                 .block(Duration.ofSeconds(3));
+    }
+
+    private String replacePlaceHolder(String text, Member member) {
+        if (text == null) return null;
+        return text.replaceAll("\\{userName}", member.getDisplayName()).replaceAll("\\{userMention}", "<@" + member.getId().asString()+ ">");
     }
 
 

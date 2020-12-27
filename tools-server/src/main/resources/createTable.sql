@@ -63,3 +63,10 @@ create table tl_discord_users (
 	guild_id bigint,
 	apex_id text
 );
+
+create table tl_discord_guilds (
+	id bigint primary key,
+	name text,
+	welcome_enabled boolean,
+	welcome_setting text
+);
