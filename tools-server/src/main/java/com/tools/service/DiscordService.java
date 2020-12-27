@@ -1,7 +1,9 @@
 package com.tools.service;
 
 import com.tools.domain.DiscordUser;
+import com.tools.dto.DiscordObjectDto;
 import com.tools.repository.DiscordUserRepo;
+import discord4j.common.util.Snowflake;
 import discord4j.core.GatewayDiscordClient;
 import discord4j.core.event.domain.message.MessageCreateEvent;
 import discord4j.core.object.ExtendedInvite;
@@ -9,6 +11,7 @@ import discord4j.core.object.VoiceState;
 import discord4j.core.object.entity.Member;
 import discord4j.core.object.entity.Message;
 import discord4j.core.object.entity.channel.MessageChannel;
+import discord4j.core.object.entity.channel.TextChannel;
 import discord4j.core.object.entity.channel.VoiceChannel;
 import lombok.RequiredArgsConstructor;
 import org.apache.http.HttpResponse;
@@ -24,6 +27,7 @@ import javax.annotation.PostConstruct;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -96,7 +100,8 @@ public class DiscordService {
                         int status = response.getStatusLine().getStatusCode();
                         if (status == 404) {
                             channel.createMessage("<@" + discordUser.getId() + "> 你绑定的Origin ID **" + discordUser.getApexId() +
-                                    "** 不存在，请重新绑定。").block(Duration.ofSeconds(3));
+                                    "** 不存在，请重新绑定。你可以尝试在 https://apex.tracker.gg 上搜索你的ID。你的Origin ID是加好友是输入的" +
+                                    "ID，不是登录Origin的用户名。").block(Duration.ofSeconds(3));
                             return;
                         }
                         String responseBody = EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8);
@@ -139,6 +144,8 @@ public class DiscordService {
                                         .addField("段位", finalRankName, true)
                                         .addField("击杀", finalKills, true)).block(Duration.ofSeconds(3));
 
+                    } else if ("ping".equalsIgnoreCase(command[1])) {
+                        channel.createMessage("Bot operational").block(Duration.ofSeconds(3));
                     } else {
                         channel.createMessage("<@" + member.getId().asString() + "> 无法识别指令 **" + content + "**。请运行yf help查看指令说明。").block(Duration.ofSeconds(3));
                     }
@@ -149,4 +156,27 @@ public class DiscordService {
             }
         });
     }
+
+    public List<DiscordObjectDto> getTextChannels(String guildId) {
+        return gateway.getGuildChannels(Snowflake.of(guildId))
+                .filter(c -> c instanceof TextChannel)
+                .map(r -> DiscordObjectDto.builder()
+                        .id(r.getId().asLong())
+                        .name(r.getName())
+                        .build())
+                .collectList()
+                .block(Duration.ofSeconds(3));
+    }
+
+    public List<DiscordObjectDto> getRoles(String guildId) {
+        return gateway.getGuildRoles(Snowflake.of(guildId))
+                .map(r -> DiscordObjectDto.builder()
+                        .id(r.getId().asLong())
+                        .name(r.getName())
+                        .build())
+                .collectList()
+                .block(Duration.ofSeconds(3));
+    }
+
+
 }
