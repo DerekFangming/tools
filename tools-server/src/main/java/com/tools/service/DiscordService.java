@@ -176,7 +176,7 @@ public class DiscordService {
                             if (g.isWelcomeEnabled()) {
 
                                 // Welcome message
-                                MessageChannel channel1 = (MessageChannel) gateway.getChannelById(Snowflake.of(g.getChannelId())).block(Duration.ofSeconds(3));
+                                MessageChannel channel1 = message.getChannel().block(Duration.ofSeconds(3));
                                 channel1.createEmbed(spec -> spec
                                         .setFooter(g.getFooter() + " " + g.getRoleId(), null)
                                         .setTitle(replacePlaceHolder(g.getTitle(), member))
