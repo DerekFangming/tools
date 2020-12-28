@@ -4,10 +4,13 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tools.domain.DiscordGuild;
 import com.tools.domain.DiscordUser;
+import com.tools.domain.DiscordUserLog;
 import com.tools.dto.DiscordObjectDto;
 import com.tools.dto.DiscordWelcomeDto;
 import com.tools.repository.DiscordGuildRepo;
+import com.tools.repository.DiscordUserLogRepo;
 import com.tools.repository.DiscordUserRepo;
+import com.tools.type.DiscordUserLogActionType;
 import discord4j.common.util.Snowflake;
 import discord4j.core.GatewayDiscordClient;
 import discord4j.core.event.domain.guild.MemberJoinEvent;
@@ -18,6 +21,7 @@ import discord4j.core.object.VoiceState;
 import discord4j.core.object.entity.Guild;
 import discord4j.core.object.entity.Member;
 import discord4j.core.object.entity.Message;
+import discord4j.core.object.entity.User;
 import discord4j.core.object.entity.channel.Channel;
 import discord4j.core.object.entity.channel.MessageChannel;
 import discord4j.core.object.entity.channel.TextChannel;
@@ -35,6 +39,7 @@ import org.springframework.stereotype.Service;
 import javax.annotation.PostConstruct;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -48,6 +53,7 @@ public class DiscordService {
     private final ObjectMapper objectMapper;
     private final DiscordGuildRepo discordGuildRepo;
     private final DiscordUserRepo discordUserRepo;
+    private final DiscordUserLogRepo discordUserLogRepo;
 
     @PostConstruct
     public void setup() {
@@ -168,13 +174,32 @@ public class DiscordService {
         });
 
         gateway.on(MemberLeaveEvent.class).subscribe(event -> {
-            Optional<DiscordGuild> gg = discordGuildRepo.findById(event.getGuildId().asLong());
-            System.out.println(event.getGuildId().asLong());
+            // Log user leave
+            event.getMember().ifPresent(m -> discordUserLogRepo.save(DiscordUserLog.builder()
+                    .guildId(m.getGuildId().asLong())
+                    .userId(m.getId().asLong())
+                    .name(m.getDisplayName())
+                    .action(DiscordUserLogActionType.LEAVE)
+                    .created(Instant.now())
+                    .build())
+            );
+
         });
 
         gateway.on(MemberJoinEvent.class).subscribe(event -> {
-            System.out.println(event.getGuildId().asLong());
             try {
+                Member member = event.getMember();
+
+                // Log user join
+                discordUserLogRepo.save(DiscordUserLog.builder()
+                        .guildId(member.getGuildId().asLong())
+                        .userId(member.getId().asLong())
+                        .name(member.getDisplayName())
+                        .action(DiscordUserLogActionType.JOIN)
+                        .created(Instant.now())
+                        .build());
+
+                // Welcome
                 discordGuildRepo.findById(event.getGuildId().asLong()).ifPresent(g -> {
                     if (g.isWelcomeEnabled()) {
                         DiscordWelcomeDto dto;
@@ -186,7 +211,6 @@ public class DiscordService {
 
                         // Welcome message
                         MessageChannel channel = (MessageChannel) gateway.getChannelById(Snowflake.of(dto.getChannelId())).block(Duration.ofSeconds(3));
-                        Member member = event.getMember();
                         channel.createEmbed(spec -> spec
                                 .setFooter(dto.getFooter(), null)
                                 .setTitle(replacePlaceHolder(dto.getTitle(), member))

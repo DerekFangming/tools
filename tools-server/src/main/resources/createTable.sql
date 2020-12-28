@@ -70,3 +70,12 @@ create table tl_discord_guilds (
 	welcome_enabled boolean,
 	welcome_setting text
 );
+
+create table tl_discord_user_logs (
+    id serial primary key,
+	guild_id bigint,
+	user_id bigint,
+	name text,
+	action text,
+	created timestamp without time zone not null
+);
