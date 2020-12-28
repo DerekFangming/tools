@@ -35,6 +35,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Mono;
 
 import javax.annotation.PostConstruct;
 import java.nio.charset.StandardCharsets;
@@ -57,7 +58,10 @@ public class DiscordService {
 
     @PostConstruct
     public void setup() {
-        gateway.on(MessageCreateEvent.class).subscribe(event -> {
+        gateway.on(MessageCreateEvent.class).onErrorResume(e -> {
+            e.printStackTrace();
+            return Mono.empty();
+        }).subscribe(event -> {
             try {
                 Message message = event.getMessage();
                 String content = message.getContent();
@@ -129,7 +133,11 @@ public class DiscordService {
                             JSONObject segment = segments.getJSONObject(i);
                             if (segment.getString("type").equals("overview")) {
                                 JSONObject stats = segment.getJSONObject("stats");
-                                kills = stats.getJSONObject("kills").getString("displayValue");
+                                if (stats.has("kills")) {
+                                    kills = stats.getJSONObject("kills").getString("displayValue");
+                                } else {
+                                    kills = "无法读取";
+                                }
 
                                 JSONObject rankScore = stats.getJSONObject("rankScore");
                                 rankName = rankScore.getJSONObject("metadata").getString("rankName");
@@ -173,7 +181,10 @@ public class DiscordService {
             }
         });
 
-        gateway.on(MemberLeaveEvent.class).subscribe(event -> {
+        gateway.on(MemberLeaveEvent.class).onErrorResume(e -> {
+            e.printStackTrace();
+            return Mono.empty();
+        }).subscribe(event -> {
             // Log user leave
             event.getMember().ifPresent(m -> discordUserLogRepo.save(DiscordUserLog.builder()
                     .guildId(m.getGuildId().asLong())
@@ -186,7 +197,10 @@ public class DiscordService {
 
         });
 
-        gateway.on(MemberJoinEvent.class).subscribe(event -> {
+        gateway.on(MemberJoinEvent.class).onErrorResume(e -> {
+            e.printStackTrace();
+            return Mono.empty();
+        }).subscribe(event -> {
             try {
                 Member member = event.getMember();
 
@@ -236,7 +250,7 @@ public class DiscordService {
         return gateway.getGuildChannels(Snowflake.of(guildId))
                 .filter(c -> c instanceof TextChannel)
                 .map(r -> DiscordObjectDto.builder()
-                        .id(r.getId().asLong())
+                        .id(r.getId().asString())
                         .name(r.getName())
                         .build())
                 .collectList()
@@ -246,7 +260,7 @@ public class DiscordService {
     public List<DiscordObjectDto> getRoles(String guildId) {
         return gateway.getGuildRoles(Snowflake.of(guildId))
                 .map(r -> DiscordObjectDto.builder()
-                        .id(r.getId().asLong())
+                        .id(r.getId().asString())
                         .name(r.getName())
                         .build())
                 .collectList()

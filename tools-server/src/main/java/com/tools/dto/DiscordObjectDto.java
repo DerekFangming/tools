@@ -6,6 +6,6 @@ import lombok.Data;
 @Data
 @Builder
 public class DiscordObjectDto {
-    private long id;
+    private String id;
     private String name;
 }
