@@ -171,6 +171,26 @@ public class DiscordService {
 
                     } else if ("ping".equalsIgnoreCase(command[1])) {
                         channel.createMessage("Bot operational").block(Duration.ofSeconds(3));
+                    } else if ("debug".equalsIgnoreCase(command[1])) {
+                        discordGuildRepo.findById(event.getGuildId().get().asString()).ifPresent(g -> {
+                            if (g.isWelcomeEnabled()) {
+
+                                // Welcome message
+                                MessageChannel channel1 = (MessageChannel) gateway.getChannelById(Snowflake.of(g.getChannelId())).block(Duration.ofSeconds(3));
+                                channel1.createEmbed(spec -> spec
+                                        .setFooter(g.getFooter() + " " + g.getRoleId(), null)
+                                        .setTitle(replacePlaceHolder(g.getTitle(), member))
+                                        .setDescription(replacePlaceHolder(g.getDescription(), member))
+                                        .setThumbnail(g.getThumbnail())
+                                ).block(Duration.ofSeconds(3));
+
+                                // Role
+                                if (g.getRoleId() != null) {
+                                    member.addRole(Snowflake.of(g.getRoleId())).block(Duration.ofSeconds(3));
+                                }
+
+                            }
+                        });
                     } else {
                         channel.createMessage("<@" + member.getId().asString() + "> 无法识别指令 **" + content + "**。请运行yf help查看指令说明。").block(Duration.ofSeconds(3));
                     }
@@ -214,28 +234,21 @@ public class DiscordService {
                         .build());
 
                 // Welcome
-                discordGuildRepo.findById(event.getGuildId().asLong()).ifPresent(g -> {
+                discordGuildRepo.findById(event.getGuildId().asString()).ifPresent(g -> {
                     if (g.isWelcomeEnabled()) {
-                        DiscordWelcomeDto dto;
-                        try {
-                            dto = objectMapper.readValue(g.getWelcomeSetting(), DiscordWelcomeDto.class);
-                        } catch (JsonProcessingException e) {
-                            throw new IllegalStateException(e);
-                        }
 
                         // Welcome message
-                        MessageChannel channel = (MessageChannel) gateway.getChannelById(Snowflake.of(dto.getChannelId())).block(Duration.ofSeconds(3));
+                        MessageChannel channel = (MessageChannel) gateway.getChannelById(Snowflake.of(g.getChannelId())).block(Duration.ofSeconds(3));
                         channel.createEmbed(spec -> spec
-                                .setFooter(dto.getFooter(), null)
-                                .setTitle(replacePlaceHolder(dto.getTitle(), member))
-                                .setDescription(replacePlaceHolder(dto.getDescription(), member))
-                                .setThumbnail(dto.getThumbnail())
-                                .setFooter(dto.getFooter(), null)
+                                .setFooter(g.getFooter(), null)
+                                .setTitle(replacePlaceHolder(g.getTitle(), member))
+                                .setDescription(replacePlaceHolder(g.getDescription(), member))
+                                .setThumbnail(g.getThumbnail())
                         ).block(Duration.ofSeconds(3));
 
                         // Role
-                        if (dto.getRoleId() != 0) {
-                            member.addRole(Snowflake.of(dto.getRoleId())).block(Duration.ofSeconds(3));
+                        if (g.getRoleId() != null) {
+                            member.addRole(Snowflake.of(g.getRoleId())).block(Duration.ofSeconds(3));
                         }
 
                     }

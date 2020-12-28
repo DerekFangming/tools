@@ -22,7 +22,7 @@ public class DiscordGuild {
     
     @Id
     @Column(name="id")
-    private long id;
+    private String id;
 
     @Column(name="name")
     private String name;
@@ -30,6 +30,24 @@ public class DiscordGuild {
     @Column(name="welcome_enabled")
     private boolean welcomeEnabled;
 
-    @Column(name="welcome_setting")
-    private String welcomeSetting;
+    @Column(name="welcome_title")
+    private String title;
+
+    @Column(name="welcome_description")
+    private String description;
+
+    @Column(name="welcome_thumbnail")
+    private String thumbnail;
+
+    @Column(name="welcome_footer")
+    private String footer;
+
+    @Column(name="welcome_color")
+    private String color;
+
+    @Column(name="welcome_channel_id")
+    private String channelId;
+
+    @Column(name="welcome_role_id")
+    private String roleId;
 }

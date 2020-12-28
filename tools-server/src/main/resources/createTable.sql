@@ -58,10 +58,16 @@ create table tl_crl_borrower_logs (
 );
 
 create table tl_discord_guilds (
-	id bigint primary key,
+	id text primary key,
 	name text,
 	welcome_enabled boolean,
-	welcome_setting text
+	welcome_title text;
+    welcome_description text;
+    welcome_thumbnail text;
+    welcome_footer text;
+    welcome_color text;
+    welcome_channel_id text;
+    welcome_role_id text;
 );
 
 create table tl_discord_users (

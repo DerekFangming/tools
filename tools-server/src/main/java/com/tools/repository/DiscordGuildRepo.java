@@ -5,5 +5,5 @@ import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface DiscordGuildRepo extends CrudRepository<DiscordGuild, Long> {
+public interface DiscordGuildRepo extends CrudRepository<DiscordGuild, String> {
 }
