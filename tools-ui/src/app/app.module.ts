@@ -14,6 +14,7 @@ import { AuthenticationInterceptor } from './authentication-interceptor';
 import { FormsModule } from '@angular/forms';
 import { EmailComponent } from './email/email.component';
 import { ImgUploadComponent } from './img-upload/img-upload.component';
+import { DiscordComponent } from './discord/discord.component';
 
 @NgModule({
   declarations: [
@@ -24,7 +25,8 @@ import { ImgUploadComponent } from './img-upload/img-upload.component';
     CrlLabComponent,
     HomeComponent,
     EmailComponent,
-    ImgUploadComponent
+    ImgUploadComponent,
+    DiscordComponent
   ],
   imports: [
     BrowserModule,

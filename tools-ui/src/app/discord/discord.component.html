@@ -1,0 +1,59 @@
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+  <div class="container">
+    <a class="navbar-brand ml-2" href="#">Discord</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse">
+      <ul class="navbar-nav">
+        <li class="nav-item" [ngClass]="{'active': tab == 'logs'}">
+          <a class="nav-link pointer" (click)="onTabSelected('logs')">User logs</a>
+        </li>
+        <li class="nav-item" [ngClass]="{'active': tab == 'config'}">
+          <a class="nav-link pointer" (click)="onTabSelected('config')">Bot configuration</a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<div *ngIf="loading" class="container">
+  <div class="row my-5">
+    <div class="col text-center my-5">
+      <i class="fa fa-refresh fa-spin fa-3x" aria-hidden="true"></i>
+    </div>
+  </div>
+</div>
+
+<div *ngIf="tab == 'logs' && !loading" class="container">
+  <div class="row">
+    <div class="col mt-4">
+      <table class="table">
+        <thead>
+          <tr>
+            <th scope="col">User display name</th>
+            <th scope="col">User Id</th>
+            <th scope="col">Action</th>
+            <th scope="col">Time</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="pointer" *ngFor="let userLog of userLogList;">
+            <th scope="row"> {{ userLog.name }} </th>
+            <td> {{ userLog.userId }} </td>
+            <td> {{ getType(userLog.action) }} </td>
+            <td> {{ getCreatedTime(userLog.created) }} </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<div *ngIf="tab == 'config' && !loading" class="container">
+  <div class="row">
+    <div class="col mt-4 text-center">
+      <p class="display-4">Coming soon</p>
+    </div>
+  </div>
+</div>
