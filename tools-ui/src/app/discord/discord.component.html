@@ -17,7 +17,7 @@
   </div>
 </nav>
 
-<div *ngIf="loadingUserLogs" class="container">
+<div *ngIf="loadingUserLogs || loadingUserLogs || loadingBotConfig || loadingChannels || loadingRoles" class="container">
   <div class="row my-5">
     <div class="col text-center my-5">
       <i class="fa fa-refresh fa-spin fa-3x" aria-hidden="true"></i>
@@ -50,10 +50,77 @@
   </div>
 </div>
 
-<div *ngIf="tab == 'config' && !loadingUserLogs" class="container">
+<div *ngIf="tab == 'config' && !loadingUserLogs && !loadingBotConfig && !loadingChannels && !loadingRoles" class="container">
   <div class="row">
-    <div class="col mt-4 text-center">
-      <p class="display-4">Coming soon</p>
+    <div class="col mt-4">
+      <div class="card">
+        <div class="card-header">
+          <div class="row">
+            <div class="col-9">
+              <h5 class="header-text pt-2">Welcome message</h5>
+            </div>
+            <div class="col-3">
+              <label class="switch pull-right">
+                <input type="checkbox">
+                <span class="slider round"></span>
+              </label>
+            </div>
+          </div>
+        </div>
+        <div class="card-body">
+          <div>
+            <div class="form-group mt-2">
+              <label>Title</label>
+              <input type="text" class="form-control" [(ngModel)]="guildConfig.welcomeTitle">
+            </div>
+          </div>
+          <div>
+            <div class="form-group mt-2">
+              <label>Description</label>
+              <textarea class="form-control" rows="10" [(ngModel)]="guildConfig.welcomeDescription"></textarea>
+            </div>
+          </div>
+          <div>
+            <div class="form-group mt-2">
+              <label>Thumbnail Url</label>
+              <input type="text" class="form-control" [(ngModel)]="guildConfig.welcomeThumbnail">
+            </div>
+          </div>
+          <div>
+            <div class="form-group mt-2">
+              <label>Footer</label>
+              <input type="text" class="form-control" [(ngModel)]="guildConfig.welcomeFooter">
+            </div>
+          </div>
+          <div>
+            <div class="form-group mt-2">
+              <label>Anouncement channel and role to assign</label>
+              <div class="row">
+                <div class="col-9 form-inline">
+                  <div class="dropdown">
+                    <a class="btn btn-secondary dropdown-toggle" href="#" role="button" data-toggle="dropdown">{{selectedChannelName}}</a>
+                    <div class="dropdown-menu">
+                      <a class="dropdown-item pointer" *ngFor="let channel of guildChannelList;" (click)="onChannelSelected(channel)">{{channel.name}}</a>
+                    </div>
+                  </div>
+    
+                  <div class="dropdown ml-3">
+                    <a class="btn btn-secondary dropdown-toggle" href="#" role="button" data-toggle="dropdown">{{selectedRoleName}}</a>
+                    <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+                      <a class="dropdown-item pointer" *ngFor="let role of guildRoleList;" (click)="onRoleSelected(role)">{{role.name}}</a>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-3">
+                  <button type="button" class="btn btn-primary pull-right" (click)="onSaveCahnges()">Save changes</button>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+        </div>
+      </div>
     </div>
   </div>
 </div>

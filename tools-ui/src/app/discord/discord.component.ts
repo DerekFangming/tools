@@ -1,9 +1,10 @@
 import { HttpClient } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { Title } from '@angular/platform-browser';
+import { ActivatedRoute, Router } from '@angular/router';
 import { environment } from 'src/environments/environment';
 import { DiscordGuildConfig } from '../model/discord-guild-config';
-import { DiscordObjectDto } from '../model/discord-object';
+import { DiscordObject } from '../model/discord-object';
 import { DiscordUserLog } from '../model/discord-user-log';
 import { UtilsService } from '../utils.service';
 
@@ -15,22 +16,30 @@ import { UtilsService } from '../utils.service';
 export class DiscordComponent implements OnInit {
 
   tab = 'logs';
-  loadingUserLogs = true;
+  loadingUserLogs = false;
   loadingBotConfig = false;
   loadingChannels = false;
   loadingRoles = false;
 
   userLogList: DiscordUserLog[];
   guildConfig: DiscordGuildConfig;
-  guildRoleList: DiscordObjectDto[];
-  guildChannelList: DiscordObjectDto[];
+  guildRoleList: DiscordObject[];
+  guildChannelList: DiscordObject[];
 
-  constructor(private http: HttpClient, private title: Title, private utils: UtilsService) {
+  selectedChannelName = '';
+  selectedRoleName = '';
+
+  constructor(private http: HttpClient, private title: Title, private utils: UtilsService, private activatedRoute: ActivatedRoute, private router: Router) {
     this.title.setTitle('Discord Insights');
+    let tab = this.activatedRoute.snapshot.queryParamMap.get('tab');
+    this.tab = tab == null ? 'logs' : tab;
   }
 
   ngOnInit() {
-    this.loadUserLogs();
+    console.log(this.guildConfig);
+    console.log(this.guildRoleList);
+    console.log(this.guildChannelList == null);
+    this.onTabSelected(this.tab);
   }
 
   onTabSelected(newTab: string) {
@@ -40,6 +49,12 @@ export class DiscordComponent implements OnInit {
     } else {
       this.loadBotConfig();
     }
+
+    this.router.navigate([], {
+      relativeTo: this.activatedRoute,
+      queryParams: { tab: newTab },
+      queryParamsHandling: 'merge'
+    });
   }
 
   loadUserLogs() {
@@ -60,27 +75,64 @@ export class DiscordComponent implements OnInit {
 
     this.http.get<DiscordGuildConfig>(environment.urlPrefix + 'api/discord/default/config').subscribe(guildConfig => {
       this.guildConfig = guildConfig;
+      this.processSelectedDropdowns();
       this.loadingBotConfig = false;
     }, error => {
       this.loadingBotConfig = false;
       console.log(error.error);
     });
 
-    this.http.get<DiscordObjectDto[]>(environment.urlPrefix + 'api/discord/default/channels').subscribe(guildChannelList => {
+    this.http.get<DiscordObject[]>(environment.urlPrefix + 'api/discord/default/channels').subscribe(guildChannelList => {
       this.guildChannelList = guildChannelList;
+      this.processSelectedDropdowns();
       this.loadingChannels = false;
     }, error => {
       this.loadingChannels = false;
       console.log(error.error);
     });
 
-    this.http.get<DiscordObjectDto[]>(environment.urlPrefix + 'api/discord/default/roles').subscribe(guildRoleList => {
+    this.http.get<DiscordObject[]>(environment.urlPrefix + 'api/discord/default/roles').subscribe(guildRoleList => {
       this.guildRoleList = guildRoleList;
+      this.processSelectedDropdowns();
       this.loadingRoles = false;
     }, error => {
       this.loadingRoles = false;
       console.log(error.error);
     });
+  }
+
+  processSelectedDropdowns() {
+    if (this.guildConfig != null && this.guildChannelList != null && this.guildRoleList != null) {
+      this.guildChannelList.unshift(new DiscordObject({id: null, name: 'Disable channel message'}))
+      this.guildRoleList.unshift(new DiscordObject({id: null, name: 'Disable role assignment'}))
+
+      if (this.guildConfig.welcomeChannelId == null) {
+        this.selectedChannelName = this.guildChannelList[0].name;
+      } else {
+        this.selectedChannelName = this.guildChannelList.find(c => c.id == this.guildConfig.welcomeChannelId).name;
+      }
+
+      if (this.guildConfig.welcomeRoleId == null) {
+        this.selectedRoleName = this.guildRoleList[0].name;
+      } else {
+        this.selectedRoleName = this.guildRoleList.find(r => r.id == this.guildConfig.welcomeRoleId).name;
+      }
+    }
+  }
+
+  onChannelSelected(option: DiscordObject) {
+    this.selectedChannelName = option.name;
+    this.guildConfig.welcomeChannelId = option.id;
+  }
+
+  onRoleSelected(option: DiscordObject) {
+    this.selectedRoleName = option.name;
+    this.guildConfig.welcomeRoleId = option.id;
+  }
+
+  onSaveCahnges() {
+  //   console.log(this.footer);
+  //   console.log(this.newGuildConfig);
   }
 
 }
