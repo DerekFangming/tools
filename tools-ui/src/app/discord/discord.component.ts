@@ -2,6 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { Title } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
+import { NgbDate } from '@ng-bootstrap/ng-bootstrap';
 import { NotifierService } from 'angular-notifier';
 import { environment } from 'src/environments/environment';
 import { DiscordGuildConfig } from '../model/discord-guild-config';
@@ -30,8 +31,8 @@ export class DiscordComponent implements OnInit {
   guildChannelList: DiscordObject[];
 
   displayName = '';
-  fromDate = '';
-  toDate = '';
+  fromDate: any;
+  toDate:any;
   action = '';
 
   selectedChannelName = '';
@@ -69,9 +70,22 @@ export class DiscordComponent implements OnInit {
 
   loadUserLogs() {
     this.loadingUserLogs = true;
+    this.currentPage = 0;
     this.http.get<DiscordUserLog[]>(environment.urlPrefix + 'api/discord/default/user-logs').subscribe(userLogList => {
-      this.userLogList = userLogList;
-      this.totalPages = Math.ceil(userLogList.length / this.resultPerPage);
+      this.userLogList = userLogList.filter(ul => {
+        let created = new Date(ul.created).toLocaleDateString('en', {year: 'numeric', month: '2-digit', day: 'numeric'}).split('/');
+
+        let nameMatched = this.displayName.trim() == '' || ul.name.toLowerCase().includes(this.displayName.trim().toLowerCase());
+        let fromMatched = this.fromDate == null || !new NgbDate(Number(created[2]), Number(created[0]), Number(created[1]))
+          .before({ year: this.fromDate.year, month: this.fromDate.month, day: this.fromDate.day });
+        let toMatched = this.toDate == null || !new NgbDate(Number(created[2]), Number(created[0]), Number(created[1]))
+          .after({ year: this.toDate.year, month: this.toDate.month, day: this.toDate.day });
+        let actionMatched = this.action == '' || this.action == ul.action.toLowerCase();
+
+        return nameMatched && fromMatched && toMatched && actionMatched;
+      });
+      this.totalPages = Math.ceil(this.userLogList.length / this.resultPerPage);
+      this.onPageIndexSelected(1);
       this.loadingUserLogs = false;
     }, error => {
       this.loadingUserLogs = false;
@@ -131,12 +145,6 @@ export class DiscordComponent implements OnInit {
     }
   }
 
-  fromFocused() {
-    // console.log(this.displayName);
-    // console.log(this.fromDate);
-    console.log(this.action);
-  }
-
   onActionSelected(action: string) {
     this.action = action;
   }
@@ -144,7 +152,13 @@ export class DiscordComponent implements OnInit {
   onPageIndexSelected(newPage: number) {
     if(newPage != this.currentPage) {
       this.currentPage = newPage;
-      console.log(newPage);
+
+      let startIndex = newPage - 1;
+      if (newPage == this.totalPages) {
+        this.pagedUserLogList = this.userLogList.slice(startIndex * this.resultPerPage, this.userLogList.length);
+      } else {
+        this.pagedUserLogList = this.userLogList.slice(startIndex * this.resultPerPage, newPage * this.resultPerPage);
+      }
     }
   }
 
@@ -161,7 +175,7 @@ export class DiscordComponent implements OnInit {
   onSaveCahnges() {
     console.log(this.guildConfig);
     this.updatingConfig = true;
-    this.http.post<DiscordGuildConfig>(environment.urlPrefix + 'api/discord/default/config', this.guildConfig).subscribe(config => {
+    this.http.post<DiscordGuildConfig>(environment.urlPrefix + 'api/discord/default/config', this.guildConfig).subscribe(() => {
       this.notifierService.notify('success', 'Changes saved successfully.');
       this.updatingConfig = false;
     }, error => {

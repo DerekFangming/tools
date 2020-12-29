@@ -17,14 +17,6 @@
   </div>
 </nav>
 
-<div *ngIf="loadingUserLogs || loadingUserLogs || loadingBotConfig || loadingChannels || loadingRoles" class="container">
-  <div class="row my-5">
-    <div class="col text-center my-5">
-      <i class="fa fa-refresh fa-spin fa-3x" aria-hidden="true"></i>
-    </div>
-  </div>
-</div>
-
 <div *ngIf="tab == 'logs'" class="container">
   <div class="form-row mt-3">
     <div class="col-5 mb-3">
@@ -54,8 +46,16 @@
     <div class="col-1 mb-3">
       <label></label>
       <div class="input-group">
-        <button class="btn btn-outline-secondary mt-2" type="button" (click)="fromFocused()">Search</button>
+        <button class="btn btn-outline-secondary mt-2" type="button" (click)="loadUserLogs()">Search</button>
       </div>
+    </div>
+  </div>
+</div>
+
+<div *ngIf="loadingUserLogs || loadingUserLogs || loadingBotConfig || loadingChannels || loadingRoles" class="container">
+  <div class="row my-5">
+    <div class="col text-center my-5">
+      <i class="fa fa-refresh fa-spin fa-3x" aria-hidden="true"></i>
     </div>
   </div>
 </div>
@@ -72,7 +72,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr class="pointer" *ngFor="let userLog of userLogList;">
+          <tr class="pointer" *ngFor="let userLog of pagedUserLogList;">
             <th scope="row"> {{ userLog.name }} </th>
             <td> {{ utils.getType(userLog.action) }} </td>
             <td> {{ utils.getCreatedTime(userLog.created) }} </td>
