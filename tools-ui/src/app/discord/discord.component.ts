@@ -36,9 +36,6 @@ export class DiscordComponent implements OnInit {
   }
 
   ngOnInit() {
-    console.log(this.guildConfig);
-    console.log(this.guildRoleList);
-    console.log(this.guildChannelList == null);
     this.onTabSelected(this.tab);
   }
 
@@ -131,8 +128,7 @@ export class DiscordComponent implements OnInit {
   }
 
   onSaveCahnges() {
-  //   console.log(this.footer);
-  //   console.log(this.newGuildConfig);
+    console.log(this.guildConfig);
   }
 
 }

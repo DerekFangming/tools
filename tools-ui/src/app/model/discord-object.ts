@@ -4,5 +4,5 @@ export class DiscordObject {
 
   public constructor(init?:Partial<DiscordObject>) {
     Object.assign(this, init);
-}
+  }
 }
