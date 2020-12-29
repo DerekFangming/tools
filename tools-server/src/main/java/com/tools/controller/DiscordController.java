@@ -65,23 +65,15 @@ public class DiscordController {
 
     @GetMapping("/{guildId}/config")
     @PreAuthorize("hasRole('DC')")
-    public DiscordConfigDto getConfig(@PathVariable("guildId") String guildId) throws JsonProcessingException {
-//        Optional<DiscordGuild> discordWelcomeDtoOptional;
-//        if ("default".equalsIgnoreCase(guildId)) {
-//            discordWelcomeDtoOptional = discordGuildRepo.findById(Long.valueOf(toolsProperties.getDcDefaultGuildId()));
-//        } else {
-//            discordWelcomeDtoOptional = discordGuildRepo.findById(Long.valueOf(guildId));
-//        }
+    public DiscordGuild getConfig(@PathVariable("guildId") String guildId) throws JsonProcessingException {
+        Optional<DiscordGuild> discordGuildOptional;
+        if ("default".equalsIgnoreCase(guildId)) {
+            discordGuildOptional = discordGuildRepo.findById(toolsProperties.getDcDefaultGuildId());
+        } else {
+            discordGuildOptional = discordGuildRepo.findById(guildId);
+        }
 
-//        if (discordWelcomeDtoOptional.isPresent()) {
-//            DiscordWelcomeDto discordWelcomeDto = DiscordWelcomeDto.builder().build();
-//            return DiscordConfigDto.builder()
-//                    .id(discordWelcomeDtoOptional.get().getId())
-//                    .welcomeEnabled(discordWelcomeDtoOptional.get().isWelcomeEnabled())
-//                    .welcomeConfig(objectMapper.readValue(discordWelcomeDtoOptional.get().getWelcomeSetting(), DiscordWelcomeDto.class))
-//                    .build();
-//        }
-        return DiscordConfigDto.builder().build();
+        return discordGuildOptional.orElseGet(() -> DiscordGuild.builder().build());
     }
 
 }

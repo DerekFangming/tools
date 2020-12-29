@@ -1,12 +1,9 @@
 package com.tools.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.tools.domain.DiscordGuild;
 import com.tools.domain.DiscordUser;
 import com.tools.domain.DiscordUserLog;
 import com.tools.dto.DiscordObjectDto;
-import com.tools.dto.DiscordWelcomeDto;
 import com.tools.repository.DiscordGuildRepo;
 import com.tools.repository.DiscordUserLogRepo;
 import com.tools.repository.DiscordUserRepo;
@@ -18,11 +15,8 @@ import discord4j.core.event.domain.guild.MemberLeaveEvent;
 import discord4j.core.event.domain.message.MessageCreateEvent;
 import discord4j.core.object.ExtendedInvite;
 import discord4j.core.object.VoiceState;
-import discord4j.core.object.entity.Guild;
 import discord4j.core.object.entity.Member;
 import discord4j.core.object.entity.Message;
-import discord4j.core.object.entity.User;
-import discord4j.core.object.entity.channel.Channel;
 import discord4j.core.object.entity.channel.MessageChannel;
 import discord4j.core.object.entity.channel.TextChannel;
 import discord4j.core.object.entity.channel.VoiceChannel;
@@ -164,7 +158,7 @@ public class DiscordService {
                                 spec.setAuthor(member.getUsername() + " 请求Apex组队", null, member.getAvatarUrl())
                                         .setThumbnail(finalRankAvatar)
                                         .setTitle(finalExtras)
-                                        .setDescription(finalInviteUrl)
+                                        .setDescription(finalInviteUrl.isEmpty() ? finalInviteUrl : "[:race_car: 点此上车 :race_car:](" + finalInviteUrl + ")")
                                         .addField("Origin", discordUser.getApexId(), true)
                                         .addField("段位", finalRankName, true)
                                         .addField("击杀", finalKills, true)).block(Duration.ofSeconds(3));
@@ -178,15 +172,15 @@ public class DiscordService {
                                 // Welcome message
                                 MessageChannel channel1 = message.getChannel().block(Duration.ofSeconds(3));
                                 channel1.createEmbed(spec -> spec
-                                        .setFooter(g.getFooter() + " " + g.getRoleId(), null)
-                                        .setTitle(replacePlaceHolder(g.getTitle(), member))
-                                        .setDescription(replacePlaceHolder(g.getDescription(), member))
-                                        .setThumbnail(g.getThumbnail())
+                                        .setFooter(g.getWelcomeFooter() + " " + g.getWelcomeRoleId(), null)
+                                        .setTitle(replacePlaceHolder(g.getWelcomeTitle(), member))
+                                        .setDescription(replacePlaceHolder(g.getWelcomeDescription(), member))
+                                        .setThumbnail(g.getWelcomeThumbnail())
                                 ).block(Duration.ofSeconds(3));
 
                                 // Role
-                                if (g.getRoleId() != null) {
-                                    member.addRole(Snowflake.of(g.getRoleId())).block(Duration.ofSeconds(3));
+                                if (g.getWelcomeRoleId() != null) {
+                                    member.addRole(Snowflake.of(g.getWelcomeRoleId())).block(Duration.ofSeconds(3));
                                 }
 
                             }
@@ -238,17 +232,17 @@ public class DiscordService {
                     if (g.isWelcomeEnabled()) {
 
                         // Welcome message
-                        MessageChannel channel = (MessageChannel) gateway.getChannelById(Snowflake.of(g.getChannelId())).block(Duration.ofSeconds(3));
+                        MessageChannel channel = (MessageChannel) gateway.getChannelById(Snowflake.of(g.getWelcomeChannelId())).block(Duration.ofSeconds(3));
                         channel.createEmbed(spec -> spec
-                                .setFooter(g.getFooter(), null)
-                                .setTitle(replacePlaceHolder(g.getTitle(), member))
-                                .setDescription(replacePlaceHolder(g.getDescription(), member))
-                                .setThumbnail(g.getThumbnail())
+                                .setFooter(g.getWelcomeFooter(), null)
+                                .setTitle(replacePlaceHolder(g.getWelcomeTitle(), member))
+                                .setDescription(replacePlaceHolder(g.getWelcomeDescription(), member))
+                                .setThumbnail(g.getWelcomeThumbnail())
                         ).block(Duration.ofSeconds(3));
 
                         // Role
-                        if (g.getRoleId() != null) {
-                            member.addRole(Snowflake.of(g.getRoleId())).block(Duration.ofSeconds(3));
+                        if (g.getWelcomeRoleId() != null) {
+                            member.addRole(Snowflake.of(g.getWelcomeRoleId())).block(Duration.ofSeconds(3));
                         }
 
                     }

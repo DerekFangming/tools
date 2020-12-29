@@ -4,6 +4,7 @@ import { Title } from '@angular/platform-browser';
 import { Email } from '../model/email';
 import { environment } from '../../environments/environment';
 import { NgbModal, NgbModalOptions, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
+import { UtilsService } from '../utils.service';
 
 @Component({
   selector: 'app-email',
@@ -28,29 +29,12 @@ export class EmailComponent implements OnInit {
     centered: true
   };
 
-  constructor(private http: HttpClient, private title: Title, private modalService: NgbModal) {
+  constructor(private http: HttpClient, private title: Title, private modalService: NgbModal, private utils: UtilsService) {
     this.title.setTitle('Email');
-    this.onPageIndexSelected(1);
   }
 
   ngOnInit() {
-  }
-
-  getCreatedTime(time: string) {
-    return new Date(time).toLocaleString();
-  }
-
-  getType(input: string) {
-    if (input == null) return '';
-
-    return input
-    .split("_")
-    .reduce((res, word, i) =>
-      `${res}${word.charAt(0).toUpperCase()}${word
-        .substr(1)
-        .toLowerCase()}`,
-      ""
-    );
+    this.onPageIndexSelected(1);
   }
 
   onEmailClicked(id: number) {

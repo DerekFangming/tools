@@ -31,23 +31,23 @@ public class DiscordGuild {
     private boolean welcomeEnabled;
 
     @Column(name="welcome_title")
-    private String title;
+    private String welcomeTitle;
 
     @Column(name="welcome_description")
-    private String description;
+    private String welcomeDescription;
 
     @Column(name="welcome_thumbnail")
-    private String thumbnail;
+    private String welcomeThumbnail;
 
     @Column(name="welcome_footer")
-    private String footer;
+    private String welcomeFooter;
 
     @Column(name="welcome_color")
-    private String color;
+    private String welcomeColor;
 
     @Column(name="welcome_channel_id")
-    private String channelId;
+    private String welcomeChannelId;
 
     @Column(name="welcome_role_id")
-    private String roleId;
+    private String welcomeRoleId;
 }

@@ -17,7 +17,7 @@
   </div>
 </nav>
 
-<div *ngIf="loading" class="container">
+<div *ngIf="loadingUserLogs" class="container">
   <div class="row my-5">
     <div class="col text-center my-5">
       <i class="fa fa-refresh fa-spin fa-3x" aria-hidden="true"></i>
@@ -25,7 +25,7 @@
   </div>
 </div>
 
-<div *ngIf="tab == 'logs' && !loading" class="container">
+<div *ngIf="tab == 'logs' && !loadingUserLogs" class="container">
   <div class="row">
     <div class="col mt-4">
       <table class="table">
@@ -41,8 +41,8 @@
           <tr class="pointer" *ngFor="let userLog of userLogList;">
             <th scope="row"> {{ userLog.name }} </th>
             <td> {{ userLog.userId }} </td>
-            <td> {{ getType(userLog.action) }} </td>
-            <td> {{ getCreatedTime(userLog.created) }} </td>
+            <td> {{ utils.getType(userLog.action) }} </td>
+            <td> {{ utils.getCreatedTime(userLog.created) }} </td>
           </tr>
         </tbody>
       </table>
@@ -50,7 +50,7 @@
   </div>
 </div>
 
-<div *ngIf="tab == 'config' && !loading" class="container">
+<div *ngIf="tab == 'config' && !loadingUserLogs" class="container">
   <div class="row">
     <div class="col mt-4 text-center">
       <p class="display-4">Coming soon</p>

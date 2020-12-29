@@ -21,8 +21,8 @@
             <th scope="row"> {{ email.subject }} </th>
             <td> {{ email.from }} </td>
             <td> {{ email.to }} </td>
-            <td> {{ getType(email.senderType) }} </td>
-            <td> {{ getCreatedTime(email.created) }} </td>
+            <td> {{ utils.getType(email.senderType) }} </td>
+            <td> {{ utils.getCreatedTime(email.created) }} </td>
           </tr>
         </tbody>
       </table>
