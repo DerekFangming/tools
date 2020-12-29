@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
@@ -14,8 +15,10 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 public class ToolsExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<BaseDto> handleException(Exception e) {
-        if (e instanceof IllegalArgumentException) {
+    public ResponseEntity<BaseDto> handleException(Exception e) throws Exception {
+        if (e instanceof AccessDeniedException) {
+            throw e;
+        } else if (e instanceof IllegalArgumentException) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ErrorDto(e.getMessage()));
         }
 
