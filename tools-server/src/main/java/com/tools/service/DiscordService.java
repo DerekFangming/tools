@@ -36,9 +36,9 @@ import javax.annotation.PostConstruct;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Service
 @RequiredArgsConstructor(onConstructor_={@Autowired})
@@ -46,10 +46,24 @@ public class DiscordService {
 
     private final HttpClient httpClient;
     private final GatewayDiscordClient gateway;
-    private final ObjectMapper objectMapper;
     private final DiscordGuildRepo discordGuildRepo;
     private final DiscordUserRepo discordUserRepo;
     private final DiscordUserLogRepo discordUserLogRepo;
+
+    private Pattern userMentionPattern = Pattern.compile("<@.*?>");
+    private ArrayList<String> nbList = new ArrayList<String>() {{
+        add(" 可太牛逼了");
+        add(" 真是帅炸了");
+        add(" tql tql tql");
+        add(" 带带我带带我");
+        add(" 真会玩");
+        add(" 沃日这波无敌啊");
+        add(" 大腿带带我");
+        add(" 还有这种操作，学到了学到了");
+        add(" 6666666666 很骚");
+        add(" 哇 好帅啊");
+        add(" 大佬 tql");
+    }};
 
     @PostConstruct
     public void setup() {
@@ -166,8 +180,12 @@ public class DiscordService {
 
                     } else if ("ping".equalsIgnoreCase(command[1])) {
                         channel.createMessage("Bot operational").block(Duration.ofSeconds(3));
-                    } else if ("debug".equalsIgnoreCase(command[1])) {
-                        throw new IllegalArgumentException("Fake error");
+                    } else if ("nb".equalsIgnoreCase(command[1])) {
+                        Matcher matcher = userMentionPattern.matcher(content);
+                        String mention = null;
+                        while (matcher.find()) {mention= matcher.group(0);}
+                        channel.createMessage((mention == null ? ("<@" + member.getId().asString() + ">") : mention) +
+                                nbList.get(new Random().nextInt(nbList.size()))).block(Duration.ofSeconds(3));
                     } else {
                         channel.createMessage("<@" + member.getId().asString() + "> 无法识别指令 **" + content + "**。请运行yf help查看指令说明。").block(Duration.ofSeconds(3));
                     }
