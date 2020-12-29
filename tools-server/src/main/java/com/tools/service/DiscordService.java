@@ -89,21 +89,24 @@ public class DiscordService {
                                     .setDescription("**绑定Origin ID：**\n```yf apex link ID```\n将指令里的`ID`替换成你的Origin ID即可。" +
                                             "只需绑定一次，绑定之后，每次使用yf指令组队，都将查询你的战绩。可以多次运行这个指令来修改或者更新你的Discord帐号对应的Origin ID。\n\n" +
                                             "**发送组队邀请：**\n```yf apex 你想说的```\n指令里`你想说的`可以随意输入，比如2=1。它将出现在组队邀请的标题中。" +
-                                            "如果使用这条指令的时候你在妖风电竞的某个语音频道中，组队邀请会自带你当前的语音频道链接，方便其他玩家点击进入。")
+                                            "如果使用这条指令的时候你在妖风电竞的某个语音频道中，组队邀请会自带你当前的语音频道链接，方便其他玩家点击进入。\n" +
+                                            "**太牛了：**\n```yf nb @某人```\n被@的人太强了！如果要夸自己，可以省略@， 直接使用`yf nb`")
                         ).block(Duration.ofSeconds(3));
-                    } else if ("apex".equalsIgnoreCase(command[1]) && "link".equalsIgnoreCase(command[2])) {
-                        DiscordUser discordUser = DiscordUser.builder()
-                                .id(member.getId().asLong())
-                                .name(member.getUsername())
-                                .guildId(member.getGuildId().asLong())
-                                .apexId(command[3])
-                                .build();
-
-                        discordUserRepo.save(discordUser);
-
-                        channel.createMessage("<@" + discordUser.getId() + "> 你已绑定Origin ID: **" + discordUser.getApexId() + "**").block(Duration.ofSeconds(3));
                     } else if ("apex".equalsIgnoreCase(command[1])) {
-                        String extras = "加入频道";
+                        if (command.length > 2 && "link".equalsIgnoreCase(command[2])) {
+                            DiscordUser discordUser = DiscordUser.builder()
+                                    .id(member.getId().asLong())
+                                    .name(member.getUsername())
+                                    .guildId(member.getGuildId().asLong())
+                                    .apexId(command[3])
+                                    .build();
+
+                            discordUserRepo.save(discordUser);
+
+                            channel.createMessage("<@" + discordUser.getId() + "> 你已绑定Origin ID: **" + discordUser.getApexId() + "**").block(Duration.ofSeconds(3));
+                            return;
+                        }
+                        String extras = "";
                         String kills = "";
                         String rankName = "";
                         String rankAvatar = "";
@@ -174,7 +177,7 @@ public class DiscordService {
                                         .setThumbnail(finalRankAvatar)
                                         .setTitle(finalExtras)
                                         .setDescription(finalInviteUrl.isEmpty() ? finalInviteUrl : "[:race_car: 点此上车 :race_car:](" + finalInviteUrl + ")")
-                                        .addField("Origin", discordUser.getApexId(), true)
+                                        .addField("Origin ID", discordUser.getApexId(), true)
                                         .addField("段位", finalRankName, true)
                                         .addField("击杀", finalKills, true)).block(Duration.ofSeconds(3));
 
