@@ -24,12 +24,22 @@ export class DiscordComponent implements OnInit {
   updatingConfig = false;
 
   userLogList: DiscordUserLog[];
+  pagedUserLogList: DiscordUserLog[];
   guildConfig: DiscordGuildConfig;
   guildRoleList: DiscordObject[];
   guildChannelList: DiscordObject[];
 
+  displayName = '';
+  fromDate = '';
+  toDate = '';
+  action = '';
+
   selectedChannelName = '';
   selectedRoleName = '';
+
+  currentPage = 0;
+  totalPages = 0;
+  resultPerPage = 15;
 
   constructor(private http: HttpClient, private title: Title, public utils: UtilsService, private activatedRoute: ActivatedRoute,
       private router: Router, private notifierService: NotifierService) {
@@ -61,6 +71,7 @@ export class DiscordComponent implements OnInit {
     this.loadingUserLogs = true;
     this.http.get<DiscordUserLog[]>(environment.urlPrefix + 'api/discord/default/user-logs').subscribe(userLogList => {
       this.userLogList = userLogList;
+      this.totalPages = Math.ceil(userLogList.length / this.resultPerPage);
       this.loadingUserLogs = false;
     }, error => {
       this.loadingUserLogs = false;
@@ -117,6 +128,23 @@ export class DiscordComponent implements OnInit {
       } else {
         this.selectedRoleName = this.guildRoleList.find(r => r.id == this.guildConfig.welcomeRoleId).name;
       }
+    }
+  }
+
+  fromFocused() {
+    // console.log(this.displayName);
+    // console.log(this.fromDate);
+    console.log(this.action);
+  }
+
+  onActionSelected(action: string) {
+    this.action = action;
+  }
+
+  onPageIndexSelected(newPage: number) {
+    if(newPage != this.currentPage) {
+      this.currentPage = newPage;
+      console.log(newPage);
     }
   }
 

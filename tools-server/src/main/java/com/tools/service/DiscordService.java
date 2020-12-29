@@ -186,6 +186,8 @@ public class DiscordService {
                         while (matcher.find()) {mention= matcher.group(0);}
                         channel.createMessage((mention == null ? ("<@" + member.getId().asString() + ">") : mention) +
                                 nbList.get(new Random().nextInt(nbList.size()))).block(Duration.ofSeconds(3));
+                    } else if ("yygq".equalsIgnoreCase(command[1])) {
+                        channel.createMessage("<@" + member.getId().asString() + "> 警告！ 本DC禁止阴阳怪气！").block(Duration.ofSeconds(3));
                     } else {
                         channel.createMessage("<@" + member.getId().asString() + "> 无法识别指令 **" + content + "**。请运行yf help查看指令说明。").block(Duration.ofSeconds(3));
                     }
