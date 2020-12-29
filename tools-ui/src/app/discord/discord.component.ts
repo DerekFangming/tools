@@ -2,6 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { Title } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
+import { NotifierService } from 'angular-notifier';
 import { environment } from 'src/environments/environment';
 import { DiscordGuildConfig } from '../model/discord-guild-config';
 import { DiscordObject } from '../model/discord-object';
@@ -20,6 +21,7 @@ export class DiscordComponent implements OnInit {
   loadingBotConfig = false;
   loadingChannels = false;
   loadingRoles = false;
+  updatingConfig = false;
 
   userLogList: DiscordUserLog[];
   guildConfig: DiscordGuildConfig;
@@ -29,7 +31,8 @@ export class DiscordComponent implements OnInit {
   selectedChannelName = '';
   selectedRoleName = '';
 
-  constructor(private http: HttpClient, private title: Title, public utils: UtilsService, private activatedRoute: ActivatedRoute, private router: Router) {
+  constructor(private http: HttpClient, private title: Title, public utils: UtilsService, private activatedRoute: ActivatedRoute,
+      private router: Router, private notifierService: NotifierService) {
     this.title.setTitle('Discord Insights');
     let tab = this.activatedRoute.snapshot.queryParamMap.get('tab');
     this.tab = tab == null ? 'logs' : tab;
@@ -129,6 +132,14 @@ export class DiscordComponent implements OnInit {
 
   onSaveCahnges() {
     console.log(this.guildConfig);
+    this.updatingConfig = true;
+    this.http.post<DiscordGuildConfig>(environment.urlPrefix + 'api/discord/default/config', this.guildConfig).subscribe(config => {
+      this.notifierService.notify('success', 'Changes saved successfully.');
+      this.updatingConfig = false;
+    }, error => {
+      this.updatingConfig = false;
+      this.notifierService.notify('error', error);
+    });
   }
 
 }

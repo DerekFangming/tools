@@ -8,11 +8,13 @@ import com.tools.domain.DiscordUserLog;
 import com.tools.dto.DiscordConfigDto;
 import com.tools.dto.DiscordObjectDto;
 import com.tools.dto.DiscordWelcomeDto;
+import com.tools.dto.EmailDto;
 import com.tools.repository.DiscordGuildRepo;
 import com.tools.repository.DiscordUserLogRepo;
 import com.tools.service.DiscordService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.apachecommons.CommonsLog;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -65,7 +67,7 @@ public class DiscordController {
 
     @GetMapping("/{guildId}/config")
     @PreAuthorize("hasRole('DC')")
-    public DiscordGuild getConfig(@PathVariable("guildId") String guildId) throws JsonProcessingException {
+    public DiscordGuild getConfig(@PathVariable("guildId") String guildId) {
         Optional<DiscordGuild> discordGuildOptional;
         if ("default".equalsIgnoreCase(guildId)) {
             discordGuildOptional = discordGuildRepo.findById(toolsProperties.getDcDefaultGuildId());
@@ -74,6 +76,37 @@ public class DiscordController {
         }
 
         return discordGuildOptional.orElseGet(() -> DiscordGuild.builder().build());
+    }
+
+    @PostMapping("/{guildId}/config")
+    @PreAuthorize("hasRole('DC')")
+    public DiscordGuild updateConfig(@PathVariable("guildId") String guildId, @RequestBody DiscordGuild discordGuild) {
+        if (StringUtils.isBlank(discordGuild.getId())) {
+            throw new IllegalArgumentException("Id is required for configuration update.");
+        } else if (StringUtils.isBlank(discordGuild.getWelcomeTitle())) {
+            throw new IllegalArgumentException("Title for welcome message is required.");
+        } else if (StringUtils.isBlank(discordGuild.getWelcomeDescription())) {
+            throw new IllegalArgumentException("Description for welcome message is required.");
+        } else if (StringUtils.isBlank(discordGuild.getWelcomeFooter())) {
+            throw new IllegalArgumentException("Footer for welcome message is required.");
+        } else if (discordGuild.isWelcomeEnabled() && discordGuild.getWelcomeChannelId() == null) {
+            throw new IllegalArgumentException("Announcement channel has to be set when welcome message is turned on.");
+        }
+
+
+        Optional<DiscordGuild> discordGuildOptional;
+        if ("default".equalsIgnoreCase(guildId)) {
+            discordGuildOptional = discordGuildRepo.findById(toolsProperties.getDcDefaultGuildId());
+        } else {
+            discordGuildOptional = discordGuildRepo.findById(guildId);
+        }
+
+        if (discordGuildOptional.isPresent()) {
+            discordGuildRepo.save(discordGuild);
+            return discordGuild;
+        } else {
+            throw new IllegalArgumentException("Id is required for configuration update.");
+        }
     }
 
 }

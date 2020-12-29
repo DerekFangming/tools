@@ -50,4 +50,7 @@ public class DiscordGuild {
 
     @Column(name="welcome_role_id")
     private String welcomeRoleId;
+
+    @Column(name="debug_channel_id")
+    private String debugChannelId;
 }

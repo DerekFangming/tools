@@ -15,6 +15,7 @@ import { FormsModule } from '@angular/forms';
 import { EmailComponent } from './email/email.component';
 import { ImgUploadComponent } from './img-upload/img-upload.component';
 import { DiscordComponent } from './discord/discord.component';
+import { NotifierModule } from 'angular-notifier';
 
 @NgModule({
   declarations: [
@@ -33,7 +34,12 @@ import { DiscordComponent } from './discord/discord.component';
     AppRoutingModule,
     HttpClientModule,
     NgbModule,
-    FormsModule
+    FormsModule,
+    NotifierModule.withConfig({
+      behaviour: {
+        autoHide: 10000
+      }
+    })
   ],
   providers: [{
     provide: HTTP_INTERCEPTORS,

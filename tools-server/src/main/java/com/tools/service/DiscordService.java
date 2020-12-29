@@ -21,6 +21,7 @@ import discord4j.core.object.entity.channel.MessageChannel;
 import discord4j.core.object.entity.channel.TextChannel;
 import discord4j.core.object.entity.channel.VoiceChannel;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
@@ -166,32 +167,14 @@ public class DiscordService {
                     } else if ("ping".equalsIgnoreCase(command[1])) {
                         channel.createMessage("Bot operational").block(Duration.ofSeconds(3));
                     } else if ("debug".equalsIgnoreCase(command[1])) {
-                        discordGuildRepo.findById(event.getGuildId().get().asString()).ifPresent(g -> {
-                            if (g.isWelcomeEnabled()) {
-
-                                // Welcome message
-                                MessageChannel channel1 = message.getChannel().block(Duration.ofSeconds(3));
-                                channel1.createEmbed(spec -> spec
-                                        .setFooter(g.getWelcomeFooter() + " " + g.getWelcomeRoleId(), null)
-                                        .setTitle(replacePlaceHolder(g.getWelcomeTitle(), member))
-                                        .setDescription(replacePlaceHolder(g.getWelcomeDescription(), member))
-                                        .setThumbnail(g.getWelcomeThumbnail())
-                                ).block(Duration.ofSeconds(3));
-
-                                // Role
-                                if (g.getWelcomeRoleId() != null) {
-                                    member.addRole(Snowflake.of(g.getWelcomeRoleId())).block(Duration.ofSeconds(3));
-                                }
-
-                            }
-                        });
+                        throw new IllegalArgumentException("Fake error");
                     } else {
                         channel.createMessage("<@" + member.getId().asString() + "> 无法识别指令 **" + content + "**。请运行yf help查看指令说明。").block(Duration.ofSeconds(3));
                     }
 
                 }
             } catch (Exception e) {
-                e.printStackTrace();// TODO
+                logError(event.getGuildId().orElse(null), e);
             }
         });
 
@@ -248,7 +231,7 @@ public class DiscordService {
                     }
                 });
             } catch (Exception e) {
-                e.printStackTrace();// TODO
+                logError(event.getGuildId(), e);
             }
         });
     }
@@ -277,6 +260,29 @@ public class DiscordService {
     private String replacePlaceHolder(String text, Member member) {
         if (text == null) return null;
         return text.replaceAll("\\{userName}", member.getDisplayName()).replaceAll("\\{userMention}", "<@" + member.getId().asString()+ ">");
+    }
+
+    private void logError(Snowflake guildId, Exception e) {
+        try {
+            if (guildId == null) {
+                e.printStackTrace();
+            } else {
+                discordGuildRepo.findById(guildId.asString()).ifPresent(g -> {
+                    if (g.getDebugChannelId() != null) {
+
+                        // Welcome message
+                        MessageChannel channel = (MessageChannel) gateway.getChannelById(Snowflake.of(g.getDebugChannelId())).block(Duration.ofSeconds(3));
+                        channel.createEmbed(spec -> spec
+                                .setTitle(e.getClass().getName() + ": " + e.getMessage())
+                                .setDescription("```" + ExceptionUtils.getStackTrace(e) + "```")
+                        ).block(Duration.ofSeconds(3));
+
+                    }
+                });
+            }
+        } catch (Exception ignored){
+            e.printStackTrace();
+        }
     }
 
 
