@@ -29,7 +29,7 @@ export class DiscordComponent implements OnInit {
   selectedChannelName = '';
   selectedRoleName = '';
 
-  constructor(private http: HttpClient, private title: Title, private utils: UtilsService, private activatedRoute: ActivatedRoute, private router: Router) {
+  constructor(private http: HttpClient, private title: Title, public utils: UtilsService, private activatedRoute: ActivatedRoute, private router: Router) {
     this.title.setTitle('Discord Insights');
     let tab = this.activatedRoute.snapshot.queryParamMap.get('tab');
     this.tab = tab == null ? 'logs' : tab;

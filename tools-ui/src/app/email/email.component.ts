@@ -29,7 +29,7 @@ export class EmailComponent implements OnInit {
     centered: true
   };
 
-  constructor(private http: HttpClient, private title: Title, private modalService: NgbModal, private utils: UtilsService) {
+  constructor(private http: HttpClient, private title: Title, private modalService: NgbModal, public utils: UtilsService) {
     this.title.setTitle('Email');
   }
 
