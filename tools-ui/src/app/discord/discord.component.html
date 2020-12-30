@@ -111,61 +111,42 @@
           </div>
         </div>
         <div class="card-body">
-          <div>
-            <div class="form-group mt-2">
-              <label>Title</label>
-              <input type="text" class="form-control" [(ngModel)]="guildConfig.welcomeTitle">
-            </div>
+          <div class="form-group mt-2">
+            <label>Title</label>
+            <input type="text" class="form-control" [(ngModel)]="guildConfig.welcomeTitle">
           </div>
-          <div>
-            <div class="form-group mt-2">
-              <label>Description</label>
-              <textarea class="form-control" rows="5" [(ngModel)]="guildConfig.welcomeDescription"></textarea>
-            </div>
+          <div class="form-group mt-2">
+            <label>Description</label>
+            <textarea class="form-control" rows="5" [(ngModel)]="guildConfig.welcomeDescription"></textarea>
           </div>
-          <div>
-            <div class="form-group mt-2">
+          <div class="form-row">
+            <div class="form-group col-md-6 mt-2">
+              <label>Footer</label>
+              <input type="text" class="form-control" [(ngModel)]="guildConfig.welcomeFooter">
+            </div>
+            <div class="form-group col-md-6 mt-2">
               <label>Thumbnail Url</label>
               <input type="text" class="form-control" [(ngModel)]="guildConfig.welcomeThumbnail">
             </div>
           </div>
-          <div>
-            <div class="form-group mt-2">
-              <label>Footer</label>
-              <input type="text" class="form-control" [(ngModel)]="guildConfig.welcomeFooter">
-            </div>
-          </div>
-          <div>
-            <div class="form-group mt-2">
-              <label>Announcement channel and role to assign</label>
-              <div class="row">
-                <div class="col-sm-12 col-md-8 form-inline">
-                  <div class="dropdown">
-                    <a class="btn btn-secondary dropdown-toggle" href="#" role="button" data-toggle="dropdown">{{selectedChannelName}}</a>
-                    <div class="dropdown-menu">
-                      <a class="dropdown-item pointer" *ngFor="let channel of guildChannelList;" (click)="onChannelSelected(channel)">{{channel.name}}</a>
-                    </div>
-                  </div>
-    
-                  <div class="dropdown ml-3">
-                    <a class="btn btn-secondary dropdown-toggle" href="#" role="button" data-toggle="dropdown">{{selectedRoleName}}</a>
-                    <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
-                      <a class="dropdown-item pointer" *ngFor="let role of guildRoleList;" (click)="onRoleSelected(role)">{{role.name}}</a>
-                    </div>
-                  </div>
-                </div>
-                <div class="col-4 d-none d-sm-block">
-                  <button type="button" class="btn btn-primary pull-right" [disabled]="updatingConfig" (click)="onSaveCahnges()">
-                    <i class="fa fa-refresh fa-spin mr-2" *ngIf=updatingConfig></i>Save changes
-                  </button>
-                </div>
-                <div class="col-12 d-block d-sm-none">
-                  <button type="button" class="btn btn-primary btn-block mt-2" [disabled]="updatingConfig" (click)="onSaveCahnges()">
-                    <i class="fa fa-refresh fa-spin mr-2" *ngIf=updatingConfig></i>Save changes
-                  </button>
+          <div class="form-row">
+            <div class="form-group col-md-6 mt-2">
+              <label>Channel to announce</label>
+              <div class="dropdown">
+                <a class="btn btn-secondary dropdown-toggle" href="#" role="button" data-toggle="dropdown">{{selectedChannelName}}</a>
+                <div class="dropdown-menu">
+                  <a class="dropdown-item pointer" *ngFor="let channel of guildChannelList;" (click)="onChannelSelected(channel)">{{channel.name}}</a>
                 </div>
               </div>
-
+            </div>
+            <div class="form-group col-md-6 mt-2">
+              <label>Role to assign</label>
+              <div class="dropdown">
+                <a class="btn btn-secondary dropdown-toggle" href="#" role="button" data-toggle="dropdown">{{selectedRoleName}}</a>
+                <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+                  <a class="dropdown-item pointer" *ngFor="let role of guildRoleList;" (click)="onRoleSelected(role)">{{role.name}}</a>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -173,4 +154,70 @@
       </div>
     </div>
   </div>
+
+  <div class="row mb-5">
+    <div class="col mt-4">
+      <div class="card">
+        <div class="card-header">
+          <div class="row">
+            <div class="col-9">
+              <h5 class="header-text pt-2">Birthday blessing</h5>
+            </div>
+            <div class="col-3">
+              <label class="switch pull-right">
+                <input type="checkbox" [(ngModel)]="guildConfig.birthdayEnabled">
+                <span class="slider round"></span>
+              </label>
+            </div>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="form-group mt-2">
+            <label>Blessings</label>
+            <textarea class="form-control" rows="10x" [(ngModel)]="guildConfig.birthdayMessage"></textarea>
+          </div>
+          <div class="form-row">
+            <div class="form-group col-md-6 mt-2">
+              <label>Channel to announce</label>
+              <div class="dropdown">
+                <a class="btn btn-secondary dropdown-toggle" href="#" role="button" data-toggle="dropdown">{{selectedChannelName}}</a>
+                <div class="dropdown-menu">
+                  <a class="dropdown-item pointer" *ngFor="let channel of guildChannelList;" (click)="onChannelSelected(channel)">{{channel.name}}</a>
+                </div>
+              </div>
+            </div>
+            <div class="form-group col-md-6 mt-2">
+              <label>Role to assign</label>
+              <div class="dropdown">
+                <a class="btn btn-secondary dropdown-toggle" href="#" role="button" data-toggle="dropdown">{{selectedRoleName}}</a>
+                <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+                  <a class="dropdown-item pointer" *ngFor="let role of guildRoleList;" (click)="onRoleSelected(role)">{{role.name}}</a>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row my-5 py-3"></div>
+
+  <div class="fixed-bottom">
+    <div class="row">
+      <div class="col">
+        <div class="card">
+          <div class="card-body">
+            <div class="container">
+              <button type="button" class="btn btn-primary pull-right ml-2" [disabled]="updatingConfig" (click)="onSaveCahnges()"><i class="fa fa-refresh fa-spin mr-2" *ngIf=updatingConfig></i>Save changes</button>
+              <button type="button" class="btn btn-secondary pull-right" [disabled]="updatingConfig" (click)="loadBotConfig()"><i class="fa fa-refresh fa-spin mr-2" *ngIf=updatingConfig></i>Restore</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
 </div>
+

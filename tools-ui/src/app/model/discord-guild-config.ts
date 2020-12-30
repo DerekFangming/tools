@@ -7,4 +7,8 @@ export class DiscordGuildConfig {
   welcomeFooter: string;
   welcomeChannelId: string;
   welcomeRoleId: string;
+  birthdayEnabled: boolean;
+  birthdayMessage: string;
+  birthdayRoleId: string;
+  birthdayChannelId: string;
 }
