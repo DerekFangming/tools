@@ -9,6 +9,6 @@ import java.util.List;
 @Repository
 public interface DiscordUserRepo extends CrudRepository<DiscordUser, Long> {
     List<DiscordUser> findByBirthday(String birthday);
-    List<DiscordUser> findByBirthdayNotNull();
-    List<DiscordUser> findByBirthdayStartingWith(String birthday);
+    List<DiscordUser> findByBirthdayNotNullOrderByBirthdayAsc();
+    List<DiscordUser> findByBirthdayStartingWithOrderByBirthdayAsc(String birthday);
 }

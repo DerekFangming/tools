@@ -189,7 +189,7 @@ public class DiscordService {
 
                     } else if ("birthday".equalsIgnoreCase(command[1])) {
                         if (command.length == 2) {
-                            List<DiscordUser> users = discordUserRepo.findByBirthdayNotNull();
+                            List<DiscordUser> users = discordUserRepo.findByBirthdayNotNullOrderByBirthdayAsc();
                             if (users.size() == 0) {
                                 channel.createMessage("**尚未有人注册生日**").block(Duration.ofSeconds(3));
                             } else {
@@ -198,11 +198,18 @@ public class DiscordService {
                             }
                         } else {
                             if (command[2].equalsIgnoreCase("month")) {
-                                List<DiscordUser> users = discordUserRepo.findByBirthdayStartingWith(String.format("%02d", Calendar.getInstance().get(Calendar.MONTH) + 1));
+                                int month = Calendar.getInstance().get(Calendar.MONTH) + 1;
+                                if (command.length == 4) {
+                                    try {
+                                        int givenMonth = Integer.parseInt(command[3]);
+                                        if (givenMonth > 0 && givenMonth < 13) month = givenMonth;
+                                    } catch (Exception ignored){}
+                                }
+                                List<DiscordUser> users = discordUserRepo.findByBirthdayStartingWithOrderByBirthdayAsc(String.format("%02d", month));
                                 if (users.size() == 0) {
-                                    channel.createMessage("**本月尚未有人注册生日**").block(Duration.ofSeconds(3));
+                                    channel.createMessage("**" + month + "月尚未有人注册生日**").block(Duration.ofSeconds(3));
                                 } else {
-                                    channel.createMessage("**本月已注册的生日**\n\n" + users.stream().map(u -> "**" + u.getBirthday() + ":** " + u.getName())
+                                    channel.createMessage("**" + month + "月已注册的生日**\n\n" + users.stream().map(u -> "**" + u.getBirthday() + ":** " + u.getName())
                                             .collect(Collectors.joining("\n"))).block(Duration.ofSeconds(3));
                                 }
                             } else if (command[2].equalsIgnoreCase("disable")) {
