@@ -80,8 +80,8 @@ create table tl_discord_users (
 
 create table tl_discord_user_logs (
     id serial primary key,
-	guild_id bigint,
-	user_id bigint,
+	guild_id text,
+	user_id text,
 	name text,
 	action text,
 	created timestamp without time zone not null

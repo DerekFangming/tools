@@ -32,4 +32,7 @@ public class DiscordUser {
 
     @Column(name="apex_id")
     private String apexId;
+
+    @Column(name="birthday")
+    private String birthday;
 }

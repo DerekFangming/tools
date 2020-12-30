@@ -39,6 +39,7 @@ import java.time.Instant;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor(onConstructor_={@Autowired})
@@ -51,6 +52,7 @@ public class DiscordService {
     private final DiscordUserLogRepo discordUserLogRepo;
 
     private Pattern userMentionPattern = Pattern.compile("<@.*?>");
+    private Pattern birthdayPattern = Pattern.compile("([0-9][0-9])-([0-3][0-9])");
     private ArrayList<String> nbList = new ArrayList<String>() {{
         add(" 可太牛逼了");
         add(" 真是帅炸了");
@@ -94,13 +96,8 @@ public class DiscordService {
                         ).block(Duration.ofSeconds(3));
                     } else if ("apex".equalsIgnoreCase(command[1])) {
                         if (command.length > 2 && "link".equalsIgnoreCase(command[2])) {
-                            DiscordUser discordUser = DiscordUser.builder()
-                                    .id(member.getId().asLong())
-                                    .name(member.getUsername())
-                                    .guildId(member.getGuildId().asLong())
-                                    .apexId(command[3])
-                                    .build();
-
+                            DiscordUser discordUser = discordUserRepo.findById(member.getId().asLong()).orElse(DiscordUser.builder().id(member.getId().asLong()).name(member.getUsername()).guildId(member.getGuildId().asLong()).build());
+                            discordUser.setApexId(command[3]);
                             discordUserRepo.save(discordUser);
 
                             channel.createMessage("<@" + discordUser.getId() + "> 你已绑定Origin ID: **" + discordUser.getApexId() + "**").block(Duration.ofSeconds(3));
@@ -181,6 +178,50 @@ public class DiscordService {
                                         .addField("段位", finalRankName, true)
                                         .addField("击杀", finalKills, true)).block(Duration.ofSeconds(3));
 
+                    } else if ("birthday".equalsIgnoreCase(command[1])) {
+                        if (command.length == 2) {
+                            List<DiscordUser> users = discordUserRepo.findByBirthdayNotNull();
+                            if (users.size() == 0) {
+                                channel.createMessage("**尚未有人注册生日**").block(Duration.ofSeconds(3));
+                            } else {
+                                channel.createMessage("**全部已注册的生日**\n\n" + users.stream().map(u -> "**" + u.getBirthday() + ":** " + u.getName())
+                                        .collect(Collectors.joining("\n"))).block(Duration.ofSeconds(3));
+                            }
+                        } else {
+                            if (command[2].equalsIgnoreCase("month")) {
+                                Calendar calendar = Calendar.getInstance();
+                                List<DiscordUser> users = discordUserRepo.findByBirthdayStartingWith(String.format("%02d", Calendar.getInstance().get(Calendar.MONTH) + 1));
+                                if (users.size() == 0) {
+                                    channel.createMessage("**本月尚未有人注册生日**").block(Duration.ofSeconds(3));
+                                } else {
+                                    channel.createMessage("**本月已注册的生日**\n\n" + users.stream().map(u -> "**" + u.getBirthday() + ":** " + u.getName())
+                                            .collect(Collectors.joining("\n"))).block(Duration.ofSeconds(3));
+                                }
+                            } else if (command[2].equalsIgnoreCase("disable")) {
+                                discordUserRepo.findById(member.getId().asLong()).ifPresent(u -> {
+                                    u.setBirthday(null);
+                                    discordUserRepo.save(u);
+                                    channel.createMessage("<@" + member.getId().asString() + "> 成功取消生日提醒").block(Duration.ofSeconds(3));
+                                });
+                            } else {
+                                Matcher m = birthdayPattern.matcher(command[2]);
+                                if (m.find()) {
+                                    int month = Integer.parseInt(m.group(1));
+                                    int day = Integer.parseInt(m.group(2));
+                                    if (month > 0 && month < 13 && day > 0 && day < 32) {
+                                        DiscordUser discordUser = discordUserRepo.findById(member.getId().asLong()).orElse(DiscordUser.builder().id(member.getId().asLong()).name(member.getUsername()).guildId(member.getGuildId().asLong()).build());
+                                        discordUser.setBirthday(command[2]);
+                                        discordUserRepo.save(discordUser);
+                                        channel.createMessage("<@" + member.getId().asString() + "> 成功注册生日为**" + month +
+                                                "月" + day + "日**。" ).block(Duration.ofSeconds(3));
+                                        return;
+                                    }
+
+                                }
+                                channel.createMessage("<@" + member.getId().asString() + "> 无法识别" + command[2] +
+                                        "。生日格式必须为**月份-日期**， 比如**01-02** 或者 **11-29**").block(Duration.ofSeconds(3));
+                            }
+                        }
                     } else if ("ping".equalsIgnoreCase(command[1])) {
                         channel.createMessage("Bot operational").block(Duration.ofSeconds(3));
                     } else if ("nb".equalsIgnoreCase(command[1])) {
@@ -191,6 +232,18 @@ public class DiscordService {
                                 nbList.get(new Random().nextInt(nbList.size()))).block(Duration.ofSeconds(3));
                     } else if ("yygq".equalsIgnoreCase(command[1])) {
                         channel.createMessage("<@" + member.getId().asString() + "> 警告！ 本DC禁止阴阳怪气！").block(Duration.ofSeconds(3));
+                    } else if ("debug".equalsIgnoreCase(command[1])) {
+                        channel.createMessage("@here **今天有人生日啦~ 大家一起祝福生日快乐**\n\n\n" +
+                                "⊹ ︵︵︵︵︵︵ ・─・ ︵︵︵︵︵︵₊ ๑ ˎˊ˗\n" +
+                                "✦┊✧꒰ **HAPPY BIRTHDAY!!** ꒱✦┊✧ \n" +
+                                "◦・ ︶︶︶︶︶︶︶︶︶︶︶︶︶︶︶꒷꒦‧₊๑\n\n" +
+                                "₊˚๑:tada:꒱✦ 享受你的生日哦, $(usermention) $(tag)\n\n" +
+                                "₊˚๑:raised_hands:꒱✧ 你今年又大了一岁哦\n\n" +
+                                "₊˚๑:balloon:꒱✦ 妖风电竞在这里祝你生日快乐~\n\n" +
+                                "₊˚๑:birthday:꒱✧ 吃一些大餐好好享受你的生日\n\n" +
+                                "₊˚๑:gift: ꒱✦ 别忘了还要收到很多礼物哦 :wink:\n\n" +
+                                "https://static.tumblr.com/261f1cbb1bcad41152675c8923d961c0/r9aqvat/dxSoepla2/tumblr_static_tumblr_static_314vznl2dpk4s4c0ck4co8cww_focused_v3.jpg")
+                                .block(Duration.ofSeconds(3));
                     } else {
                         channel.createMessage("<@" + member.getId().asString() + "> 无法识别指令 **" + content + "**。请运行yf help查看指令说明。").block(Duration.ofSeconds(3));
                     }
@@ -209,7 +262,7 @@ public class DiscordService {
             event.getMember().ifPresent(m -> discordUserLogRepo.save(DiscordUserLog.builder()
                     .guildId(m.getGuildId().asLong())
                     .userId(m.getId().asLong())
-                    .name(m.getDisplayName())
+                    .name(m.getUsername())
                     .action(DiscordUserLogActionType.LEAVE)
                     .created(Instant.now())
                     .build())
@@ -228,7 +281,7 @@ public class DiscordService {
                 discordUserLogRepo.save(DiscordUserLog.builder()
                         .guildId(member.getGuildId().asLong())
                         .userId(member.getId().asLong())
-                        .name(member.getDisplayName())
+                        .name(member.getUsername())
                         .action(DiscordUserLogActionType.JOIN)
                         .created(Instant.now())
                         .build());
@@ -282,7 +335,7 @@ public class DiscordService {
 
     private String replacePlaceHolder(String text, Member member) {
         if (text == null) return null;
-        return text.replaceAll("\\{userName}", member.getDisplayName()).replaceAll("\\{userMention}", "<@" + member.getId().asString()+ ">");
+        return text.replaceAll("\\{userName}", member.getUsername()).replaceAll("\\{userMention}", "<@" + member.getId().asString()+ ">");
     }
 
     private void logError(Snowflake guildId, Exception e) {
