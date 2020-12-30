@@ -53,4 +53,16 @@ public class DiscordGuild {
 
     @Column(name="debug_channel_id")
     private String debugChannelId;
+
+    @Column(name="birthday_enabled")
+    private boolean birthdayEnabled;
+
+    @Column(name="birthday_message")
+    private String birthdayMessage;
+
+    @Column(name="birthday_role_id")
+    private String birthdayRoleId;
+
+    @Column(name="birthday_channel_id")
+    private String birthdayChannelId;
 }

@@ -75,7 +75,8 @@ create table tl_discord_users (
 	id bigint primary key,
 	name text,
 	guild_id bigint,
-	apex_id text
+	apex_id text,
+	birthday text
 );
 
 create table tl_discord_user_logs (
@@ -84,5 +85,9 @@ create table tl_discord_user_logs (
 	user_id text,
 	name text,
 	action text,
-	created timestamp without time zone not null
+	created timestamp without time zone not null,
+	birthday_enabled boolean,
+	birthday_message text,
+	birthday_role_id text,
+	birthday_channel_id text
 );

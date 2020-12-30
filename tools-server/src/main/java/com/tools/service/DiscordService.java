@@ -1,6 +1,7 @@
 package com.tools.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.tools.ToolsProperties;
 import com.tools.domain.DiscordUser;
 import com.tools.domain.DiscordUserLog;
 import com.tools.dto.DiscordObjectDto;
@@ -15,8 +16,10 @@ import discord4j.core.event.domain.guild.MemberLeaveEvent;
 import discord4j.core.event.domain.message.MessageCreateEvent;
 import discord4j.core.object.ExtendedInvite;
 import discord4j.core.object.VoiceState;
+import discord4j.core.object.entity.Guild;
 import discord4j.core.object.entity.Member;
 import discord4j.core.object.entity.Message;
+import discord4j.core.object.entity.Role;
 import discord4j.core.object.entity.channel.MessageChannel;
 import discord4j.core.object.entity.channel.TextChannel;
 import discord4j.core.object.entity.channel.VoiceChannel;
@@ -29,6 +32,7 @@ import org.apache.http.util.EntityUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
@@ -50,6 +54,7 @@ public class DiscordService {
     private final DiscordGuildRepo discordGuildRepo;
     private final DiscordUserRepo discordUserRepo;
     private final DiscordUserLogRepo discordUserLogRepo;
+    private final ToolsProperties toolsProperties;
 
     private Pattern userMentionPattern = Pattern.compile("<@.*?>");
     private Pattern birthdayPattern = Pattern.compile("([0-9][0-9])-([0-3][0-9])");
@@ -189,7 +194,6 @@ public class DiscordService {
                             }
                         } else {
                             if (command[2].equalsIgnoreCase("month")) {
-                                Calendar calendar = Calendar.getInstance();
                                 List<DiscordUser> users = discordUserRepo.findByBirthdayStartingWith(String.format("%02d", Calendar.getInstance().get(Calendar.MONTH) + 1));
                                 if (users.size() == 0) {
                                     channel.createMessage("**本月尚未有人注册生日**").block(Duration.ofSeconds(3));
@@ -233,17 +237,7 @@ public class DiscordService {
                     } else if ("yygq".equalsIgnoreCase(command[1])) {
                         channel.createMessage("<@" + member.getId().asString() + "> 警告！ 本DC禁止阴阳怪气！").block(Duration.ofSeconds(3));
                     } else if ("debug".equalsIgnoreCase(command[1])) {
-                        channel.createMessage("@here **今天有人生日啦~ 大家一起祝福生日快乐**\n\n\n" +
-                                "⊹ ︵︵︵︵︵︵ ・─・ ︵︵︵︵︵︵₊ ๑ ˎˊ˗\n" +
-                                "✦┊✧꒰ **HAPPY BIRTHDAY!!** ꒱✦┊✧ \n" +
-                                "◦・ ︶︶︶︶︶︶︶︶︶︶︶︶︶︶︶꒷꒦‧₊๑\n\n" +
-                                "₊˚๑:tada:꒱✦ 享受你的生日哦, $(usermention) $(tag)\n\n" +
-                                "₊˚๑:raised_hands:꒱✧ 你今年又大了一岁哦\n\n" +
-                                "₊˚๑:balloon:꒱✦ 妖风电竞在这里祝你生日快乐~\n\n" +
-                                "₊˚๑:birthday:꒱✧ 吃一些大餐好好享受你的生日\n\n" +
-                                "₊˚๑:gift: ꒱✦ 别忘了还要收到很多礼物哦 :wink:\n\n" +
-                                "https://static.tumblr.com/261f1cbb1bcad41152675c8923d961c0/r9aqvat/dxSoepla2/tumblr_static_tumblr_static_314vznl2dpk4s4c0ck4co8cww_focused_v3.jpg")
-                                .block(Duration.ofSeconds(3));
+                        announceBirthday(false);
                     } else {
                         channel.createMessage("<@" + member.getId().asString() + "> 无法识别指令 **" + content + "**。请运行yf help查看指令说明。").block(Duration.ofSeconds(3));
                     }
@@ -312,6 +306,45 @@ public class DiscordService {
         });
     }
 
+    @Scheduled(cron = "0 0 4 * * *")
+    public void announceBirthDay() {
+        try {
+            announceBirthday(true);
+        } catch (Exception e) {
+            logError(Snowflake.of(toolsProperties.getDcDefaultGuildId()), e);
+        }
+    }
+
+    private void announceBirthday(boolean mentionEveryone) {
+        discordGuildRepo.findById(toolsProperties.getDcDefaultGuildId()).ifPresent(g -> {
+            if (g.isBirthdayEnabled()) {
+                MessageChannel channel = (MessageChannel) gateway.getChannelById(Snowflake.of(g.getBirthdayChannelId())).block(Duration.ofSeconds(3));
+
+                Calendar today = Calendar.getInstance();
+                String birthday = String.format("%02d-%02d", today.get(Calendar.MONTH) + 1, today.get(Calendar.DAY_OF_MONTH));
+                discordUserRepo.findByBirthday(birthday).forEach(d -> {
+                    String message = replacePlaceHolder(g.getBirthdayMessage(), d.getName(), Long.toString(d.getId()));
+                    channel.createMessage(mentionEveryone ? "@here " + message : message).block(Duration.ofSeconds(3));
+
+                    try {
+                        Member member = gateway.getMemberById(Snowflake.of(g.getId()), Snowflake.of(d.getId())).block(Duration.ofSeconds(3));
+                        member.addRole(Snowflake.of(g.getBirthdayRoleId())).block(Duration.ofSeconds(3));
+                    } catch (Exception ignored){}
+                });
+
+                Calendar yesterday = Calendar.getInstance();
+                yesterday.add(Calendar.DAY_OF_MONTH, -1);
+                String passedBirthday = String.format("%02d-%02d", yesterday.get(Calendar.MONTH) + 1, yesterday.get(Calendar.DAY_OF_MONTH));
+                discordUserRepo.findByBirthday(passedBirthday).forEach(d -> {
+                    try {
+                        Member member = gateway.getMemberById(Snowflake.of(g.getId()), Snowflake.of(d.getId())).block(Duration.ofSeconds(3));
+                        member.removeRole(Snowflake.of(g.getBirthdayRoleId())).block(Duration.ofSeconds(3));
+                    } catch (Exception ignored){}
+                });
+            }
+        });
+    }
+
     public List<DiscordObjectDto> getTextChannels(String guildId) {
         return gateway.getGuildChannels(Snowflake.of(guildId))
                 .filter(c -> c instanceof TextChannel)
@@ -334,8 +367,11 @@ public class DiscordService {
     }
 
     private String replacePlaceHolder(String text, Member member) {
+        return replacePlaceHolder(text, member.getUsername(), member.getId().asString());
+    }
+    private String replacePlaceHolder(String text, String username, String Id) {
         if (text == null) return null;
-        return text.replaceAll("\\{userName}", member.getUsername()).replaceAll("\\{userMention}", "<@" + member.getId().asString()+ ">");
+        return text.replaceAll("\\{userName}", username).replaceAll("\\{userMention}", "<@" + Id + ">");
     }
 
     private void logError(Snowflake guildId, Exception e) {
