@@ -22,13 +22,13 @@ public class DiscordUser {
 
     @Id
     @Column(name="id")
-    private long id;
+    private String id;
 
     @Column(name="name")
     private String name;
 
     @Column(name="guild_id")
-    private long guildId;
+    private String guildId;
 
     @Column(name="apex_id")
     private String apexId;

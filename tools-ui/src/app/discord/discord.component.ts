@@ -44,6 +44,7 @@ export class DiscordComponent implements OnInit {
   currentPage = 0;
   totalPages = 0;
   resultPerPage = 15;
+  math = Math;
 
   constructor(private http: HttpClient, private title: Title, public utils: UtilsService, private activatedRoute: ActivatedRoute,
       private router: Router, private notifierService: NotifierService) {

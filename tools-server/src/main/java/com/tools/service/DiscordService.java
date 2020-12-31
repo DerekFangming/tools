@@ -1,6 +1,5 @@
 package com.tools.service;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tools.ToolsProperties;
 import com.tools.domain.DiscordUser;
 import com.tools.domain.DiscordUserLog;
@@ -16,10 +15,8 @@ import discord4j.core.event.domain.guild.MemberLeaveEvent;
 import discord4j.core.event.domain.message.MessageCreateEvent;
 import discord4j.core.object.ExtendedInvite;
 import discord4j.core.object.VoiceState;
-import discord4j.core.object.entity.Guild;
 import discord4j.core.object.entity.Member;
 import discord4j.core.object.entity.Message;
-import discord4j.core.object.entity.Role;
 import discord4j.core.object.entity.channel.MessageChannel;
 import discord4j.core.object.entity.channel.TextChannel;
 import discord4j.core.object.entity.channel.VoiceChannel;
@@ -105,7 +102,7 @@ public class DiscordService {
                         ).block(Duration.ofSeconds(3));
                     } else if ("apex".equalsIgnoreCase(command[1])) {
                         if (command.length > 2 && "link".equalsIgnoreCase(command[2])) {
-                            DiscordUser discordUser = discordUserRepo.findById(member.getId().asLong()).orElse(DiscordUser.builder().id(member.getId().asLong()).name(member.getUsername()).guildId(member.getGuildId().asLong()).build());
+                            DiscordUser discordUser = discordUserRepo.findById(member.getId().asString()).orElse(DiscordUser.builder().id(member.getId().asString()).name(member.getUsername()).guildId(member.getGuildId().asString()).build());
                             discordUser.setApexId(command[3]);
                             discordUserRepo.save(discordUser);
 
@@ -123,7 +120,7 @@ public class DiscordService {
                             extras = String.join(" ", extrasArray);
                         }
 
-                        Optional<DiscordUser> discordUserOpt = discordUserRepo.findById(member.getId().asLong());
+                        Optional<DiscordUser> discordUserOpt = discordUserRepo.findById(member.getId().asString());
                         if (!discordUserOpt.isPresent()) {
                             channel.createMessage("<@" + member.getId().asString() + "> 你未绑定Origin ID。运行yf help查看如何绑定。").block(Duration.ofSeconds(3));
                             return;
@@ -213,7 +210,7 @@ public class DiscordService {
                                             .collect(Collectors.joining("\n"))).block(Duration.ofSeconds(3));
                                 }
                             } else if (command[2].equalsIgnoreCase("disable")) {
-                                discordUserRepo.findById(member.getId().asLong()).ifPresent(u -> {
+                                discordUserRepo.findById(member.getId().asString()).ifPresent(u -> {
                                     u.setBirthday(null);
                                     discordUserRepo.save(u);
                                     channel.createMessage("<@" + member.getId().asString() + "> 成功取消生日提醒").block(Duration.ofSeconds(3));
@@ -224,7 +221,7 @@ public class DiscordService {
                                     int month = Integer.parseInt(m.group(1));
                                     int day = Integer.parseInt(m.group(2));
                                     if (month > 0 && month < 13 && day > 0 && day < 32) {
-                                        DiscordUser discordUser = discordUserRepo.findById(member.getId().asLong()).orElse(DiscordUser.builder().id(member.getId().asLong()).name(member.getUsername()).guildId(member.getGuildId().asLong()).build());
+                                        DiscordUser discordUser = discordUserRepo.findById(member.getId().asString()).orElse(DiscordUser.builder().id(member.getId().asString()).name(member.getUsername()).guildId(member.getGuildId().asString()).build());
                                         discordUser.setBirthday(command[2]);
                                         discordUserRepo.save(discordUser);
                                         channel.createMessage("<@" + member.getId().asString() + "> 成功注册生日为**" + month +
@@ -334,7 +331,7 @@ public class DiscordService {
                 Calendar today = Calendar.getInstance();
                 String birthday = String.format("%02d-%02d", today.get(Calendar.MONTH) + 1, today.get(Calendar.DAY_OF_MONTH));
                 discordUserRepo.findByBirthday(birthday).forEach(d -> {
-                    String message = replacePlaceHolder(g.getBirthdayMessage(), d.getName(), Long.toString(d.getId()));
+                    String message = replacePlaceHolder(g.getBirthdayMessage(), d.getName(), d.getId());
                     channel.createMessage(mentionEveryone ? "@here " + message : message).block(Duration.ofSeconds(3));
 
                     try {

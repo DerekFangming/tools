@@ -19,19 +19,19 @@
 
 <div *ngIf="tab == 'logs'" class="container">
   <div class="form-row mt-3">
-    <div class="col-5 mb-3">
+    <div class="col-sm-12 col-md-5 mb-3">
       <label>User display name</label>
       <input type="text" class="form-control" [(ngModel)]="displayName">
     </div>
-    <div class="col-2 mb-3">
+    <div class="col-sm-6 col-md-2 mb-3">
       <label>From date</label>
       <input type="text" class="form-control" ngbDatepicker #df="ngbDatepicker" (click)="df.toggle()" [(ngModel)]="fromDate">
     </div>
-    <div class="col-2 mb-3">
+    <div class="col-sm-6 col-md-2 mb-3">
       <label>To date</label>
       <input type="text" class="form-control" ngbDatepicker #dt="ngbDatepicker" (click)="dt.toggle()" [(ngModel)]="toDate">
     </div>
-    <div class="col-2 mb-3">
+    <div class="col-sm-6 col-md-2 mb-3">
       <label for="validationCustom02">Action type</label>
       <div class="input-group">
         <button class="btn btn-outline-secondary btn-block dropdown-toggle text-capitalize" type="button" data-toggle="dropdown">{{ action == '' ? 'all' : action}}</button>
@@ -43,10 +43,10 @@
         </div>
       </div>
     </div>
-    <div class="col-1 mb-3">
+    <div class="col-sm-6 col-md-1 mb-3">
       <label></label>
       <div class="input-group">
-        <button class="btn btn-outline-secondary mt-2" type="button" (click)="loadUserLogs()">Search</button>
+        <button class="btn btn-outline-secondary btn-block mt-2" type="button" (click)="loadUserLogs()">Search</button>
       </div>
     </div>
   </div>
@@ -62,7 +62,7 @@
 
 <div *ngIf="tab == 'logs' && !loadingUserLogs" class="container">
   <div class="row">
-    <div class="col-12 mt-4">
+    <div class="col mt-4">
       <table class="table">
         <thead>
           <tr>
@@ -72,7 +72,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr class="pointer" *ngFor="let userLog of pagedUserLogList;">
+          <tr *ngFor="let userLog of pagedUserLogList;">
             <th scope="row"> {{ userLog.name }} </th>
             <td> {{ utils.getType(userLog.action) }} </td>
             <td> {{ utils.getCreatedTime(userLog.created) }} </td>
@@ -80,8 +80,13 @@
         </tbody>
       </table>
     </div>
-    <div class="col-12 mt-4">
-      <div class="btn-toolbar mb-3 justify-content-center" role="toolbar">
+  </div>
+  <div class="row">
+    <div class="col-sm-12 col-md-3 mt-4">
+      <p class="ml-2">Showing {{(currentPage - 1) * resultPerPage + 1}} - {{math.min(currentPage * resultPerPage, userLogList.length)}} of {{userLogList.length}} results</p>
+    </div>
+    <div class="col-sm-12 col-md-9 mt-4">
+      <div class="btn-toolbar mb-3 pull-right" role="toolbar">
         <div class="btn-group mr-2" role="group">
           <button *ngFor='let key of [].constructor(totalPages); let i = index' type="button" class="btn"
             [ngClass]="i + 1 == currentPage ? 'btn-secondary' : 'btn-outline-secondary'" (click)="onPageIndexSelected(i + 1)">

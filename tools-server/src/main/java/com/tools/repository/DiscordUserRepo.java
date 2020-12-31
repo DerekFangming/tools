@@ -7,7 +7,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface DiscordUserRepo extends CrudRepository<DiscordUser, Long> {
+public interface DiscordUserRepo extends CrudRepository<DiscordUser, String> {
     List<DiscordUser> findByBirthday(String birthday);
     List<DiscordUser> findByBirthdayNotNullOrderByBirthdayAsc();
     List<DiscordUser> findByBirthdayStartingWithOrderByBirthdayAsc(String birthday);
