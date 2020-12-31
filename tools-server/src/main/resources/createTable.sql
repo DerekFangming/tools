@@ -68,13 +68,17 @@ create table tl_discord_guilds (
     welcome_color text,
     welcome_channel_id text,
     welcome_role_id text,
-    debug_channel_id text
+    debug_channel_id text,
+	birthday_enabled boolean,
+	birthday_message text,
+	birthday_role_id text,
+	birthday_channel_id text
 );
 
 create table tl_discord_users (
-	id bigint primary key,
+	id text primary key,
 	name text,
-	guild_id bigint,
+	guild_id text,
 	apex_id text,
 	birthday text
 );
@@ -85,9 +89,5 @@ create table tl_discord_user_logs (
 	user_id text,
 	name text,
 	action text,
-	created timestamp without time zone not null,
-	birthday_enabled boolean,
-	birthday_message text,
-	birthday_role_id text,
-	birthday_channel_id text
+	created timestamp without time zone not null
 );

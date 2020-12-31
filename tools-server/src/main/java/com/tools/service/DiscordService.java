@@ -262,8 +262,8 @@ public class DiscordService {
         }).subscribe(event -> {
             // Log user leave
             event.getMember().ifPresent(m -> discordUserLogRepo.save(DiscordUserLog.builder()
-                    .guildId(m.getGuildId().asLong())
-                    .userId(m.getId().asLong())
+                    .guildId(m.getGuildId().asString())
+                    .userId(m.getId().asString())
                     .name(m.getUsername())
                     .action(DiscordUserLogActionType.LEAVE)
                     .created(Instant.now())
@@ -281,8 +281,8 @@ public class DiscordService {
 
                 // Log user join
                 discordUserLogRepo.save(DiscordUserLog.builder()
-                        .guildId(member.getGuildId().asLong())
-                        .userId(member.getId().asLong())
+                        .guildId(member.getGuildId().asString())
+                        .userId(member.getId().asString())
                         .name(member.getUsername())
                         .action(DiscordUserLogActionType.JOIN)
                         .created(Instant.now())

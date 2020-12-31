@@ -23,10 +23,10 @@ public class DiscordUserLog {
     private int id;
 
     @Column(name="guild_id")
-    private long guildId;
+    private String guildId;
 
     @Column(name="user_id")
-    private long userId;
+    private String userId;
 
     @Column(name="name")
     private String name;
