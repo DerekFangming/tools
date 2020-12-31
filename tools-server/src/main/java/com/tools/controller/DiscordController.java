@@ -81,6 +81,8 @@ public class DiscordController {
     @PostMapping("/{guildId}/config")
     @PreAuthorize("hasRole('DC')")
     public DiscordGuild updateConfig(@PathVariable("guildId") String guildId, @RequestBody DiscordGuild discordGuild) {
+
+        // Validate welcome settings
         if (StringUtils.isBlank(discordGuild.getId())) {
             throw new IllegalArgumentException("Id is required for configuration update.");
         } else if (StringUtils.isBlank(discordGuild.getWelcomeTitle())) {
@@ -90,9 +92,17 @@ public class DiscordController {
         } else if (StringUtils.isBlank(discordGuild.getWelcomeFooter())) {
             throw new IllegalArgumentException("Footer for welcome message is required.");
         } else if (discordGuild.isWelcomeEnabled() && discordGuild.getWelcomeChannelId() == null) {
-            throw new IllegalArgumentException("Announcement channel has to be set when welcome message is turned on.");
+            throw new IllegalArgumentException("Welcome announcement channel has to be set when welcome message is turned on.");
         }
 
+        // Validate birthday settings
+        if (discordGuild.isBirthdayEnabled()) {
+            if (discordGuild.getBirthdayChannelId() == null) {
+                throw new IllegalArgumentException("Birthday announcement channel has to be set when birthday blessing is turned on.");
+            } else if (StringUtils.isBlank(discordGuild.getBirthdayMessage())) {
+                throw new IllegalArgumentException("Birthday blessing message is required.");
+            }
+        }
 
         Optional<DiscordGuild> discordGuildOptional;
         if ("default".equalsIgnoreCase(guildId)) {

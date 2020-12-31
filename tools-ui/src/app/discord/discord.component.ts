@@ -35,8 +35,11 @@ export class DiscordComponent implements OnInit {
   toDate:any;
   action = '';
 
-  selectedChannelName = '';
-  selectedRoleName = '';
+  selectedWelcomeChannelName = '';
+  selectedBirthdayChannelName = '';
+  
+  selectedWelcomeRoleName = '';
+  selectedBirthdayRoleName = '';
 
   currentPage = 0;
   totalPages = 0;
@@ -97,6 +100,9 @@ export class DiscordComponent implements OnInit {
     this.loadingBotConfig = true;
     this.loadingChannels = true;
     this.loadingRoles = true;
+    this.guildConfig = null;
+    this.guildChannelList = null;
+    this.guildRoleList = null;
 
     this.http.get<DiscordGuildConfig>(environment.urlPrefix + 'api/discord/default/config').subscribe(guildConfig => {
       this.guildConfig = guildConfig;
@@ -132,15 +138,27 @@ export class DiscordComponent implements OnInit {
       this.guildRoleList.unshift(new DiscordObject({id: null, name: 'Disable role assignment'}))
 
       if (this.guildConfig.welcomeChannelId == null) {
-        this.selectedChannelName = this.guildChannelList[0].name;
+        this.selectedWelcomeChannelName = this.guildChannelList[0].name;
       } else {
-        this.selectedChannelName = this.guildChannelList.find(c => c.id == this.guildConfig.welcomeChannelId).name;
+        this.selectedWelcomeChannelName = this.guildChannelList.find(c => c.id == this.guildConfig.welcomeChannelId).name;
+      }
+
+      if (this.guildConfig.birthdayChannelId == null) {
+        this.selectedBirthdayChannelName = this.guildChannelList[0].name;
+      } else {
+        this.selectedBirthdayChannelName = this.guildChannelList.find(c => c.id == this.guildConfig.birthdayChannelId).name;
       }
 
       if (this.guildConfig.welcomeRoleId == null) {
-        this.selectedRoleName = this.guildRoleList[0].name;
+        this.selectedWelcomeRoleName = this.guildRoleList[0].name;
       } else {
-        this.selectedRoleName = this.guildRoleList.find(r => r.id == this.guildConfig.welcomeRoleId).name;
+        this.selectedWelcomeRoleName = this.guildRoleList.find(r => r.id == this.guildConfig.welcomeRoleId).name;
+      }
+
+      if (this.guildConfig.birthdayRoleId == null) {
+        this.selectedBirthdayRoleName = this.guildRoleList[0].name;
+      } else {
+        this.selectedBirthdayRoleName = this.guildRoleList.find(r => r.id == this.guildConfig.birthdayRoleId).name;
       }
     }
   }
@@ -162,14 +180,24 @@ export class DiscordComponent implements OnInit {
     }
   }
 
-  onChannelSelected(option: DiscordObject) {
-    this.selectedChannelName = option.name;
+  onWelcomeChannelSelected(option: DiscordObject) {
+    this.selectedWelcomeChannelName = option.name;
     this.guildConfig.welcomeChannelId = option.id;
   }
 
-  onRoleSelected(option: DiscordObject) {
-    this.selectedRoleName = option.name;
+  onBirthdayChannelSelected(option: DiscordObject) {
+    this.selectedBirthdayChannelName = option.name;
+    this.guildConfig.birthdayChannelId = option.id;
+  }
+
+  onWelcomeRoleSelected(option: DiscordObject) {
+    this.selectedWelcomeRoleName = option.name;
     this.guildConfig.welcomeRoleId = option.id;
+  }
+
+  onBirthdayRoleSelected(option: DiscordObject) {
+    this.selectedBirthdayRoleName = option.name;
+    this.guildConfig.birthdayRoleId = option.id;
   }
 
   onSaveCahnges() {

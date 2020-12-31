@@ -133,18 +133,18 @@
             <div class="form-group col-md-6 mt-2">
               <label>Channel to announce</label>
               <div class="dropdown">
-                <a class="btn btn-secondary dropdown-toggle" href="#" role="button" data-toggle="dropdown">{{selectedChannelName}}</a>
+                <a class="btn btn-secondary dropdown-toggle" href="#" role="button" data-toggle="dropdown">{{selectedWelcomeChannelName}}</a>
                 <div class="dropdown-menu">
-                  <a class="dropdown-item pointer" *ngFor="let channel of guildChannelList;" (click)="onChannelSelected(channel)">{{channel.name}}</a>
+                  <a class="dropdown-item pointer" *ngFor="let channel of guildChannelList;" (click)="onWelcomeChannelSelected(channel)">{{channel.name}}</a>
                 </div>
               </div>
             </div>
             <div class="form-group col-md-6 mt-2">
               <label>Role to assign</label>
               <div class="dropdown">
-                <a class="btn btn-secondary dropdown-toggle" href="#" role="button" data-toggle="dropdown">{{selectedRoleName}}</a>
+                <a class="btn btn-secondary dropdown-toggle" href="#" role="button" data-toggle="dropdown">{{selectedWelcomeRoleName}}</a>
                 <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
-                  <a class="dropdown-item pointer" *ngFor="let role of guildRoleList;" (click)="onRoleSelected(role)">{{role.name}}</a>
+                  <a class="dropdown-item pointer" *ngFor="let role of guildRoleList;" (click)="onWelcomeRoleSelected(role)">{{role.name}}</a>
                 </div>
               </div>
             </div>
@@ -180,18 +180,18 @@
             <div class="form-group col-md-6 mt-2">
               <label>Channel to announce</label>
               <div class="dropdown">
-                <a class="btn btn-secondary dropdown-toggle" href="#" role="button" data-toggle="dropdown">{{selectedChannelName}}</a>
+                <a class="btn btn-secondary dropdown-toggle" href="#" role="button" data-toggle="dropdown">{{selectedBirthdayChannelName}}</a>
                 <div class="dropdown-menu">
-                  <a class="dropdown-item pointer" *ngFor="let channel of guildChannelList;" (click)="onChannelSelected(channel)">{{channel.name}}</a>
+                  <a class="dropdown-item pointer" *ngFor="let channel of guildChannelList;" (click)="onBirthdayChannelSelected(channel)">{{channel.name}}</a>
                 </div>
               </div>
             </div>
             <div class="form-group col-md-6 mt-2">
               <label>Role to assign</label>
               <div class="dropdown">
-                <a class="btn btn-secondary dropdown-toggle" href="#" role="button" data-toggle="dropdown">{{selectedRoleName}}</a>
+                <a class="btn btn-secondary dropdown-toggle" href="#" role="button" data-toggle="dropdown">{{selectedBirthdayRoleName}}</a>
                 <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
-                  <a class="dropdown-item pointer" *ngFor="let role of guildRoleList;" (click)="onRoleSelected(role)">{{role.name}}</a>
+                  <a class="dropdown-item pointer" *ngFor="let role of guildRoleList;" (click)="onBirthdayRoleSelected(role)">{{role.name}}</a>
                 </div>
               </div>
             </div>
