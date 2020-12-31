@@ -1,6 +1,5 @@
 package com.tools.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tools.ToolsProperties;
 import com.tools.domain.DiscordGuild;
 import com.tools.domain.DiscordUserLog;
@@ -27,9 +26,16 @@ public class DiscordController {
 
     private final DiscordService discordService;
     private final ToolsProperties toolsProperties;
-    private final ObjectMapper objectMapper;
     private final DiscordGuildRepo discordGuildRepo;
     private final DiscordUserLogRepo discordUserLogRepo;
+
+    
+    @GetMapping("/reload")
+    @PreAuthorize("hasRole('DC')")
+    public void reload() {
+        discordService.disconnectGateway();
+        discordService.setup();
+    }
 
     @GetMapping("/{guildId}/channels")
     @PreAuthorize("hasRole('DC')")

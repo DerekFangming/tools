@@ -3,8 +3,6 @@ package com.tools;
 import com.tools.domain.Post;
 import com.tools.dto.PostDto;
 import com.tools.service.PostService;
-import discord4j.core.DiscordClientBuilder;
-import discord4j.core.GatewayDiscordClient;
 import lombok.RequiredArgsConstructor;
 import org.apache.http.client.HttpClient;
 import org.apache.http.impl.client.HttpClients;
@@ -69,13 +67,5 @@ public class BeanConfig {
         return HttpClients.custom()
                 .setConnectionManager(new PoolingHttpClientConnectionManager())
                 .build();
-    }
-
-    @Bean
-    public GatewayDiscordClient gatewayDiscordClient() {
-        return DiscordClientBuilder.create(toolsProperties.getDcBotToken())
-                .build()
-                .login()
-                .block();
     }
 }

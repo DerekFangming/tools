@@ -215,7 +215,8 @@
         <div class="card">
           <div class="card-body">
             <div class="container">
-              <button type="button" class="btn btn-primary pull-right ml-2" [disabled]="updatingConfig" (click)="onSaveCahnges()"><i class="fa fa-refresh fa-spin mr-2" *ngIf=updatingConfig></i>Save changes</button>
+              <button type="button" class="btn btn-danger ml-2" [disabled]="updatingConfig" (click)="onReloadBot()"><i class="fa fa-refresh fa-spin mr-2" *ngIf=updatingConfig></i>Restart Bot</button>
+              <button type="button" class="btn btn-primary pull-right ml-2" [disabled]="updatingConfig" (click)="updatingConfig()"><i class="fa fa-refresh fa-spin mr-2" *ngIf=updatingConfig></i>Save changes</button>
               <button type="button" class="btn btn-secondary pull-right" [disabled]="updatingConfig" (click)="loadBotConfig()"><i class="fa fa-refresh fa-spin mr-2" *ngIf=updatingConfig></i>Restore</button>
             </div>
           </div>

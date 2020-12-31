@@ -201,14 +201,23 @@ export class DiscordComponent implements OnInit {
     this.guildConfig.birthdayRoleId = option.id;
   }
 
-  onSaveCahnges() {
-    console.log(this.guildConfig);
+  onSaveChanges() {
     this.updatingConfig = true;
     this.http.post<DiscordGuildConfig>(environment.urlPrefix + 'api/discord/default/config', this.guildConfig).subscribe(() => {
       this.notifierService.notify('success', 'Changes saved successfully.');
       this.updatingConfig = false;
     }, error => {
       this.updatingConfig = false;
+      this.notifierService.notify('error', error);
+    });
+  }
+
+  onReloadBot() {
+    this.updatingConfig = true;
+    this.http.get(environment.urlPrefix + 'api/discord/reload').subscribe(() => {
+      this.notifierService.notify('success', 'Bot is successfully restarted.');
+      this.updatingConfig = false;
+    }, error => {
       this.notifierService.notify('error', error);
     });
   }

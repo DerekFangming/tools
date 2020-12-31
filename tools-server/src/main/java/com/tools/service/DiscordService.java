@@ -9,6 +9,7 @@ import com.tools.repository.DiscordUserLogRepo;
 import com.tools.repository.DiscordUserRepo;
 import com.tools.type.DiscordUserLogActionType;
 import discord4j.common.util.Snowflake;
+import discord4j.core.DiscordClientBuilder;
 import discord4j.core.GatewayDiscordClient;
 import discord4j.core.event.domain.guild.MemberJoinEvent;
 import discord4j.core.event.domain.guild.MemberLeaveEvent;
@@ -47,12 +48,12 @@ import java.util.stream.Collectors;
 public class DiscordService {
 
     private final HttpClient httpClient;
-    private final GatewayDiscordClient gateway;
     private final DiscordGuildRepo discordGuildRepo;
     private final DiscordUserRepo discordUserRepo;
     private final DiscordUserLogRepo discordUserLogRepo;
     private final ToolsProperties toolsProperties;
 
+    private GatewayDiscordClient gateway;
     private Pattern userMentionPattern = Pattern.compile("<@.*?>");
     private Pattern birthdayPattern = Pattern.compile("([0-9][0-9])-([0-3][0-9])");
     private ArrayList<String> nbList = new ArrayList<String>() {{
@@ -69,8 +70,25 @@ public class DiscordService {
         add(" 大佬 tql");
     }};
 
+    public void disconnectGateway() {
+        try {
+            if (gateway != null) {
+                gateway.logout().block(Duration.ofSeconds(5));
+                gateway = null;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            gateway = null;
+        }
+    }
+
     @PostConstruct
     public void setup() {
+        gateway = DiscordClientBuilder.create(toolsProperties.getDcBotToken())
+                .build()
+                .login()
+                .block();
+
         gateway.on(MessageCreateEvent.class).onErrorResume(e -> {
             e.printStackTrace();
             return Mono.empty();
@@ -84,7 +102,8 @@ public class DiscordService {
                     String[] command = content.split("\\s+");
 
                     MessageChannel channel = message.getChannel().block(Duration.ofSeconds(3));
-                    Member member = event.getMember().get();
+                    Member member = event.getMember().orElse(null);
+                    if (member == null) return;
 
                     if ("help".equalsIgnoreCase(command[1])) {
                         channel.createEmbed(spec ->
