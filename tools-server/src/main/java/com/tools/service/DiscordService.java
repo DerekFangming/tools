@@ -82,7 +82,7 @@ public class DiscordService {
         }
     }
 
-    @PostConstruct
+//    @PostConstruct
     public void setup() {
         gateway = DiscordClientBuilder.create(toolsProperties.getDcBotToken())
                 .build()

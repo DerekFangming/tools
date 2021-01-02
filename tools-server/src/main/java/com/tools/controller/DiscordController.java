@@ -29,7 +29,7 @@ public class DiscordController {
     private final DiscordGuildRepo discordGuildRepo;
     private final DiscordUserLogRepo discordUserLogRepo;
 
-    
+
     @GetMapping("/reload")
     @PreAuthorize("hasRole('DC')")
     public void reload() {
