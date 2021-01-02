@@ -12,10 +12,6 @@ import org.apache.commons.lang3.exception.ExceptionUtils;
 
 public abstract class BaseEventListener extends ListenerAdapter {
 
-    public String replacePlaceHolder(String text, discord4j.core.object.entity.Member member) {
-        return replacePlaceHolder(text, member.getUsername(), member.getId().asString());
-    }
-
     public String replacePlaceHolder(String text, String username, String Id) {
         if (text == null) return null;
         return text.replaceAll("\\{userName}", username).replaceAll("\\{userMention}", "<@" + Id + ">");

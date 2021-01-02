@@ -3,10 +3,13 @@ package com.tools;
 import com.tools.domain.Post;
 import com.tools.dto.PostDto;
 import com.tools.service.PostService;
-import com.tools.service.discord.MessageCreatedEventListener;
+import com.tools.service.discord.MemberJoinedEventListener;
+import com.tools.service.discord.MemberRemoveEventListener;
+import com.tools.service.discord.MessageReceivedEventListener;
 import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
+import net.dv8tion.jda.api.requests.GatewayIntent;
 import org.apache.http.client.HttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
@@ -17,7 +20,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import javax.annotation.PostConstruct;
-import javax.security.auth.login.LoginException;
 import java.io.File;
 import java.util.*;
 
@@ -74,9 +76,11 @@ public class BeanConfig {
     }
 
     @Bean
-    public JDA jda(MessageCreatedEventListener messageCreatedEventListener) throws LoginException, InterruptedException {
+    public JDA jda(MessageReceivedEventListener messageReceivedEventListener, MemberJoinedEventListener memberJoinedEventListener,
+                   MemberRemoveEventListener memberRemoveEventListener) throws Exception {
         return JDABuilder.createDefault(toolsProperties.getDcBotToken())
-                .addEventListeners(messageCreatedEventListener)
+                .enableIntents(GatewayIntent.GUILD_MEMBERS)
+                .addEventListeners(messageReceivedEventListener, memberJoinedEventListener, memberRemoveEventListener)
                 .build().awaitReady();
     }
 }

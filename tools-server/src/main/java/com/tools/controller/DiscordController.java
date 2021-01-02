@@ -6,7 +6,7 @@ import com.tools.domain.DiscordUserLog;
 import com.tools.dto.DiscordObjectDto;
 import com.tools.repository.DiscordGuildRepo;
 import com.tools.repository.DiscordUserLogRepo;
-import com.tools.service.DiscordService;
+import com.tools.service.discord.DiscordService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.apachecommons.CommonsLog;
 import org.apache.commons.lang3.StringUtils;
@@ -33,8 +33,8 @@ public class DiscordController {
     @GetMapping("/reload")
     @PreAuthorize("hasRole('DC')")
     public void reload() {
-        discordService.disconnectGateway();
-        discordService.setup();
+//        discordService.disconnectGateway();
+//        discordService.setup();
     }
 
     @GetMapping("/{guildId}/channels")

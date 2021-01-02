@@ -27,7 +27,7 @@ import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor(onConstructor_={@Autowired})
-public class MessageCreatedEventListener extends BaseEventListener {
+public class MessageReceivedEventListener extends BaseEventListener {
 
     private final HttpClient httpClient;
     private final DiscordGuildRepo discordGuildRepo;
@@ -52,12 +52,6 @@ public class MessageCreatedEventListener extends BaseEventListener {
 
     @Override
     public void onMessageReceived(@NotNull MessageReceivedEvent event) {
-//        System.out.println(event.getMember().getUser().getName());
-//        System.out.println(event.getMember().getNickname());
-//        System.out.println(event.getMember().getEffectiveName());
-//        System.out.println(event.getMember().getUser().getId());
-//        System.out.println(event.getMember().getId());
-//        event.getChannel().sendMessage(event.getMessage().getContentRaw()).queue();
 
 //        event.getMember().getUser().isBot()?   TODO
 
@@ -220,7 +214,7 @@ public class MessageCreatedEventListener extends BaseEventListener {
                     }
                 }
             } else if ("ping".equalsIgnoreCase(command[1])) {
-                channel.sendMessage("Bot operational").queue();
+                channel.sendMessage("Bot operational. Latency " + event.getJDA().getGatewayPing() + " ms").queue();
             } else if ("nb".equalsIgnoreCase(command[1])) {
                 Matcher matcher = userMentionPattern.matcher(content);
                 String mention = null;
@@ -230,7 +224,7 @@ public class MessageCreatedEventListener extends BaseEventListener {
             } else if ("yygq".equalsIgnoreCase(command[1])) {
                 channel.sendMessage("<@" + member.getId() + "> 警告！ 本DC禁止阴阳怪气！").queue();
             } else if ("debug".equalsIgnoreCase(command[1])) {
-                throw new IllegalStateException("asdkjahsdj");
+//                throw new IllegalStateException("asdkjahsdj");
 //                announceBirthday(false, event.getJDA());
             } else {
                 channel.sendMessage("<@" + member.getId() + "> 无法识别指令 **" + content + "**。请运行yf help查看指令说明。").queue();
@@ -238,38 +232,6 @@ public class MessageCreatedEventListener extends BaseEventListener {
         } catch (Exception e) {
             logError(event, discordGuildRepo, e);
         }
-    }
-
-    private void announceBirthday(boolean mentionEveryone, JDA jda) {
-        discordGuildRepo.findById(toolsProperties.getDcDefaultGuildId()).ifPresent(g -> {
-            if (g.isBirthdayEnabled()) {
-                Guild guild = jda.getGuildById(g.getId());
-                MessageChannel channel = guild.getTextChannelById(g.getBirthdayChannelId());
-
-                Calendar today = Calendar.getInstance();
-                String birthday = String.format("%02d-%02d", today.get(Calendar.MONTH) + 1, today.get(Calendar.DAY_OF_MONTH));
-                discordUserRepo.findByBirthday(birthday).forEach(d -> {
-                    String message = replacePlaceHolder(g.getBirthdayMessage(), d.getName(), d.getId());
-                    channel.sendMessage(mentionEveryone ? "@here " + message : message).queue();
-
-                    try {
-                        Role r = jda.getRoleById(g.getBirthdayRoleId());
-                        guild.addRoleToMember(d.getId(), jda.getRoleById(g.getBirthdayRoleId())).queue();
-                    } catch (Exception ignored){
-                        ignored.printStackTrace();
-                    }
-                });
-
-                Calendar yesterday = Calendar.getInstance();
-                yesterday.add(Calendar.DAY_OF_MONTH, -1);
-                String passedBirthday = String.format("%02d-%02d", yesterday.get(Calendar.MONTH) + 1, yesterday.get(Calendar.DAY_OF_MONTH));
-                discordUserRepo.findByBirthday(passedBirthday).forEach(d -> {
-                    try {
-                        guild.removeRoleFromMember(d.getId(), jda.getRoleById(g.getBirthdayRoleId())).queue();
-                    } catch (Exception ignored){}
-                });
-            }
-        });
     }
 
 
