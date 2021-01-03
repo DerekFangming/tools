@@ -4,11 +4,15 @@ import com.tools.ToolsProperties;
 import com.tools.domain.DiscordUser;
 import com.tools.repository.DiscordGuildRepo;
 import com.tools.repository.DiscordUserRepo;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import okhttp3.*;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
@@ -19,6 +23,7 @@ import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.regex.Matcher;
@@ -32,8 +37,10 @@ public class MessageReceivedEventListener extends BaseEventListener {
     private final HttpClient httpClient;
     private final DiscordGuildRepo discordGuildRepo;
     private final DiscordUserRepo discordUserRepo;
-    private final ToolsProperties toolsProperties;
 
+    private OkHttpClient client = new OkHttpClient.Builder()
+            .retryOnConnectionFailure(true)
+            .build();;
     private Pattern userMentionPattern = Pattern.compile("<@.*?>");
     private Pattern birthdayPattern = Pattern.compile("([0-9][0-9])-([0-3][0-9])");
     private ArrayList<String> nbList = new ArrayList<String>() {{
@@ -57,13 +64,7 @@ public class MessageReceivedEventListener extends BaseEventListener {
 
     @Override
     public void onMessageReceived(@NotNull MessageReceivedEvent event) {
-
-//        event.getMember().getUser().isBot()?   TODO
-
-        // ==========================================================
-
         try {
-            //Message message = event.getMessage();
             String content = event.getMessage().getContentRaw();
             if (!content.toLowerCase().startsWith("yf")) return;
 
@@ -71,7 +72,7 @@ public class MessageReceivedEventListener extends BaseEventListener {
 
             MessageChannel channel = event.getChannel();
             Member member = event.getMember();
-            if (member == null) return;
+            if (member == null || member.getUser().isBot()) return;
 
             if ("help".equalsIgnoreCase(command[1])) {
                 channel.sendMessage(new EmbedBuilder()
@@ -88,23 +89,41 @@ public class MessageReceivedEventListener extends BaseEventListener {
                         .build()).queue();
             } else if ("apex".equalsIgnoreCase(command[1])) {
                 if (command.length > 3 && "link".equalsIgnoreCase(command[2])) {
-                    DiscordUser discordUser = discordUserRepo.findById(member.getId())
-                            .orElse(DiscordUser.builder().id(member.getId()).name(member.getUser().getName()).guildId(member.getGuild().getId()).build());
-                    discordUser.setApexId(command[3]);
-                    discordUserRepo.save(discordUser);
+                    Request request = new Request.Builder()
+                            .url("https://public-api.tracker.gg/v2/apex/standard/profile/origin/" + command[3])
+                            .addHeader("TRN-Api-Key", "0721ec03-b743-40ff-97fa-0d04568f655a")
+                            .build();
 
-                    channel.sendMessage("<@" + discordUser.getId() + "> 你已绑定Origin ID: **" + discordUser.getApexId() + "**").queue();
+                    Call call = client.newCall(request);
+                    call.enqueue(new Callback() {
+                        public void onResponse(@NotNull Call call, @NotNull Response response) {
+                            if (response.code() != 200) {
+                                onFailure(call, new IOException());
+                                return;
+                            }
+
+                            DiscordUser discordUser = discordUserRepo.findById(member.getId())
+                                    .orElse(DiscordUser.builder().id(member.getId()).name(member.getUser().getName()).guildId(member.getGuild().getId()).build());
+                            discordUser.setApexId(command[3]);
+                            discordUserRepo.save(discordUser);
+
+                            channel.sendMessage("<@" + discordUser.getId() + "> 你已绑定Origin ID: **" + discordUser.getApexId() + "**").queue();
+                        }
+
+                        public void onFailure(@NotNull Call call, @NotNull IOException e) {
+                            channel.sendMessage("<@" + member.getId() + "> 你绑定的Origin ID **" + command[3] +
+                            "** 不存在，请重新绑定。你可以尝试在 https://apex.tracker.gg 上搜索你的ID。你的Origin ID是加好友是输入的" +
+                            "ID，不是登录Origin的用户名。").queue();
+                        }
+                    });
                     return;
                 }
-                String extras = null;
-                String kills = "";
-                String rankName = "";
-                String rankAvatar = "";
-                String inviteUrl = null;
+
+                ApexDto apexDto = new ApexDto();
 
                 if (command.length >= 3) {
                     String[] extrasArray = Arrays.copyOfRange(command, 1, command.length);
-                    extras = String.join(" ", extrasArray);
+                    apexDto.setExtras(String.join(" ", extrasArray));
                 }
 
                 DiscordUser discordUser = discordUserRepo.findById(member.getId()).orElse(null);
@@ -113,58 +132,102 @@ public class MessageReceivedEventListener extends BaseEventListener {
                     return;
                 }
 
-                HttpGet httpGet = new HttpGet("https://public-api.tracker.gg/v2/apex/standard/profile/origin/" + discordUser.getApexId());
-                httpGet.setHeader("TRN-Api-Key", "0721ec03-b743-40ff-97fa-0d04568f655a");
-                HttpResponse response = httpClient.execute(httpGet);
-                int status = response.getStatusLine().getStatusCode();
-                if (status == 404) {
-                    channel.sendMessage("<@" + discordUser.getId() + "> 你绑定的Origin ID **" + discordUser.getApexId() +
-                            "** 不存在，请重新绑定。你可以尝试在 https://apex.tracker.gg 上搜索你的ID。你的Origin ID是加好友是输入的" +
-                            "ID，不是登录Origin的用户名。").queue();
-                    return;
-                } else if (status != 200) {
-                    channel.sendMessage("<@" + discordUser.getId() + "> 无法查询").queue();
-                    return;
-                }
-                String responseBody = EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8);
-                JSONObject json = new JSONObject(responseBody);
-
-                JSONArray segments = json.getJSONObject("data").getJSONArray("segments");
-                for (int i = 0; i < segments.length(); i++) {
-                    JSONObject segment = segments.getJSONObject(i);
-                    if (segment.getString("type").equals("overview")) {
-                        JSONObject stats = segment.getJSONObject("stats");
-                        if (stats.has("kills")) {
-                            kills = stats.getJSONObject("kills").getString("displayValue");
-                        } else {
-                            kills = "无法读取";
-                        }
-
-                        JSONObject rankScore = stats.getJSONObject("rankScore");
-                        rankName = rankScore.getJSONObject("metadata").getString("rankName");
-                        rankAvatar = rankScore.getJSONObject("metadata").getString("iconUrl");
-                        break;
-                    }
-                }
-
+                // Read invitation URL
                 GuildVoiceState voiceState = member.getVoiceState();
                 if (voiceState != null) {
                     VoiceChannel voiceChannel = voiceState.getChannel();
                     if (voiceChannel != null) {
                         Invite invite = voiceChannel.createInvite().complete();
-                        inviteUrl = invite.getUrl();
+                        apexDto.setInviteUrl(invite.getUrl());
                     }
                 }
 
-                channel.sendMessage(new EmbedBuilder()
-                        .setAuthor(member.getEffectiveName() + " 请求Apex组队", null, member.getUser().getAvatarUrl())
-                        .setThumbnail(rankAvatar)
-                        .setTitle(extras)
-                        .setDescription(inviteUrl == null ? inviteUrl : "[:race_car: 点此上车 :race_car:](" + inviteUrl + ")")
-                        .addField("Origin ID", discordUser.getApexId(), true)
-                        .addField("段位", rankName, true)
-                        .addField("击杀", kills, true)
-                        .build()).queue();
+                Request request = new Request.Builder()
+                        .url("https://public-api.tracker.gg/v2/apex/standard/profile/origin/" + discordUser.getApexId())
+                        .addHeader("TRN-Api-Key", "0721ec03-b743-40ff-97fa-0d04568f655a")
+                        .build();
+
+                Call call = client.newCall(request);
+                call.enqueue(new Callback() {
+                    public void onResponse(@NotNull Call call, @NotNull Response response) {
+                        if (response.code() != 200) {
+                            onFailure(call, new IOException());
+                            return;
+                        }
+                        try {
+                            JSONObject json = new JSONObject(Objects.requireNonNull(response.body()).string());
+
+                            JSONArray segments = json.getJSONObject("data").getJSONArray("segments");
+                            for (int i = 0; i < segments.length(); i++) {
+                                JSONObject segment = segments.getJSONObject(i);
+                                if (segment.getString("type").equals("overview")) {
+                                    JSONObject stats = segment.getJSONObject("stats");
+                                    if (stats.has("kills")) {
+                                        apexDto.setKills(stats.getJSONObject("kills").getString("displayValue"));
+                                    } else {
+                                        apexDto.setKills("无法读取");
+                                    }
+
+                                    JSONObject rankScore = stats.getJSONObject("rankScore");
+                                    apexDto.setRankName(rankScore.getJSONObject("metadata").getString("rankName"));
+                                    apexDto.setRankAvatar(rankScore.getJSONObject("metadata").getString("iconUrl"));
+                                    break;
+                                }
+                            }
+                            channel.sendMessage(new EmbedBuilder()
+                                    .setAuthor(member.getEffectiveName() + " 请求Apex组队", null, member.getUser().getAvatarUrl())
+                                    .setThumbnail(apexDto.getRankAvatar())
+                                    .setTitle(apexDto.getExtras())
+                                    .setDescription(apexDto.getInviteUrl() == null ? apexDto.getInviteUrl() : "[:race_car: 点此上车 :race_car:](" + apexDto.getInviteUrl() + ")")
+                                    .addField("Origin ID", discordUser.getApexId(), true)
+                                    .addField("段位", apexDto.getRankName(), true)
+                                    .addField("击杀", apexDto.getKills(), true)
+                                    .build()).queue();
+                        } catch (IOException e) {
+                            onFailure(call, e);
+                        }
+                    }
+
+                    public void onFailure(@NotNull Call call, @NotNull IOException e) {
+                        channel.sendMessage(new EmbedBuilder()
+                                .setAuthor(member.getEffectiveName() + " 请求Apex组队", null, member.getUser().getAvatarUrl())
+                                .setTitle(apexDto.getExtras())
+                                .setDescription(apexDto.getInviteUrl() == null ? apexDto.getInviteUrl() : "[:race_car: 点此上车 :race_car:](" + apexDto.getInviteUrl() + ")")
+                                .addField("Origin ID", discordUser.getApexId(), true)
+                                .addField("段位", "无法读取", true)
+                                .addField("击杀", "无法读取", true)
+                                .build()).queue();
+                    }
+                });
+
+                // TODO: 404
+//                Request request = new Request.Builder()
+//                        .url("https://public-api.tracker.gg/v2/apex/standard/profile/origin/" + discordUser.getApexId())
+//                        .addHeader("TRN-Api-Key", "0721ec03-b743-40ff-97fa-0d04568f655a")
+//                        .build();
+//                Call call = client.newCall(request);
+//                Response res = call.execute();
+//
+//                System.out.println(res.code());
+//                System.out.println(res.body().string());
+//
+//                HttpGet httpGet = new HttpGet("https://public-api.tracker.gg/v2/apex/standard/profile/origin/" + discordUser.getApexId());
+//                httpGet.setHeader("TRN-Api-Key", "0721ec03-b743-40ff-97fa-0d04568f655a");
+//                HttpResponse response = httpClient.execute(httpGet);
+//                int status = response.getStatusLine().getStatusCode();
+//                if (status == 404) {
+//                    channel.sendMessage("<@" + discordUser.getId() + "> 你绑定的Origin ID **" + discordUser.getApexId() +
+//                            "** 不存在，请重新绑定。你可以尝试在 https://apex.tracker.gg 上搜索你的ID。你的Origin ID是加好友是输入的" +
+//                            "ID，不是登录Origin的用户名。").queue();
+//                    return;
+//                } else if (status != 200) {
+//                    channel.sendMessage("<@" + discordUser.getId() + "> 无法查询").queue();
+//                    return;
+//                }
+//                String responseBody = EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8);
+
+
+
 
 
 
@@ -229,14 +292,36 @@ public class MessageReceivedEventListener extends BaseEventListener {
             } else if ("yygq".equalsIgnoreCase(command[1])) {
                 channel.sendMessage("<@" + member.getId() + "> 警告！ 本DC禁止阴阳怪气！").queue();
             } else if ("debug".equalsIgnoreCase(command[1])) {
-//                throw new IllegalStateException("asdkjahsdj");
-//                announceBirthday(false, event.getJDA());
+                Request request = new Request.Builder()
+                        .url("http://localhost:8081/authentication/test")
+                        .build();
+
+                Call call = client.newCall(request);
+                call.enqueue(new Callback() {
+                    public void onResponse(Call call, Response response) {
+                        channel.sendMessage("yf finally done").queue();
+                    }
+
+                    public void onFailure(Call call, IOException e) {
+                        channel.sendMessage("yf error").queue();
+                    }
+                });
             } else {
                 channel.sendMessage("<@" + member.getId() + "> 无法识别指令 **" + content + "**。请运行yf help查看指令说明。").queue();
             }
         } catch (Exception e) {
             logError(event, discordGuildRepo, e);
         }
+    }
+
+    @Data
+    @NoArgsConstructor
+    static class ApexDto {
+        private String extras = null;
+        private String kills = "";
+        private String rankName = "";
+        private String rankAvatar = "";
+        private String inviteUrl = null;
     }
 
 

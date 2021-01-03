@@ -81,7 +81,7 @@ public class BeanConfig {
     public JDA jda(MessageReceivedEventListener messageReceivedEventListener, MemberJoinedEventListener memberJoinedEventListener,
                    MemberRemoveEventListener memberRemoveEventListener) throws Exception {
         return JDABuilder.createDefault(toolsProperties.getDcBotToken())
-                .setMemberCachePolicy(MemberCachePolicy.NONE)
+//                .setMemberCachePolicy(MemberCachePolicy.NONE)
                 .enableIntents(GatewayIntent.GUILD_MEMBERS)
                 .addEventListeners(messageReceivedEventListener, memberJoinedEventListener)
                 .build().awaitReady();
