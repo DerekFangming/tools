@@ -83,12 +83,12 @@ public class PostService {
         }
     }
 
-    @Scheduled(cron = "0 0 1 * * ?")// Every 2 seconds 0/2 * * * * ?
+    @Scheduled(cron = "0 0 14 * * ?")// Every 2 seconds 0/2 * * * * ?
     public void autoLoad() {
         loadPosts();
     }
 
-    @Scheduled(cron = "0 0 6 * * ?")
+    @Scheduled(cron = "0 0 16 * * ?")
     public void autoCleanup() {
         cleanupViewedPosts();
     }

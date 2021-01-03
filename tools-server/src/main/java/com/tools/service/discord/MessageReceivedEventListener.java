@@ -59,7 +59,7 @@ public class MessageReceivedEventListener extends BaseEventListener {
 
         try {
             //Message message = event.getMessage();
-            String content = event.getMessage().getContentDisplay();
+            String content = event.getMessage().getContentRaw();
             if (!content.toLowerCase().startsWith("yf")) return;
 
             String[] command = content.split("\\s+");

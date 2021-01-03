@@ -5,11 +5,13 @@ import com.tools.dto.PostDto;
 import com.tools.service.PostService;
 import com.tools.service.discord.MemberJoinedEventListener;
 import com.tools.service.discord.MemberRemoveEventListener;
+import com.tools.service.discord.MemberUpdateEventListener;
 import com.tools.service.discord.MessageReceivedEventListener;
 import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.requests.GatewayIntent;
+import net.dv8tion.jda.api.utils.MemberCachePolicy;
 import org.apache.http.client.HttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
@@ -79,8 +81,9 @@ public class BeanConfig {
     public JDA jda(MessageReceivedEventListener messageReceivedEventListener, MemberJoinedEventListener memberJoinedEventListener,
                    MemberRemoveEventListener memberRemoveEventListener) throws Exception {
         return JDABuilder.createDefault(toolsProperties.getDcBotToken())
+                .setMemberCachePolicy(MemberCachePolicy.NONE)
                 .enableIntents(GatewayIntent.GUILD_MEMBERS)
-                .addEventListeners(messageReceivedEventListener, memberJoinedEventListener, memberRemoveEventListener)
+                .addEventListeners(messageReceivedEventListener, memberJoinedEventListener)
                 .build().awaitReady();
     }
 }
