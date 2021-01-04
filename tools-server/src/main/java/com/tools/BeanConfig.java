@@ -79,10 +79,10 @@ public class BeanConfig {
 
     @Bean
     public JDA jda(MessageReceivedEventListener messageReceivedEventListener, MemberJoinedEventListener memberJoinedEventListener,
-                   MemberRemoveEventListener memberRemoveEventListener) throws Exception {
+                   MemberRemoveEventListener memberRemoveEventListener, MemberUpdateEventListener memberUpdateEventListener) throws Exception {
         return JDABuilder.createDefault(toolsProperties.getDcBotToken())
                 .enableIntents(GatewayIntent.GUILD_MEMBERS)
-                .addEventListeners(messageReceivedEventListener, memberJoinedEventListener, memberRemoveEventListener)
+                .addEventListeners(messageReceivedEventListener, memberJoinedEventListener, memberRemoveEventListener, memberUpdateEventListener)
                 .build().awaitReady();
     }
 }

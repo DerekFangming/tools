@@ -199,38 +199,6 @@ public class MessageReceivedEventListener extends BaseEventListener {
                                 .build()).queue();
                     }
                 });
-
-                // TODO: 404
-//                Request request = new Request.Builder()
-//                        .url("https://public-api.tracker.gg/v2/apex/standard/profile/origin/" + discordUser.getApexId())
-//                        .addHeader("TRN-Api-Key", "0721ec03-b743-40ff-97fa-0d04568f655a")
-//                        .build();
-//                Call call = client.newCall(request);
-//                Response res = call.execute();
-//
-//                System.out.println(res.code());
-//                System.out.println(res.body().string());
-//
-//                HttpGet httpGet = new HttpGet("https://public-api.tracker.gg/v2/apex/standard/profile/origin/" + discordUser.getApexId());
-//                httpGet.setHeader("TRN-Api-Key", "0721ec03-b743-40ff-97fa-0d04568f655a");
-//                HttpResponse response = httpClient.execute(httpGet);
-//                int status = response.getStatusLine().getStatusCode();
-//                if (status == 404) {
-//                    channel.sendMessage("<@" + discordUser.getId() + "> 你绑定的Origin ID **" + discordUser.getApexId() +
-//                            "** 不存在，请重新绑定。你可以尝试在 https://apex.tracker.gg 上搜索你的ID。你的Origin ID是加好友是输入的" +
-//                            "ID，不是登录Origin的用户名。").queue();
-//                    return;
-//                } else if (status != 200) {
-//                    channel.sendMessage("<@" + discordUser.getId() + "> 无法查询").queue();
-//                    return;
-//                }
-//                String responseBody = EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8);
-
-
-
-
-
-
             } else if ("birthday".equalsIgnoreCase(command[1])) {
                 if (command.length == 2) {
                     List<DiscordUser> users = discordUserRepo.findByBirthdayNotNullOrderByBirthdayAsc();
@@ -272,7 +240,16 @@ public class MessageReceivedEventListener extends BaseEventListener {
                                         .orElse(DiscordUser.builder().id(member.getId()).name(member.getUser().getName()).guildId(member.getGuild().getId()).build());
                                 discordUser.setBirthday(command[2]);
                                 discordUserRepo.save(discordUser);
-                                channel.sendMessage("<@" + member.getId() + "> 成功注册生日为**" + month + "月" + day + "日**。" ).queue();
+
+                                String confirmation = "<@" + member.getId() + "> 成功注册生日为**" + month + "月" + day + "日**。";
+                                List<DiscordUser> users = discordUserRepo.findByBirthday(command[2]);
+                                String sameDay = users.stream().filter(u -> !u.getId().equals(member.getId())).map(u -> "<@" + u.getId() + ">").collect(Collectors.joining("，"));
+
+                                if (sameDay.length() > 0) {
+                                    confirmation += "你和" + sameDay + "同一天生日！";
+                                }
+
+                                channel.sendMessage(confirmation).queue();
                                 return;
                             }
 
