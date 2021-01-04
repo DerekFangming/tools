@@ -23,15 +23,15 @@
       <label>User display name</label>
       <input type="text" class="form-control" [(ngModel)]="displayName">
     </div>
-    <div class="col-sm-6 col-md-2 mb-3">
+    <div class="col-6 col-sm-6 col-md-2 mb-3">
       <label>From date</label>
       <input type="text" class="form-control" ngbDatepicker #df="ngbDatepicker" (click)="df.toggle()" [(ngModel)]="fromDate">
     </div>
-    <div class="col-sm-6 col-md-2 mb-3">
+    <div class="col-6 col-sm-6 col-md-2 mb-3">
       <label>To date</label>
       <input type="text" class="form-control" ngbDatepicker #dt="ngbDatepicker" (click)="dt.toggle()" [(ngModel)]="toDate">
     </div>
-    <div class="col-sm-6 col-md-2 mb-3">
+    <div class="col-6 col-sm-6 col-md-2 mb-3">
       <label for="validationCustom02">Action type</label>
       <div class="input-group">
         <button class="btn btn-outline-secondary btn-block dropdown-toggle text-capitalize" type="button" data-toggle="dropdown">{{ action == '' ? 'all' : action}}</button>
@@ -43,7 +43,7 @@
         </div>
       </div>
     </div>
-    <div class="col-sm-6 col-md-1 mb-3">
+    <div class="col-6 col-sm-6 col-md-1 mb-3">
       <label></label>
       <div class="input-group">
         <button class="btn btn-outline-secondary btn-block mt-2" type="button" (click)="loadUserLogs()">Search</button>

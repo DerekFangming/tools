@@ -55,7 +55,7 @@ public class MessageReceivedEventListener extends BaseEventListener {
         add(" 6666666666 很骚");
         add(" 哇 好帅啊");
         add(" 大佬 tql");
-        add(" 太对了 太对了");
+        add(" 超神啦超神啦");
         add(" 有内味儿了");
         add(" 有点东西");
         add(" 对面就这？就这？");

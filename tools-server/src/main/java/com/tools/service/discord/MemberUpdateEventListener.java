@@ -21,6 +21,7 @@ public class MemberUpdateEventListener extends BaseEventListener {
     public void onGuildMemberUpdate(@Nonnull GuildMemberUpdateEvent event) {
 //        event.getMember().getTimeBoosted()
 //        System.out.println(event.toString());
+
     }
 
 
