@@ -31,6 +31,9 @@ public class DiscordUserLog {
     @Column(name="name")
     private String name;
 
+    @Column(name="nickname")
+    private String nickname;
+
     @Column(name="action")
     @Enumerated(EnumType.STRING)
     private DiscordUserLogActionType action;

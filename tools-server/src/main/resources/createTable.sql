@@ -79,6 +79,12 @@ create table tl_discord_users (
 	id text primary key,
 	name text,
 	guild_id text,
+	nickname text,
+	avatar_id text,
+	roles text,
+	created_date timestamp without time zone,
+	joined_date timestamp without time zone,
+	boosted_date timestamp without time zone,
 	apex_id text,
 	birthday text
 );

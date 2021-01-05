@@ -66,7 +66,8 @@
       <table class="table">
         <thead>
           <tr>
-            <th scope="col">User display name</th>
+            <th scope="col">Username</th>
+            <th scope="col">Nickname</th>
             <th scope="col">Action</th>
             <th scope="col">Time</th>
           </tr>
@@ -74,6 +75,7 @@
         <tbody>
           <tr *ngFor="let userLog of pagedUserLogList;">
             <th scope="row"> {{ userLog.name }} </th>
+            <th scope="row"> {{ userLog.nickname }} </th>
             <td> {{ utils.getType(userLog.action) }} </td>
             <td> {{ utils.getCreatedTime(userLog.created) }} </td>
           </tr>

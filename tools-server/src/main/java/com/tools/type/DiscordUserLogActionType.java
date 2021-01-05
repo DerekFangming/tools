@@ -2,5 +2,7 @@ package com.tools.type;
 
 public enum DiscordUserLogActionType {
     JOIN,
-    LEAVE
+    LEAVE,
+    BOOST,
+    UN_BOOST
 }

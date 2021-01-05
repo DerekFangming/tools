@@ -10,6 +10,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import java.time.Instant;
 
 @Entity
 @Table(name="tl_discord_users")
@@ -29,6 +30,24 @@ public class DiscordUser {
 
     @Column(name="guild_id")
     private String guildId;
+
+    @Column(name="nickname")
+    private String nickname;
+
+    @Column(name="avatar_id")
+    private String avatarId;
+
+    @Column(name="roles")
+    private String roles;
+
+    @Column(name="created_date")
+    private Instant createdDate;
+
+    @Column(name="joined_date")
+    private Instant joinedDate;
+
+    @Column(name="boosted_date")
+    private Instant boostedDate;
 
     @Column(name="apex_id")
     private String apexId;
