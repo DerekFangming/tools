@@ -34,6 +34,7 @@ public class MemberJoinedEventListener extends BaseEventListener {
                     .guildId(guild.getId())
                     .userId(member.getId())
                     .name(member.getUser().getName())
+                    .nickname(member.getEffectiveName())
                     .action(DiscordUserLogActionType.JOIN)
                     .created(Instant.now())
                     .build());

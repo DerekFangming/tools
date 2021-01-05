@@ -35,6 +35,7 @@ public class MemberRemoveEventListener extends BaseEventListener {
                     .guildId(guild.getId())
                     .userId(user.getId())
                     .name(user.getName())
+                    .nickname(user.getName())
                     .action(DiscordUserLogActionType.LEAVE)
                     .created(Instant.now())
                     .build());
