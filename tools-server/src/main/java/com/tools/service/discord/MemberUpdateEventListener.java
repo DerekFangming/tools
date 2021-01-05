@@ -27,57 +27,62 @@ public class MemberUpdateEventListener extends BaseEventListener {
 
     private final DiscordUserRepo discordUserRepo;
     private final DiscordUserLogRepo discordUserLogRepo;
+    private final DiscordGuildRepo discordGuildRepo;
     private final ObjectMapper objectMapper;
 
     public void onGuildMemberUpdate(@Nonnull GuildMemberUpdateEvent event) {
-        User user = event.getUser();
-        Member member = event.getMember();
-
-        DiscordUser discordUser = discordUserRepo.findById(user.getId())
-                .orElse(DiscordUser.builder()
-                        .id(user.getId())
-                        .guildId(member.getGuild().getId())
-                        .createdDate(Instant.from(user.getTimeCreated()))
-                        .joinedDate(Instant.from(member.getTimeJoined()))
-                        .build());
-        // Compare
-        if (discordUser.getBoostedDate() == null && member.getTimeBoosted() != null) {
-            discordUserLogRepo.save(DiscordUserLog.builder()
-                    .guildId(discordUser.getGuildId())
-                    .userId(discordUser.getId())
-                    .name(user.getName())
-                    .nickname(member.getEffectiveName())
-                    .action(DiscordUserLogActionType.BOOST)
-                    .created(Instant.now())
-                    .build());
-        } else if (discordUser.getBoostedDate() != null && member.getTimeBoosted() == null) {
-            discordUserLogRepo.save(DiscordUserLog.builder()
-                    .guildId(discordUser.getGuildId())
-                    .userId(discordUser.getId())
-                    .name(user.getName())
-                    .nickname(member.getEffectiveName())
-                    .action(DiscordUserLogActionType.UN_BOOST)
-                    .created(Instant.now())
-                    .build());
-        }
-
-        // Update fields that are updatable
-        discordUser.setName(user.getName());
-        discordUser.setNickname(member.getEffectiveName());
-        discordUser.setAvatarId(user.getAvatarId());
-        discordUser.setBoostedDate(member.getTimeBoosted() == null ? null : Instant.from(member.getTimeBoosted()));
-
-        List<String> roleIds = member.getRoles().stream().map(Role::getId).collect(Collectors.toList());
         try {
-            discordUser.setRoles(objectMapper.writeValueAsString(roleIds));
-        } catch (JsonProcessingException ignored) {}
+            User user = event.getUser();
+            Member member = event.getMember();
 
-        // Fix existing data
-        if (discordUser.getCreatedDate() == null) discordUser.setCreatedDate(Instant.from(user.getTimeCreated()));
-        if (discordUser.getJoinedDate() == null) discordUser.setJoinedDate(Instant.from(member.getTimeJoined()));
+            DiscordUser discordUser = discordUserRepo.findById(user.getId())
+                    .orElse(DiscordUser.builder()
+                            .id(user.getId())
+                            .guildId(member.getGuild().getId())
+                            .createdDate(Instant.from(user.getTimeCreated()))
+                            .joinedDate(Instant.from(member.getTimeJoined()))
+                            .build());
+            // Compare
+            if (discordUser.getBoostedDate() == null && member.getTimeBoosted() != null) {
+                discordUserLogRepo.save(DiscordUserLog.builder()
+                        .guildId(discordUser.getGuildId())
+                        .userId(discordUser.getId())
+                        .name(user.getName())
+                        .nickname(member.getEffectiveName())
+                        .action(DiscordUserLogActionType.BOOST)
+                        .created(Instant.now())
+                        .build());
+            } else if (discordUser.getBoostedDate() != null && member.getTimeBoosted() == null) {
+                discordUserLogRepo.save(DiscordUserLog.builder()
+                        .guildId(discordUser.getGuildId())
+                        .userId(discordUser.getId())
+                        .name(user.getName())
+                        .nickname(member.getEffectiveName())
+                        .action(DiscordUserLogActionType.UN_BOOST)
+                        .created(Instant.now())
+                        .build());
+            }
 
-        // Save
-        discordUserRepo.save(discordUser);
+            // Update fields that are updatable
+            discordUser.setName(user.getName());
+            discordUser.setNickname(member.getEffectiveName());
+            discordUser.setAvatarId(user.getAvatarId());
+            discordUser.setBoostedDate(member.getTimeBoosted() == null ? null : Instant.from(member.getTimeBoosted()));
+
+            List<String> roleIds = member.getRoles().stream().map(Role::getId).collect(Collectors.toList());
+            try {
+                discordUser.setRoles(objectMapper.writeValueAsString(roleIds));
+            } catch (JsonProcessingException ignored) {}
+
+            // Fix existing data
+            if (discordUser.getCreatedDate() == null) discordUser.setCreatedDate(Instant.from(user.getTimeCreated()));
+            if (discordUser.getJoinedDate() == null) discordUser.setJoinedDate(Instant.from(member.getTimeJoined()));
+    
+            // Save
+            discordUserRepo.save(discordUser);
+        } catch (Exception e) {
+            logError(event, discordGuildRepo, e);
+        }
 
     }
 
