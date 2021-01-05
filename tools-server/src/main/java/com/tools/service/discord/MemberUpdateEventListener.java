@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Nonnull;
+import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -42,16 +43,20 @@ public class MemberUpdateEventListener extends BaseEventListener {
                             .createdDate(Instant.from(user.getTimeCreated()))
                             .joinedDate(Instant.from(member.getTimeJoined()))
                             .build());
+
+
             // Compare
             if (discordUser.getBoostedDate() == null && member.getTimeBoosted() != null) {
-                discordUserLogRepo.save(DiscordUserLog.builder()
-                        .guildId(discordUser.getGuildId())
-                        .userId(discordUser.getId())
-                        .name(user.getName())
-                        .nickname(member.getEffectiveName())
-                        .action(DiscordUserLogActionType.BOOST)
-                        .created(Instant.now())
-                        .build());
+                if (Instant.from(member.getTimeBoosted()).isAfter(Instant.now().minus(Duration.ofDays(5)))) {
+                    discordUserLogRepo.save(DiscordUserLog.builder()
+                            .guildId(discordUser.getGuildId())
+                            .userId(discordUser.getId())
+                            .name(user.getName())
+                            .nickname(member.getEffectiveName())
+                            .action(DiscordUserLogActionType.BOOST)
+                            .created(Instant.now())
+                            .build());
+                }
             } else if (discordUser.getBoostedDate() != null && member.getTimeBoosted() == null) {
                 discordUserLogRepo.save(DiscordUserLog.builder()
                         .guildId(discordUser.getGuildId())
@@ -77,7 +82,7 @@ public class MemberUpdateEventListener extends BaseEventListener {
             // Fix existing data
             if (discordUser.getCreatedDate() == null) discordUser.setCreatedDate(Instant.from(user.getTimeCreated()));
             if (discordUser.getJoinedDate() == null) discordUser.setJoinedDate(Instant.from(member.getTimeJoined()));
-    
+
             // Save
             discordUserRepo.save(discordUser);
         } catch (Exception e) {
