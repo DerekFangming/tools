@@ -5,14 +5,17 @@
       <span class="navbar-toggler-icon"></span>
     </button>
     <div class="collapse navbar-collapse" id="navbarNav">
-      <ul class="navbar-nav">
-        <li class="nav-item" [ngClass]="{'active': tab == 'logs'}">
+      <ul class="navbar-nav mr-auto">
+        <li class="nav-item ml-2" [ngClass]="{'active': tab == 'logs'}">
           <a class="nav-link pointer" (click)="onTabSelected('logs')">User logs</a>
         </li>
-        <li class="nav-item" [ngClass]="{'active': tab == 'config'}">
+        <li class="nav-item ml-2" [ngClass]="{'active': tab == 'config'}">
           <a class="nav-link pointer" (click)="onTabSelected('config')">Bot configuration</a>
         </li>
       </ul>
+      <form class="form-inline my-2 my-lg-0">
+        <button type="button" class="btn btn-dark" (click)="utils.logout()">Log out</button>
+      </form>
     </div>
   </div>
 </nav>

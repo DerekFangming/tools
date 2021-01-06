@@ -28,7 +28,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .authenticated()
                 .anyRequest().permitAll()
                 .and()
-                .logout().logoutSuccessUrl("/").permitAll()
+                .logout().logoutSuccessUrl("https://sso.fmning.com/authentication/logout").permitAll()
                 .and().csrf().disable();
     }
 

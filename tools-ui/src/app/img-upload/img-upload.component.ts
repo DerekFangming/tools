@@ -11,6 +11,8 @@ export class ImgUploadComponent implements OnInit {
   uploader = true;
   dragOver = false;
 
+  imageList: any[]
+
   constructor(private title: Title) {
     this.title.setTitle('Image uploader');
   }
@@ -26,11 +28,6 @@ export class ImgUploadComponent implements OnInit {
     this.uploader = false;
   }
 
-  onDrop(event) {
-    this.dragOver = false;
-    event.preventDefault();
-  }
-
   onDragOver(event) {
     event.stopPropagation();
     event.preventDefault();
@@ -38,13 +35,36 @@ export class ImgUploadComponent implements OnInit {
 
   onDragEnter(event) {
     this.dragOver = true;
-    console.log(2);
     event.preventDefault();
   }
 
   onDragLeave(event) {
     this.dragOver = false;
     event.preventDefault();
+  }
+
+  onDrop(event) {
+    this.dragOver = false;
+    event.preventDefault();
+    console.log(event);
+    let dt = event.dataTransfer;
+    let files = dt.files;
+    this.imageList = files;
+    console.log(files);
+    console.log(typeof files[0]);
+
+    var reader = new FileReader();
+    reader.onload = (event) =>{
+      console.log('readfiles event ===== ',event);
+      // var image = new Image();
+      var fileReader = event.target as FileReader;
+      console.log(fileReader.result);
+      // image.src = fileReader.result;
+      // image.width = 50; 
+      // this.imageDrop.nativeElement.appendChild(image);
+    };
+    
+    reader.readAsDataURL(files[0]);
   }
 
 }

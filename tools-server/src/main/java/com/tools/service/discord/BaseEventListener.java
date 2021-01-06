@@ -33,7 +33,7 @@ public abstract class BaseEventListener extends ListenerAdapter {
                     if (g.getDebugChannelId() != null) {
 
                         Guild guild = jda.getGuildById(g.getId());
-                        MessageChannel channel = guild.getTextChannelById(g.getBirthdayChannelId());
+                        MessageChannel channel = guild.getTextChannelById(g.getDebugChannelId());
                         channel.sendMessage(new EmbedBuilder()
                                 .setTitle(e.getClass().getName() + ": " + e.getMessage())
                                 .setDescription("```" + ExceptionUtils.getStackTrace(e) + "```")

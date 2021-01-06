@@ -17,13 +17,33 @@
   </div>
 </nav>
 
-<!-- <div class="container-fluid fill px-3 py-3" [ngClass]="{'bg-light border border-secondary': !dragOver}" (drop)="onDrop($event)" (dragover)="onDragOver($event)"
-  (dragenter)="onDragEnter($event)" (dragleave)="onDragLeave($event)">
-</div> -->
-
-<div class="sticky-top" style="height: 90vh; width: 100%;">
-
+<div class="container">
+  <div class="row">
+    <div class="col-3" *ngFor="let image of imageList;">
+      <div class="card" style="width: 18rem;">
+        <div class="card-body">
+          <h5 class="card-title">Card title</h5>
+          <h6 class="card-subtitle mb-2 text-muted">Card subtitle</h6>
+          <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
+          <a href="#" class="card-link">Card link</a>
+          <a href="#" class="card-link">Another link</a>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
 
-<div class="container" style="position: absolute; background-color: rgb(189, 113, 14); height: 1500px">
+<div class="fixed-bottom" style=" height: 100vh">
+  <div class="h-100" style="width: 100%; margin-top: 70px;">
+    <div class="mx-4 text-center" style="height:90vh;" [ngClass]="{'dotted-border': dragOver}" (drop)="onDrop($event)" (dragover)="onDragOver($event)"
+      (dragenter)="onDragEnter($event)" (dragleave)="onDragLeave($event)">
+      <div *ngIf="!dragOver" style="top: 40%; left: 0; right: 0; position: absolute; z-index: -1;">
+        <img src="/assets/plus.png" height="100px" width="100px">
+        <p class="display-4" style="font-size: 2rem;">Click anywhere or drop images here to upload them.</p>
+      </div>
+      <div *ngIf="dragOver" style="top: 50%; left: 0; right: 0; position: absolute; z-index: -1;">
+        <p class="display-4" style="font-size: 2rem;">Drop images to upload them.</p>
+      </div>
+    </div>
+  </div>
 </div>
