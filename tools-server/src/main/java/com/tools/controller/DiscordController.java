@@ -7,6 +7,7 @@ import com.tools.domain.DiscordUserLog;
 import com.tools.dto.DiscordObjectDto;
 import com.tools.repository.DiscordGuildRepo;
 import com.tools.repository.DiscordUserLogRepo;
+import com.tools.repository.DiscordUserRepo;
 import com.tools.service.discord.DiscordService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.apachecommons.CommonsLog;
@@ -15,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -28,6 +30,7 @@ public class DiscordController {
     private final DiscordService discordService;
     private final ToolsProperties toolsProperties;
     private final DiscordGuildRepo discordGuildRepo;
+    private final DiscordUserRepo discordUserRepo;
     private final DiscordUserLogRepo discordUserLogRepo;
 
 
@@ -39,11 +42,31 @@ public class DiscordController {
 
     @GetMapping("/members/sync")
     @PreAuthorize("hasRole('DC')")
-    public void sync(@RequestParam(value = "print", defaultValue="true") boolean print) {
-        System.out.println(print);
-//        List<DiscordUser> users = discordService.getMembers(toolsProperties.getDcDefaultGuildId());
-//        for ()
-//        return discordService.getMembers(toolsProperties.getDcDefaultGuildId());
+    public List<String> sync(@RequestParam(value = "print", defaultValue="true") boolean print) {
+        List<String> res = new ArrayList<>();
+        List<DiscordUser> users = discordService.getMembers(toolsProperties.getDcDefaultGuildId());
+        users.forEach(user -> {
+            DiscordUser existingUser = discordUserRepo.findById(user.getId()).orElse(null);
+            if (existingUser == null) {
+                if (!print) {
+                    discordUserRepo.save(user);
+                }
+                res.add(user.getId() + ":add:" + user.getNickname());
+            } else {
+                if (!print) {
+                    existingUser.setNickname(user.getNickname());
+                    existingUser.setRoles(user.getRoles());
+                    existingUser.setAvatarId(user.getAvatarId());
+                    existingUser.setJoinedDate(user.getJoinedDate());
+                    existingUser.setCreatedDate(user.getCreatedDate());
+                    existingUser.setBoostedDate(user.getBoostedDate());
+                    discordUserRepo.save(existingUser);
+                }
+                res.add(user.getId() + ":update:" + user.getNickname());
+            }
+        });
+
+        return res;
     }
 
     @GetMapping("/{guildId}/channels")
