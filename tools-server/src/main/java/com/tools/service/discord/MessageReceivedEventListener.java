@@ -58,7 +58,13 @@ public class MessageReceivedEventListener extends BaseEventListener {
     public void onMessageReceived(@NotNull MessageReceivedEvent event) {
         try {
             String content = event.getMessage().getContentRaw();
-            if (!content.toLowerCase().startsWith("yf")) return;
+            if (!content.toLowerCase().startsWith("yf")) {
+                if (event.getMessage().getType() == MessageType.GUILD_MEMBER_BOOST) {//TODO
+                    Member mmm = event.getMember();
+                    System.out.println((mmm == null ? "null" : mmm.getEffectiveName()) + " boosted=======");
+                }
+                return;
+            }
 
             String[] command = content.split("\\s+");
 
@@ -66,7 +72,7 @@ public class MessageReceivedEventListener extends BaseEventListener {
             Member member = event.getMember();
             if (member == null || member.getUser().isBot()) return;
 
-            if ("help".equalsIgnoreCase(command[1])) {
+            if (command.length == 1 || "help".equalsIgnoreCase(command[1])) {
                 channel.sendMessage(new EmbedBuilder()
                         .setTitle("妖风电竞 bot指令")
                         .setDescription("**绑定Origin ID：**`yf apex link ID`\n将指令里的`ID`替换成你的Origin ID即可。" +

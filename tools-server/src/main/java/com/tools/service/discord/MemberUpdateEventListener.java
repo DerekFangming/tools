@@ -66,6 +66,15 @@ public class MemberUpdateEventListener extends BaseEventListener {
                         .action(DiscordUserLogActionType.UN_BOOST)
                         .created(Instant.now())
                         .build());
+            } else if (discordUser.getBoostedDate() != null && member.getTimeBoosted() != null && discordUser.getBoostedDate().equals(Instant.from(member.getTimeBoosted()))) {
+                discordUserLogRepo.save(DiscordUserLog.builder()
+                        .guildId(discordUser.getGuildId())
+                        .userId(discordUser.getId())
+                        .name(user.getName())
+                        .nickname(member.getEffectiveName())
+                        .action(DiscordUserLogActionType.UN_BOOST)
+                        .created(Instant.now())
+                        .build());
             }
 
             // Update fields that are updatable

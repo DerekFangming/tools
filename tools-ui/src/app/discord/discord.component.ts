@@ -212,14 +212,4 @@ export class DiscordComponent implements OnInit {
     });
   }
 
-  onReloadBot() {
-    this.updatingConfig = true;
-    this.http.get(environment.urlPrefix + 'api/discord/reload').subscribe(() => {
-      this.notifierService.notify('success', 'Bot is successfully restarted.');
-      this.updatingConfig = false;
-    }, error => {
-      this.notifierService.notify('error', error);
-    });
-  }
-
 }
