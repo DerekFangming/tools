@@ -80,8 +80,8 @@ public class BeanConfig {
                    MemberRemoveEventListener memberRemoveEventListener, MemberUpdateEventListener memberUpdateEventListener) throws Exception {
         return JDABuilder.createDefault(toolsProperties.getDcBotToken())
                 .enableIntents(GatewayIntent.GUILD_MEMBERS)
-                .setChunkingFilter(ChunkingFilter.ALL) // enable member chunking for all guilds
-                .setMemberCachePolicy(MemberCachePolicy.ALL) // ignored if chunking enabled
+//                .setChunkingFilter(ChunkingFilter.ALL) // enable member chunking for all guilds
+//                .setMemberCachePolicy(MemberCachePolicy.ALL) // ignored if chunking enabled
                 .addEventListeners(messageReceivedEventListener, memberJoinedEventListener, memberRemoveEventListener, memberUpdateEventListener)
                 .build().awaitReady();
     }

@@ -61,8 +61,8 @@ public class MessageReceivedEventListener extends BaseEventListener {
             if (!content.toLowerCase().startsWith("yf")) {
                 if (event.getMessage().getType() == MessageType.GUILD_MEMBER_BOOST) {//TODO
                     Member mmm = event.getMember();
-                    System.out.println((mmm == null ? "null" : mmm.getEffectiveName()) + " boosted=======");
-                }
+                    System.out.println("********" + (mmm == null ? "null" : mmm.getEffectiveName()) + " boosted");
+                }//TODO
                 return;
             }
 

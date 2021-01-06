@@ -44,6 +44,10 @@ public class MemberUpdateEventListener extends BaseEventListener {
                             .joinedDate(Instant.from(member.getTimeJoined()))
                             .build());
 
+            if (user.getId().equals("360222890718920705") || user.getId().equals("357417697769947137")) {// TODO
+                System.out.println("********" + user.getId() + " captured");
+            }
+
 
             // Compare
             if (discordUser.getBoostedDate() == null && member.getTimeBoosted() != null) {
