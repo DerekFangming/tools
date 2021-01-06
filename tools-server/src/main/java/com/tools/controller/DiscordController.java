@@ -2,6 +2,7 @@ package com.tools.controller;
 
 import com.tools.ToolsProperties;
 import com.tools.domain.DiscordGuild;
+import com.tools.domain.DiscordUser;
 import com.tools.domain.DiscordUserLog;
 import com.tools.dto.DiscordObjectDto;
 import com.tools.repository.DiscordGuildRepo;
@@ -30,11 +31,19 @@ public class DiscordController {
     private final DiscordUserLogRepo discordUserLogRepo;
 
 
-    @GetMapping("/reload")
+    @GetMapping("/members")
     @PreAuthorize("hasRole('DC')")
-    public void reload() {
-//        discordService.disconnectGateway();
-//        discordService.setup();
+    public List<DiscordUser> members() {
+        return discordService.getMembers(toolsProperties.getDcDefaultGuildId());
+    }
+
+    @GetMapping("/members/sync")
+    @PreAuthorize("hasRole('DC')")
+    public void sync(@RequestParam(value = "print", defaultValue="true") boolean print) {
+        System.out.println(print);
+//        List<DiscordUser> users = discordService.getMembers(toolsProperties.getDcDefaultGuildId());
+//        for ()
+//        return discordService.getMembers(toolsProperties.getDcDefaultGuildId());
     }
 
     @GetMapping("/{guildId}/channels")

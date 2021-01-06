@@ -1,6 +1,9 @@
 package com.tools.service.discord;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tools.ToolsProperties;
+import com.tools.domain.DiscordUser;
 import com.tools.dto.DiscordObjectDto;
 import com.tools.repository.DiscordGuildRepo;
 import com.tools.repository.DiscordUserRepo;
@@ -13,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.List;
@@ -26,6 +30,7 @@ public class DiscordService extends BaseEventListener {
     private final DiscordUserRepo discordUserRepo;
     private final JDA jda;
     private final ToolsProperties toolsProperties;
+    private final ObjectMapper objectMapper;
 
     @Scheduled(cron = "0 0 4 * * *")
     public void announceBirthDay() {
@@ -39,10 +44,9 @@ public class DiscordService extends BaseEventListener {
                     String birthday = String.format("%02d-%02d", today.get(Calendar.MONTH) + 1, today.get(Calendar.DAY_OF_MONTH));
                     discordUserRepo.findByBirthday(birthday).forEach(d -> {
                         String message = replacePlaceHolder(g.getBirthdayMessage(), d.getName(), d.getId());
-                        channel.sendMessage("@here ").queue();
+                        channel.sendMessage("@here " + message).queue();
 
                         try {
-                            Role r = jda.getRoleById(g.getBirthdayRoleId());
                             guild.addRoleToMember(d.getId(), jda.getRoleById(g.getBirthdayRoleId())).queue();
                         } catch (Exception ignored){
                             ignored.printStackTrace();
@@ -92,6 +96,31 @@ public class DiscordService extends BaseEventListener {
         } else {
             return Collections.emptyList();
         }
+    }
+
+    public List<DiscordUser> getMembers(String guildId) {
+        Guild guild = jda.getGuildById(guildId);
+        return guild.getMembers().stream()
+                .map(m -> {
+                    String roles;
+                    try {
+                        roles = objectMapper.writeValueAsString(m.getRoles().stream().map(Role::getId).collect(Collectors.toList()));
+                    } catch (JsonProcessingException e) {
+                        roles = "";
+                    }
+                    return DiscordUser.builder()
+                            .id(m.getId())
+                            .name(m.getUser().getName())
+                            .guildId(guildId)
+                            .nickname(m.getEffectiveName())
+                            .avatarId(m.getUser().getAvatarId())
+                            .roles(roles)
+                            .createdDate(Instant.from(m.getUser().getTimeCreated()))
+                            .joinedDate(Instant.from(m.getTimeJoined()))
+                            .boostedDate(m.getTimeBoosted() == null ? null : Instant.from(m.getTimeBoosted()))
+                            .build();
+                })
+                .collect(Collectors.toList());
     }
 
 }
