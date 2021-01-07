@@ -44,10 +44,9 @@ public class MemberUpdateEventListener extends BaseEventListener {
                             .joinedDate(Instant.from(member.getTimeJoined()))
                             .build());
 
-            if (user.getId().equals("360222890718920705") || user.getId().equals("357417697769947137")) {// TODO
-                System.out.println("********" + user.getId() + " captured");
+            if (user.getId().equals("360222890718920705")) {// TODO
+                System.out.println("******** myself captured");
             }
-
 
             // Compare
             if (discordUser.getBoostedDate() == null && member.getTimeBoosted() != null) {
@@ -70,15 +69,9 @@ public class MemberUpdateEventListener extends BaseEventListener {
                         .action(DiscordUserLogActionType.UN_BOOST)
                         .created(Instant.now())
                         .build());
-            } else if (discordUser.getBoostedDate() != null && member.getTimeBoosted() != null && discordUser.getBoostedDate().equals(Instant.from(member.getTimeBoosted()))) {
-                discordUserLogRepo.save(DiscordUserLog.builder()
-                        .guildId(discordUser.getGuildId())
-                        .userId(discordUser.getId())
-                        .name(user.getName())
-                        .nickname(member.getEffectiveName())
-                        .action(DiscordUserLogActionType.UN_BOOST)
-                        .created(Instant.now())
-                        .build());
+            } else if (discordUser.getBoostedDate() != null && member.getTimeBoosted() != null) {
+                Instant boostedTime = Instant.from(member.getTimeBoosted());
+                System.out.println("********" + user.getId() + ":" + member.getEffectiveName() +  ":" + boostedTime + " " + discordUser.getBoostedDate());
             }
 
             // Update fields that are updatable
