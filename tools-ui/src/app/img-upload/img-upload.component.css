@@ -6,3 +6,11 @@
   border-style: dashed;
 }
 
+.img-preview {
+  height: 200px
+}
+
+.shows-up {
+  z-index: 2000;
+}
+

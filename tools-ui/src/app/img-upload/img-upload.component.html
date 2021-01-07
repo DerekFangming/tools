@@ -1,11 +1,11 @@
 <nav class="navbar navbar-expand-lg navbar-light bg-light">
-  <div class="container">
-    <a class="navbar-brand">Image uploader</a>
-    <button class="navbar-toggler" type="button" data-toggle="collapse">
+  <div class="container shows-up">
+    <a class="navbar-brand" href="#">Image uploader</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav">
       <span class="navbar-toggler-icon"></span>
     </button>
-    <div class="collapse navbar-collapse">
-      <ul class="navbar-nav">
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav mr-auto">
         <li class="nav-item" [ngClass]="{'active': uploader}">
           <a class="nav-link pointer" (click)="onUploadClicked()">Upload new images</a>
         </li>
@@ -13,29 +13,34 @@
           <a class="nav-link pointer" (click)="onBrowseClicked()">History</a>
         </li>
       </ul>
+      <form class="form-inline my-2 my-lg-0">
+        <button type="button" class="btn btn-outline-danger mr-4" (click)="onClearClicked()">Clear</button>
+        <button type="button" class="btn btn-success">Upload</button>
+      </form>
     </div>
   </div>
 </nav>
 
 <div class="container">
+
   <div class="row">
     <div class="col-3" *ngFor="let image of imageList;">
-      <div class="card" style="width: 18rem;">
+      <div class="card mt-4" [ngClass]="{'shows-up': !dragOver}">
+        <img class="card-img-top img-preview" src="{{image.data}}">
         <div class="card-body">
-          <h5 class="card-title">Card title</h5>
-          <h6 class="card-subtitle mb-2 text-muted">Card subtitle</h6>
-          <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-          <a href="#" class="card-link">Card link</a>
-          <a href="#" class="card-link">Another link</a>
+          <div class="input-group">
+            <input type="text" class="form-control" [disabled]="!image.data">
+          </div>
+          <button type="button" class="btn btn-primary btn-block mt-2" [disabled]="!image.data" (click)="onCopyClicked()">Copy</button>
         </div>
       </div>
     </div>
   </div>
 </div>
 
-<div class="fixed-bottom" style=" height: 100vh">
-  <div class="h-100" style="width: 100%; margin-top: 70px;">
-    <div class="mx-4 text-center" style="height:90vh;" [ngClass]="{'dotted-border': dragOver}" (drop)="onDrop($event)" (dragover)="onDragOver($event)"
+<div class="fixed-bottom" style="height: 100vh;">
+  <div class="h-100 pointer" style="width: 100%; margin-top: 70px;" (click)="fileSelect.click()">
+    <div class="mx-4 text-center" style="height:90vh;" [ngClass]="{'dotted-border': dragOver}" (drop)="onImagesDropped($event)" (dragover)="onDragOver($event)"
       (dragenter)="onDragEnter($event)" (dragleave)="onDragLeave($event)">
       <div *ngIf="!dragOver" style="top: 40%; left: 0; right: 0; position: absolute; z-index: -1;">
         <img src="/assets/plus.png" height="100px" width="100px">
@@ -45,5 +50,7 @@
         <p class="display-4" style="font-size: 2rem;">Drop images to upload them.</p>
       </div>
     </div>
+    
+    <input type="file" class="d-none" #fileSelect (change)="onImagesSelected($event)">
   </div>
 </div>

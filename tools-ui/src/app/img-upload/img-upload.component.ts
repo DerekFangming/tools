@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Title } from '@angular/platform-browser';
+import { Image } from '../model/image';
 
 @Component({
   selector: 'app-img-upload',
@@ -11,13 +12,14 @@ export class ImgUploadComponent implements OnInit {
   uploader = true;
   dragOver = false;
 
-  imageList: any[]
+  imageList: Image[] = [];
 
   constructor(private title: Title) {
     this.title.setTitle('Image uploader');
   }
 
   ngOnInit() {
+    // this.imageList.push(new Image());
   }
 
   onUploadClicked() {
@@ -43,28 +45,45 @@ export class ImgUploadComponent implements OnInit {
     event.preventDefault();
   }
 
-  onDrop(event) {
+  onImagesDropped(event) {
     this.dragOver = false;
     event.preventDefault();
-    console.log(event);
-    let dt = event.dataTransfer;
-    let files = dt.files;
-    this.imageList = files;
-    console.log(files);
-    console.log(typeof files[0]);
+    this.loadImages(event.dataTransfer.files);
 
-    var reader = new FileReader();
-    reader.onload = (event) =>{
-      console.log('readfiles event ===== ',event);
-      // var image = new Image();
-      var fileReader = event.target as FileReader;
-      console.log(fileReader.result);
-      // image.src = fileReader.result;
-      // image.width = 50; 
-      // this.imageDrop.nativeElement.appendChild(image);
-    };
+  }
+
+  onImagesSelected(event) {
+    event.preventDefault();
+    this.loadImages(event.target.files);
+  }
+
+  loadImages(files) {
+    for (let file of files) {
+      let fileName = file.name.toLowerCase();
+      if (fileName.endsWith('jpg') || fileName.endsWith('jpeg') || fileName.endsWith('png') || fileName.endsWith('gif')) {
+        var reader = new FileReader();
+        reader.onload = (event) =>{
+          var fileReader = event.target as FileReader;
     
-    reader.readAsDataURL(files[0]);
+          let image = new Image({id: 0, url: '', data: fileReader.result.toString()});
+          this.imageList.push(image);
+          console.log(this.imageList);
+        };
+        reader.readAsDataURL(file);
+      }
+    }
+  }
+
+  onFileSelectClicked() {
+    console.log(1);
+  }
+
+  onClearClicked() {
+    this.imageList = [];
+  }
+
+  onCopyClicked() {
+    console.log(1);
   }
 
 }
