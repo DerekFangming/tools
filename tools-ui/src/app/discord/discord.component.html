@@ -23,16 +23,16 @@
 <div *ngIf="tab == 'logs'" class="container">
   <div class="form-row mt-3">
     <div class="col-sm-12 col-md-5 mb-3">
-      <label>User display name</label>
-      <input type="text" class="form-control" [(ngModel)]="displayName">
+      <label>User name</label>
+      <input type="text" class="form-control" [(ngModel)]="displayName" (keyup.enter)="loadUserLogs()">
     </div>
     <div class="col-6 col-sm-6 col-md-2 mb-3">
       <label>From date</label>
-      <input type="text" class="form-control" ngbDatepicker #df="ngbDatepicker" (click)="df.toggle()" [(ngModel)]="fromDate">
+      <input type="text" class="form-control" ngbDatepicker #df="ngbDatepicker" (click)="df.toggle()" [(ngModel)]="fromDate" (ngModelChange)="loadUserLogs()">
     </div>
     <div class="col-6 col-sm-6 col-md-2 mb-3">
       <label>To date</label>
-      <input type="text" class="form-control" ngbDatepicker #dt="ngbDatepicker" (click)="dt.toggle()" [(ngModel)]="toDate">
+      <input type="text" class="form-control" ngbDatepicker #dt="ngbDatepicker" (click)="dt.toggle()" [(ngModel)]="toDate" (ngModelChange)="loadUserLogs()">
     </div>
     <div class="col-6 col-sm-6 col-md-2 mb-3">
       <label for="validationCustom02">Action type</label>
@@ -43,6 +43,7 @@
           <div role="separator" class="dropdown-divider"></div>
           <a class="dropdown-item pointer" (click)="onActionSelected('join')">Join</a>
           <a class="dropdown-item pointer" (click)="onActionSelected('leave')">Leave</a>
+          <a class="dropdown-item pointer" (click)="onActionSelected('boost')">Boost</a>
         </div>
       </div>
     </div>

@@ -79,7 +79,8 @@ export class DiscordComponent implements OnInit {
       this.userLogList = userLogList.filter(ul => {
         let created = new Date(ul.created).toLocaleDateString('en', {year: 'numeric', month: '2-digit', day: 'numeric'}).split('/');
 
-        let nameMatched = this.displayName.trim() == '' || ul.name.toLowerCase().includes(this.displayName.trim().toLowerCase());
+        let nameMatched = this.displayName.trim() == '' || ul.name.toLowerCase().includes(this.displayName.trim().toLowerCase())
+         || ul.nickname.toLowerCase().includes(this.displayName.trim().toLowerCase());
         let fromMatched = this.fromDate == null || !new NgbDate(Number(created[2]), Number(created[0]), Number(created[1]))
           .before({ year: this.fromDate.year, month: this.fromDate.month, day: this.fromDate.day });
         let toMatched = this.toDate == null || !new NgbDate(Number(created[2]), Number(created[0]), Number(created[1]))
@@ -166,6 +167,7 @@ export class DiscordComponent implements OnInit {
 
   onActionSelected(action: string) {
     this.action = action;
+    this.loadUserLogs();
   }
 
   onPageIndexSelected(newPage: number) {
