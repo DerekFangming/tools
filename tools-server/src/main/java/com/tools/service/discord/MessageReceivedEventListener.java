@@ -1,8 +1,11 @@
 package com.tools.service.discord;
 
 import com.tools.domain.DiscordUser;
+import com.tools.domain.DiscordUserLog;
 import com.tools.repository.DiscordGuildRepo;
+import com.tools.repository.DiscordUserLogRepo;
 import com.tools.repository.DiscordUserRepo;
+import com.tools.type.DiscordUserLogActionType;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
@@ -17,6 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.time.Instant;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -28,6 +32,7 @@ public class MessageReceivedEventListener extends BaseEventListener {
 
     private final DiscordGuildRepo discordGuildRepo;
     private final DiscordUserRepo discordUserRepo;
+    private final DiscordUserLogRepo discordUserLogRepo;
 
     private OkHttpClient client = new OkHttpClient.Builder()
             .retryOnConnectionFailure(true)
@@ -58,10 +63,19 @@ public class MessageReceivedEventListener extends BaseEventListener {
         try {
             String content = event.getMessage().getContentRaw();
             if (!content.toLowerCase().startsWith("yf")) {
-                if (event.getMessage().getType() == MessageType.GUILD_MEMBER_BOOST) {//TODO
-                    Member mmm = event.getMember();
-                    System.out.println("********" + (mmm == null ? "null" : mmm.getEffectiveName()) + " boosted");
-                }//TODO
+                if (event.getMessage().getType() == MessageType.GUILD_MEMBER_BOOST) {
+                    Member member = event.getMember();
+                    if (member != null) {
+                        discordUserLogRepo.save(DiscordUserLog.builder()
+                                .guildId(event.getGuild().getId())
+                                .userId(member.getUser().getId())
+                                .name(member.getUser().getName())
+                                .nickname(member.getEffectiveName())
+                                .action(DiscordUserLogActionType.BOOST)
+                                .created(Instant.now())
+                                .build());
+                    }
+                }
                 return;
             }
 

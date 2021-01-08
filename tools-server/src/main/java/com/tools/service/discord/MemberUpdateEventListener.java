@@ -49,18 +49,7 @@ public class MemberUpdateEventListener extends BaseEventListener {
             }
 
             // Compare
-            if (discordUser.getBoostedDate() == null && member.getTimeBoosted() != null) {
-                if (Instant.from(member.getTimeBoosted()).isAfter(Instant.now().minus(Duration.ofDays(5)))) {
-                    discordUserLogRepo.save(DiscordUserLog.builder()
-                            .guildId(discordUser.getGuildId())
-                            .userId(discordUser.getId())
-                            .name(user.getName())
-                            .nickname(member.getEffectiveName())
-                            .action(DiscordUserLogActionType.BOOST)
-                            .created(Instant.now())
-                            .build());
-                }
-            } else if (discordUser.getBoostedDate() != null && member.getTimeBoosted() == null) {
+            if (discordUser.getBoostedDate() != null && member.getTimeBoosted() == null) {
                 discordUserLogRepo.save(DiscordUserLog.builder()
                         .guildId(discordUser.getGuildId())
                         .userId(discordUser.getId())
@@ -71,7 +60,9 @@ public class MemberUpdateEventListener extends BaseEventListener {
                         .build());
             } else if (discordUser.getBoostedDate() != null && member.getTimeBoosted() != null) {
                 Instant boostedTime = Instant.from(member.getTimeBoosted());
-                System.out.println("********" + user.getId() + ":" + member.getEffectiveName() +  ":" + boostedTime + " " + discordUser.getBoostedDate());
+
+                System.out.println("********" + user.getId() + ":" + member.getEffectiveName() +  ":" + boostedTime + " " + discordUser.getBoostedDate() +
+                        " ------ > " + (boostedTime.getNano() == discordUser.getBoostedDate().getNano()));
             }
 
             // Update fields that are updatable
