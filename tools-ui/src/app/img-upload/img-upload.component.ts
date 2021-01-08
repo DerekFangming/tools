@@ -1,6 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { DOCUMENT } from '@angular/common';
+import { HttpClient } from '@angular/common/http';
+import { Component, Inject, OnInit } from '@angular/core';
 import { Title } from '@angular/platform-browser';
-import { Image } from '../model/image';
+import { Image, ImageStatus } from '../model/image';
 
 @Component({
   selector: 'app-img-upload',
@@ -11,15 +13,20 @@ export class ImgUploadComponent implements OnInit {
 
   uploader = true;
   dragOver = false;
+  uploading = false;
 
   imageList: Image[] = [];
+  imageUrlList: string[] = [];
 
-  constructor(private title: Title) {
+  currentUploadIndex = 0;
+  clientId = "Q2xpZW50LUlEIDQzMzQzNWRkNjBmNWQ3OQ==";
+
+
+  constructor(private title: Title, private http: HttpClient, @Inject(DOCUMENT) private document: Document) {
     this.title.setTitle('Image uploader');
   }
 
   ngOnInit() {
-    // this.imageList.push(new Image());
   }
 
   onUploadClicked() {
@@ -65,7 +72,7 @@ export class ImgUploadComponent implements OnInit {
         reader.onload = (event) =>{
           var fileReader = event.target as FileReader;
     
-          let image = new Image({id: 0, url: '', data: fileReader.result.toString()});
+          let image = new Image({status: ImageStatus.New, data: fileReader.result.toString()});
           this.imageList.push(image);
           console.log(this.imageList);
         };
@@ -74,16 +81,57 @@ export class ImgUploadComponent implements OnInit {
     }
   }
 
-  onFileSelectClicked() {
-    console.log(1);
+  onUpload() {
+    this.imageUrlList = [];
+    this.currentUploadIndex = 0;
+    this.uploading = true;
+
+    this.uploadNextImage();
+  }
+
+  uploadNextImage() {
+    if (this.currentUploadIndex > this.imageList.length - 1) {
+      console.log(this.imageUrlList);// TODO
+      this.uploading = false;
+    } else {
+      let image = this.imageList[this.currentUploadIndex];
+      this.currentUploadIndex ++;
+
+      if (image.status == ImageStatus.Uploaded) {
+        this.uploadNextImage();
+      } else {
+        image.status = ImageStatus.Uploading;
+        let parts = image.data.split(',');
+        let data = parts[1];
+        this.http.post('https://api.imgur.com/3/image', {image: data}, {headers: {'authorization': atob(this.clientId)}}).subscribe(json => {
+          image.url = json['data']['link'];
+          image.status = ImageStatus.Uploaded;
+          this.imageUrlList.push(image.url);
+          this.uploadNextImage();
+        }, () => {
+          image.status = ImageStatus.Failed;
+          this.uploadNextImage();
+        });
+      }
+    }
   }
 
   onClearClicked() {
     this.imageList = [];
   }
 
-  onCopyClicked() {
-    console.log(1);
+  onCopyClicked(url) {
+    const selBox = document.createElement('textarea');
+    selBox.style.position = 'fixed';
+    selBox.style.left = '0';
+    selBox.style.top = '0';
+    selBox.style.opacity = '0';
+    selBox.value = url;
+    document.body.appendChild(selBox);
+    selBox.focus();
+    selBox.select();
+    document.execCommand('copy');
+    document.body.removeChild(selBox);
   }
 
 }

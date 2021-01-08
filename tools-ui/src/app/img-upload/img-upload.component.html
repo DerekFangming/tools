@@ -14,8 +14,8 @@
         </li>
       </ul>
       <form class="form-inline my-2 my-lg-0">
-        <button type="button" class="btn btn-outline-danger mr-4" (click)="onClearClicked()">Clear</button>
-        <button type="button" class="btn btn-success">Upload</button>
+        <button type="button" class="btn btn-outline-danger mr-4"  [disabled]="uploading" (click)="onClearClicked()">Clear</button>
+        <button type="button" class="btn btn-success" [disabled]="uploading" (click)="onUpload()">Upload</button>
       </form>
     </div>
   </div>
@@ -28,10 +28,13 @@
       <div class="card mt-4" [ngClass]="{'shows-up': !dragOver}">
         <img class="card-img-top img-preview" src="{{image.data}}">
         <div class="card-body">
-          <div class="input-group">
-            <input type="text" class="form-control" [disabled]="!image.data">
+          <div class="input-group text-center">
+            <div *ngIf="image.status == 0" class="alert alert-secondary w-100 py-2 mb-0" role="alert">Waiting to be uploaded.</div>
+            <div *ngIf="image.status == 1" class="w-100 my-2"><i class="fa fa-refresh fa-spin mr-2"></i>Uploading ...</div>
+            <input *ngIf="image.status == 2" type="text" class="form-control" [disabled]="image.status != 2" [(ngModel)]="image.url">
+            <div *ngIf="image.status == 3" class="alert alert-danger w-100 py-2 mb-0" role="alert">Failed to upload.</div>
           </div>
-          <button type="button" class="btn btn-primary btn-block mt-2" [disabled]="!image.data" (click)="onCopyClicked()">Copy</button>
+          <button type="button" class="btn btn-primary btn-block mt-2" [disabled]="image.status != 2" (click)="onCopyClicked(image.url)">Copy image url</button>
         </div>
       </div>
     </div>
@@ -51,6 +54,6 @@
       </div>
     </div>
     
-    <input type="file" class="d-none" #fileSelect (change)="onImagesSelected($event)">
+    <input type="file" class="d-none" multiple="multiple" #fileSelect (change)="onImagesSelected($event)">
   </div>
 </div>
