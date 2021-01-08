@@ -13,7 +13,7 @@
           <a class="nav-link pointer" (click)="onBrowseClicked()">History</a>
         </li>
       </ul>
-      <form class="form-inline my-2 my-lg-0">
+      <form *ngIf="uploader" class="form-inline my-2 my-lg-0">
         <button type="button" class="btn btn-outline-danger mr-4"  [disabled]="uploading" (click)="onClearClicked()">Clear</button>
         <button type="button" class="btn btn-success" [disabled]="uploading" (click)="onUpload()">Upload</button>
       </form>
@@ -21,8 +21,7 @@
   </div>
 </nav>
 
-<div class="container">
-
+<div *ngIf="uploader" class="container">
   <div class="row">
     <div class="col-3" *ngFor="let image of imageList;">
       <div class="card mt-4" [ngClass]="{'shows-up': !dragOver}">
@@ -41,7 +40,7 @@
   </div>
 </div>
 
-<div class="fixed-bottom" style="height: 100vh;">
+<div *ngIf="uploader" class="fixed-bottom" style="height: 100vh;">
   <div class="h-100 pointer" style="width: 100%; margin-top: 70px;" (click)="fileSelect.click()">
     <div class="mx-4 text-center" style="height:90vh;" [ngClass]="{'dotted-border': dragOver}" (drop)="onImagesDropped($event)" (dragover)="onDragOver($event)"
       (dragenter)="onDragEnter($event)" (dragleave)="onDragLeave($event)">
@@ -55,5 +54,36 @@
     </div>
     
     <input type="file" class="d-none" multiple="multiple" #fileSelect (change)="onImagesSelected($event)">
+  </div>
+</div>
+
+<div *ngIf="loadingImages" class="container">
+  <div class="row my-5">
+    <div class="col text-center my-5">
+      <i class="fa fa-refresh fa-spin fa-3x" aria-hidden="true"></i>
+    </div>
+  </div>
+</div>
+
+<div *ngIf="!uploader" class="container">
+  <div class="row">
+    <div class="col mt-4">
+      <table class="table">
+        <thead>
+          <tr>
+            <th scope="col">Id</th>
+            <th scope="col">Url</th>
+            <th scope="col">Time uploaded</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let image of imageSavedList;">
+            <th scope="row"> {{ image.id }} </th>
+            <th scope="row"> {{ image.url }} </th>
+            <td> {{ utils.getCreatedTime(image.created) }} </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
   </div>
 </div>

@@ -97,3 +97,9 @@ create table tl_discord_user_logs (
 	action text,
 	created timestamp without time zone not null
 );
+
+create table tl_images (
+    id serial primary key,
+	url text,
+	created timestamp without time zone not null
+);

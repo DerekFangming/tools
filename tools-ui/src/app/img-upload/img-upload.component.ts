@@ -2,7 +2,9 @@ import { DOCUMENT } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Component, Inject, OnInit } from '@angular/core';
 import { Title } from '@angular/platform-browser';
+import { environment } from 'src/environments/environment';
 import { Image, ImageStatus } from '../model/image';
+import { UtilsService } from '../utils.service';
 
 @Component({
   selector: 'app-img-upload',
@@ -14,15 +16,17 @@ export class ImgUploadComponent implements OnInit {
   uploader = true;
   dragOver = false;
   uploading = false;
+  loadingImages = false;
 
   imageList: Image[] = [];
-  imageUrlList: string[] = [];
+  imageUploadedList: Image[] = [];
+  imageSavedList: Image[] = [];
 
   currentUploadIndex = 0;
   clientId = "Q2xpZW50LUlEIDQzMzQzNWRkNjBmNWQ3OQ==";
 
 
-  constructor(private title: Title, private http: HttpClient, @Inject(DOCUMENT) private document: Document) {
+  constructor(private title: Title, private http: HttpClient, @Inject(DOCUMENT) private document: Document, public utils: UtilsService) {
     this.title.setTitle('Image uploader');
   }
 
@@ -35,6 +39,16 @@ export class ImgUploadComponent implements OnInit {
 
   onBrowseClicked() {
     this.uploader = false;
+    this.imageSavedList = [];
+    this.loadingImages = true;
+    this.http.get<Image[]>(environment.urlPrefix + 'api/images').subscribe(imageList => {
+      this.imageSavedList = imageList;
+      this.loadingImages = false;
+      console.log(imageList);
+    }, error => {
+      console.log(error);
+      this.loadingImages = false;
+    });
   }
 
   onDragOver(event) {
@@ -74,7 +88,6 @@ export class ImgUploadComponent implements OnInit {
     
           let image = new Image({status: ImageStatus.New, data: fileReader.result.toString()});
           this.imageList.push(image);
-          console.log(this.imageList);
         };
         reader.readAsDataURL(file);
       }
@@ -82,7 +95,7 @@ export class ImgUploadComponent implements OnInit {
   }
 
   onUpload() {
-    this.imageUrlList = [];
+    this.imageUploadedList = [];
     this.currentUploadIndex = 0;
     this.uploading = true;
 
@@ -91,8 +104,8 @@ export class ImgUploadComponent implements OnInit {
 
   uploadNextImage() {
     if (this.currentUploadIndex > this.imageList.length - 1) {
-      console.log(this.imageUrlList);// TODO
       this.uploading = false;
+      this.http.post<Image[]>(environment.urlPrefix + 'api/images/bulk', this.imageUploadedList).subscribe(() => {}, () => {});
     } else {
       let image = this.imageList[this.currentUploadIndex];
       this.currentUploadIndex ++;
@@ -106,7 +119,7 @@ export class ImgUploadComponent implements OnInit {
         this.http.post('https://api.imgur.com/3/image', {image: data}, {headers: {'authorization': atob(this.clientId)}}).subscribe(json => {
           image.url = json['data']['link'];
           image.status = ImageStatus.Uploaded;
-          this.imageUrlList.push(image.url);
+          this.imageUploadedList.push(image);
           this.uploadNextImage();
         }, () => {
           image.status = ImageStatus.Failed;
