@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.managers.AudioManager;
 import okhttp3.*;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONArray;
@@ -33,6 +34,7 @@ public class MessageReceivedEventListener extends BaseEventListener {
     private final DiscordGuildRepo discordGuildRepo;
     private final DiscordUserRepo discordUserRepo;
     private final DiscordUserLogRepo discordUserLogRepo;
+    private final AudioPlayerSendHandler audioPlayerSendHandler;
 
     private OkHttpClient client = new OkHttpClient.Builder()
             .retryOnConnectionFailure(true)
@@ -269,31 +271,36 @@ public class MessageReceivedEventListener extends BaseEventListener {
                                 "。生日格式必须为**月份-日期**， 比如**01-02** 或者 **11-29**").queue();
                     }
                 }
-            } else if ("ping".equalsIgnoreCase(command[1])) {
-                channel.sendMessage("Bot operational. Latency " + event.getJDA().getGatewayPing() + " ms").queue();
-            } else if ("nb".equalsIgnoreCase(command[1])) {
+            }else if ("nb".equalsIgnoreCase(command[1])) {
                 Matcher matcher = userMentionPattern.matcher(content);
                 String mention = null;
                 while (matcher.find()) {mention= matcher.group(0);}
                 channel.sendMessage((mention == null ? ("<@" + member.getId() + ">") : mention) +
                         nbList.get(new Random().nextInt(nbList.size()))).queue();
-            } else if ("yygq".equalsIgnoreCase(command[1])) {
-                channel.sendMessage("<@" + member.getId() + "> 警告！ 本DC禁止阴阳怪气！").queue();
+            } else if ("play".equalsIgnoreCase(command[1])) {
+
+                VoiceChannel voiceChannel = null;
+                GuildVoiceState voiceState = member.getVoiceState();
+                if (voiceState != null) {
+                    voiceChannel = voiceState.getChannel();
+                }
+                if (voiceChannel == null) {
+                    channel.sendMessage("<@" + member.getId() + "> 你必须加入一个语音频道才能使用此指令。").queue();
+                    return;
+                }
+                AudioManager audioManager = event.getGuild().getAudioManager();
+                audioManager.setSendingHandler(audioPlayerSendHandler);
+                audioManager.openAudioConnection(voiceChannel);
+
+                audioPlayerSendHandler.loadAndPlay(command[2]);
+
+
+            } else if ("skip".equalsIgnoreCase(command[1])) {
+                audioPlayerSendHandler.skip();
             } else if ("debug".equalsIgnoreCase(command[1])) {
-                Request request = new Request.Builder()
-                        .url("http://localhost:8081/authentication/test")
-                        .build();
 
-                Call call = client.newCall(request);
-                call.enqueue(new Callback() {
-                    public void onResponse(Call call, Response response) {
-                        channel.sendMessage("yf finally done").queue();
-                    }
-
-                    public void onFailure(Call call, IOException e) {
-                        channel.sendMessage("yf error").queue();
-                    }
-                });
+            } else if ("ping".equalsIgnoreCase(command[1])) {
+                    channel.sendMessage("Bot operational. Latency " + event.getJDA().getGatewayPing() + " ms").queue();
             } else {
                 channel.sendMessage("<@" + member.getId() + "> 无法识别指令 **" + content + "**。请运行yf help查看指令说明。").queue();
             }
