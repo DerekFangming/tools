@@ -10,6 +10,7 @@ public class ToolsProperties {
     private String production;
     private String dcBotToken;
     private String dcDefaultGuildId;
+    private String youtubeApiKey;
 
     public boolean isProduction() {
         return Boolean.parseBoolean(production);

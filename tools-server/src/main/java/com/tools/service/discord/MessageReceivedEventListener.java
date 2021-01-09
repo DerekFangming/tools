@@ -35,10 +35,8 @@ public class MessageReceivedEventListener extends BaseEventListener {
     private final DiscordUserRepo discordUserRepo;
     private final DiscordUserLogRepo discordUserLogRepo;
     private final AudioPlayerSendHandler audioPlayerSendHandler;
+    private final OkHttpClient client;
 
-    private OkHttpClient client = new OkHttpClient.Builder()
-            .retryOnConnectionFailure(true)
-            .build();;
     private Pattern userMentionPattern = Pattern.compile("<@.*?>");
     private Pattern birthdayPattern = Pattern.compile("([0-9][0-9])-([0-3][0-9])");
     private ArrayList<String> nbList = new ArrayList<String>() {{
@@ -292,15 +290,17 @@ public class MessageReceivedEventListener extends BaseEventListener {
                 audioManager.setSendingHandler(audioPlayerSendHandler);
                 audioManager.openAudioConnection(voiceChannel);
 
-                audioPlayerSendHandler.loadAndPlay(command[2]);
+                audioPlayerSendHandler.loadAndPlay(command[2], channel, member.getId());
 
 
             } else if ("skip".equalsIgnoreCase(command[1])) {
                 audioPlayerSendHandler.skip();
-            } else if ("debug".equalsIgnoreCase(command[1])) {
-
+            } else if ("stop".equalsIgnoreCase(command[1])) {
+                audioPlayerSendHandler.stop();
+            } else if ("queue".equalsIgnoreCase(command[1])) {
+                audioPlayerSendHandler.showQueue(channel);
             } else if ("ping".equalsIgnoreCase(command[1])) {
-                    channel.sendMessage("Bot operational. Latency " + event.getJDA().getGatewayPing() + " ms").queue();
+                channel.sendMessage("Bot operational. Latency " + event.getJDA().getGatewayPing() + " ms").queue();
             } else {
                 channel.sendMessage("<@" + member.getId() + "> 无法识别指令 **" + content + "**。请运行yf help查看指令说明。").queue();
             }

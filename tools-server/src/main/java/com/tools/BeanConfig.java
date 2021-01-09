@@ -10,6 +10,7 @@ import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.utils.ChunkingFilter;
 import net.dv8tion.jda.api.utils.MemberCachePolicy;
+import okhttp3.OkHttpClient;
 import org.apache.http.client.HttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
@@ -69,9 +70,9 @@ public class BeanConfig {
     }
 
     @Bean
-    public HttpClient httpClient() {
-        return HttpClients.custom()
-                .setConnectionManager(new PoolingHttpClientConnectionManager())
+    public OkHttpClient httpClient() {
+        return new OkHttpClient.Builder()
+                .retryOnConnectionFailure(true)
                 .build();
     }
 
