@@ -96,7 +96,11 @@ public class MessageReceivedEventListener extends BaseEventListener {
                                 "**注册生日：**`yf birthday MM-DD`\n注册你的生日。注册后生日当天会在生日频道得到祝福以及专属Tag。\n\n" +
                                 "**取消生日提醒：**`yf birthday disable`\n\n" +
                                 "**全部注册的生日：**`yf birthday`\n\n" +
-                                "**本月过生日的成员：**`yf birthday month`")
+                                "**本月过生日的成员：**`yf birthday month`\n\n" +
+                                "**唱歌：**`yf play 关键字或者youtube歌曲链接`\n把歌曲加入播放队列。 如果当前队列中无歌曲，直接开始播放。\n\n" +
+                                "**显示当前播放队列：**`yf queue`\n\n" +
+                                "**跳过当前正在播放的歌曲：**`yf skip`\n\n" +
+                                "**停止播放并清空播放队列：**`yf stop`")
                         .build()).queue();
             } else if ("apex".equalsIgnoreCase(command[1])) {
                 if (command.length > 3 && "link".equalsIgnoreCase(command[2])) {
@@ -283,6 +287,16 @@ public class MessageReceivedEventListener extends BaseEventListener {
                 while (matcher.find()) {mention= matcher.group(0);}
                 channel.sendMessage((mention == null ? ("<@" + member.getId() + ">") : mention) +
                         nbList.get(new Random().nextInt(nbList.size()))).queue();
+            } else if ("come".equalsIgnoreCase(command[1])) {
+                GuildVoiceState voiceState = member.getVoiceState();
+                if (voiceState != null) {
+                    VoiceChannel voiceChannel = voiceState.getChannel();
+                    if (voiceChannel != null) {
+                        AudioManager audioManager = event.getGuild().getAudioManager();
+                        audioManager.setSendingHandler(audioPlayerSendHandler);
+                        audioManager.openAudioConnection(voiceChannel);
+                    }
+                }
             } else if ("play".equalsIgnoreCase(command[1])) {
 
                 VoiceChannel voiceChannel = null;
@@ -298,7 +312,10 @@ public class MessageReceivedEventListener extends BaseEventListener {
                 audioManager.setSendingHandler(audioPlayerSendHandler);
                 audioManager.openAudioConnection(voiceChannel);
 
-                audioPlayerSendHandler.loadAndPlay(command[2], channel, member.getId());
+                String[] extrasArray = Arrays.copyOfRange(command, 2, command.length);
+                System.out.println(String.join(" ", extrasArray));
+
+                audioPlayerSendHandler.loadAndPlay(String.join(" ", extrasArray), channel, member.getId());
 
 
             } else if ("skip".equalsIgnoreCase(command[1])) {
