@@ -137,12 +137,6 @@ public class MessageReceivedEventListener extends BaseEventListener {
                     apexDto.setExtras(String.join(" ", extrasArray));
                 }
 
-                DiscordUser discordUser = discordUserRepo.findById(member.getId()).orElse(null);
-                if (discordUser == null || discordUser.getApexId() == null) {
-                    channel.sendMessage("<@" + member.getId() + "> 你未绑定Origin ID。运行yf help查看如何绑定。").queue();
-                    return;
-                }
-
                 // Read invitation URL
                 GuildVoiceState voiceState = member.getVoiceState();
                 if (voiceState != null) {
@@ -151,6 +145,20 @@ public class MessageReceivedEventListener extends BaseEventListener {
                         Invite invite = voiceChannel.createInvite().complete();
                         apexDto.setInviteUrl(invite.getUrl());
                     }
+                }
+
+                DiscordUser discordUser = discordUserRepo.findById(member.getId()).orElse(null);
+                if (discordUser == null) {
+                    channel.sendMessage("<@" + member.getId() + "> 系统错误，请联系管理员。").queue();
+                    return;
+                } else if (discordUser.getApexId() == null) {
+                    channel.sendMessage(new EmbedBuilder()
+                            .setAuthor(member.getEffectiveName() + " 请求Apex组队", null, member.getUser().getAvatarUrl())
+                            .setTitle(apexDto.getExtras())
+                            .setDescription(apexDto.getInviteUrl() == null ? apexDto.getInviteUrl() : "[:race_car: 点此上车 :race_car:](" + apexDto.getInviteUrl() + ")")
+                            .setFooter("绑定apex账号之后才能显示战绩。使用apex help查看如何绑定。")
+                            .build()).queue();
+                    return;
                 }
 
                 Request request = new Request.Builder()
