@@ -160,7 +160,7 @@ public class MessageReceivedEventListener extends BaseEventListener {
                             .setAuthor(member.getEffectiveName() + " 请求Apex组队", null, member.getUser().getAvatarUrl())
                             .setTitle(apexDto.getExtras())
                             .setDescription(apexDto.getInviteUrl() == null ? apexDto.getInviteUrl() : "[:race_car: 点此上车 :race_car:](" + apexDto.getInviteUrl() + ")")
-                            .setFooter("绑定apex账号之后才能显示战绩。使用apex help查看如何绑定。")
+                            .setFooter("绑定apex账号之后才能显示战绩。使用yf help查看如何绑定。")
                             .build()).queue();
                     return;
                 }
