@@ -11,6 +11,7 @@ public class ToolsProperties {
     private String dcBotToken;
     private String dcDefaultGuildId;
     private String youtubeApiKey;
+    private String imgurClientId;
 
     public boolean isProduction() {
         return Boolean.parseBoolean(production);

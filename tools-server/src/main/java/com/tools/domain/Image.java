@@ -1,5 +1,6 @@
 package com.tools.domain;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -16,6 +17,7 @@ import java.time.Instant;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class Image {
 
     @Id
@@ -28,4 +30,7 @@ public class Image {
 
     @Column(name="created")
     private Instant created;
+
+    @Transient
+    private String data;
 }
