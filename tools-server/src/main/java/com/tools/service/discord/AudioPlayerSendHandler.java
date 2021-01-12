@@ -117,6 +117,19 @@ public class AudioPlayerSendHandler implements AudioSendHandler {
         scheduler.stop();
     }
 
+    public void toggleLoop(MessageChannel channel, String userId) {
+        YoutubeTrack youtubeTrack = scheduler.toggleLoop();
+        if (youtubeTrack == null) {
+            channel.sendMessage("<@" + userId + "> 当前没有正在播放的歌曲。先使用`yf play`播放歌曲后再使用`loop`指令。").queue();
+        } else {
+            if (youtubeTrack.isLoop()) {
+                channel.sendMessage("<@" + userId + "> 正在循环播放歌曲**" + youtubeTrack.getTitle() + "**").queue();
+            } else {
+                channel.sendMessage("<@" + userId + "> 已停止循环播放歌曲**" + youtubeTrack.getTitle() + "**").queue();
+            }
+        }
+    }
+
     public void showQueue(MessageChannel channel) {
         List<YoutubeTrack> youtubeTrackList = scheduler.getQueue();
         if (youtubeTrackList.size() == 0) {
@@ -131,7 +144,11 @@ public class AudioPlayerSendHandler implements AudioSendHandler {
                 description.append(count).append(". ");
                 description.append("[").append(t.getTitle()).append("](").append(t.getUrl()).append(")");
                 if (count == 1) {
-                    description.append("（正在播放）");
+                    if (t.isLoop()) {
+                        description.append("（正在循环播放）");
+                    } else {
+                        description.append("（正在播放）");
+                    }
                 }
                 description.append("\n");
                 count ++;

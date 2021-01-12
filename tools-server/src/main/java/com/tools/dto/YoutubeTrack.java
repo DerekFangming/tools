@@ -10,4 +10,5 @@ public class YoutubeTrack {
     private String title;
     private String url;
     private AudioTrack track;
+    private boolean loop;
 }

@@ -98,6 +98,7 @@ public class MessageReceivedEventListener extends BaseEventListener {
                                 "**全部注册的生日：**`yf birthday`\n\n" +
                                 "**本月过生日的成员：**`yf birthday month`\n\n" +
                                 "**唱歌：**`yf play 关键字或者youtube歌曲链接`\n把歌曲加入播放队列。 如果当前队列中无歌曲，直接开始播放。\n\n" +
+                                "**循环当前歌曲：**`yf loop`\n循环播放正在播放的歌曲。再次运行这个指令或者使用`yf skip`取消循环。\n\n" +
                                 "**显示当前播放队列：**`yf queue`\n\n" +
                                 "**跳过当前正在播放的歌曲：**`yf skip`\n\n" +
                                 "**停止播放并清空播放队列：**`yf stop`")
@@ -117,8 +118,7 @@ public class MessageReceivedEventListener extends BaseEventListener {
                                 return;
                             }
 
-                            DiscordUser discordUser = discordUserRepo.findById(member.getId())
-                                    .orElse(DiscordUser.builder().id(member.getId()).name(member.getUser().getName()).guildId(member.getGuild().getId()).build());
+                            DiscordUser discordUser = discordUserRepo.findById(member.getId()).orElse(fromMember(member));
                             discordUser.setApexId(command[3]);
                             discordUserRepo.save(discordUser);
 
@@ -228,7 +228,7 @@ public class MessageReceivedEventListener extends BaseEventListener {
                     if (users.size() == 0) {
                         channel.sendMessage("**尚未有人注册生日**").queue();
                     } else {
-                        channel.sendMessage("**全部已注册的生日**\n\n" + users.stream().map(u -> "**" + u.getBirthday() + ":** " + u.getName())
+                        channel.sendMessage("**全部已注册的生日**\n\n" + users.stream().map(u -> "**" + u.getBirthday() + ":** " + u.getNickname())
                                 .collect(Collectors.joining("\n"))).queue();
                     }
                 } else {
@@ -244,7 +244,7 @@ public class MessageReceivedEventListener extends BaseEventListener {
                         if (users.size() == 0) {
                             channel.sendMessage("**" + month + "月尚未有人注册生日**").queue();
                         } else {
-                            channel.sendMessage("**" + month + "月已注册的生日**\n\n" + users.stream().map(u -> "**" + u.getBirthday() + ":** " + u.getName())
+                            channel.sendMessage("**" + month + "月已注册的生日**\n\n" + users.stream().map(u -> "**" + u.getBirthday() + ":** " + u.getNickname())
                                     .collect(Collectors.joining("\n"))).queue();
                         }
                     } else if (command[2].equalsIgnoreCase("disable")) {
@@ -259,8 +259,7 @@ public class MessageReceivedEventListener extends BaseEventListener {
                             int month = Integer.parseInt(m.group(1));
                             int day = Integer.parseInt(m.group(2));
                             if (month > 0 && month < 13 && day > 0 && day < 32) {
-                                DiscordUser discordUser = discordUserRepo.findById(member.getId())
-                                        .orElse(DiscordUser.builder().id(member.getId()).name(member.getUser().getName()).guildId(member.getGuild().getId()).build());
+                                DiscordUser discordUser = discordUserRepo.findById(member.getId()).orElse(fromMember(member));
                                 discordUser.setBirthday(command[2]);
                                 discordUserRepo.save(discordUser);
 
@@ -324,6 +323,8 @@ public class MessageReceivedEventListener extends BaseEventListener {
                 audioPlayerSendHandler.stop();
             } else if ("queue".equalsIgnoreCase(command[1])) {
                 audioPlayerSendHandler.showQueue(channel);
+            } else if ("loop".equalsIgnoreCase(command[1])) {
+                audioPlayerSendHandler.toggleLoop(channel, member.getId());
             } else if ("ping".equalsIgnoreCase(command[1])) {
                 channel.sendMessage("Bot operational. Latency " + event.getJDA().getGatewayPing() + " ms").queue();
             } else {
@@ -332,6 +333,19 @@ public class MessageReceivedEventListener extends BaseEventListener {
         } catch (Exception e) {
             logError(event, discordGuildRepo, e);
         }
+    }
+
+    private DiscordUser fromMember(Member member) {
+        return DiscordUser.builder()
+                .id(member.getId())
+                .guildId(member.getGuild().getId())
+                .name(member.getUser().getName())
+                .nickname(member.getEffectiveName())
+                .avatarId(member.getUser().getAvatarId())
+                .createdDate(Instant.from(member.getUser().getTimeCreated()))
+                .joinedDate(Instant.from(member.getTimeJoined()))
+                .boostedDate(member.getTimeBoosted() == null ? null : Instant.from(member.getTimeBoosted()))
+                .build();
     }
 
     @Data
