@@ -10,7 +10,6 @@ import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import com.sedmelluq.discord.lavaplayer.track.playback.AudioFrame;
 import com.tools.ToolsProperties;
-import com.tools.dto.YoutubeTrack;
 import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.audio.AudioSendHandler;
@@ -52,10 +51,8 @@ public class AudioPlayerSendHandler implements AudioSendHandler {
 
         try {
             String trackUrl;
-            String title;
-            if (keyword.contains("www.youtube.com")) {
+            if (keyword.contains("www.youtube.com") || keyword.contains("youtu.be")) {
                 trackUrl = keyword;
-                title = "unknown";
             } else {
                 Request request = new Request.Builder()
                         .url(HttpUrl.parse("https://www.googleapis.com/youtube/v3/search").newBuilder()
@@ -73,40 +70,30 @@ public class AudioPlayerSendHandler implements AudioSendHandler {
                 JSONObject firstResult = items.getJSONObject(0);
                 JSONObject snippet = firstResult.getJSONObject("snippet");
                 trackUrl = "https://www.youtube.com/watch?v=" + firstResult.getJSONObject("id").getString("videoId");
-                title = snippet.getString("title");
             }
 
             playerManager.loadItemOrdered(scheduler, trackUrl, new AudioLoadResultHandler() {
                 @Override
                 public void trackLoaded(AudioTrack track) {
                     channel.sendMessage("<@" + userId + "> 歌曲**" + track.getInfo().title + "**已加入播放队列。").queue();
-                    scheduler.queue(YoutubeTrack.builder()
-                            .title(track.getInfo().title)
-                            .url(track.getInfo().uri)
-                            .track(track)
-                            .build());
+                    scheduler.queue(track);
                 }
 
                 @Override
                 public void playlistLoaded(AudioPlaylist playlist) {
 
                     channel.sendMessage("<@" + userId + "> " + playlist.getTracks().size() + "首歌曲已加入播放队列。").queue();
-
-                    playlist.getTracks().forEach(t -> scheduler.queue(YoutubeTrack.builder()
-                            .title(t.getInfo().title)
-                            .url(t.getInfo().uri)
-                            .track(t)
-                            .build()));
+                    playlist.getTracks().forEach(t -> scheduler.queue(t));
                 }
 
                 @Override
                 public void noMatches() {
-                    channel.sendMessage("<@" + userId + "> 无法找到歌曲**" + title + "**。").queue();
+                    channel.sendMessage("<@" + userId + "> 无法找到歌曲**" + keyword + "**。").queue();
                 }
 
                 @Override
                 public void loadFailed(FriendlyException exception) {
-                    channel.sendMessage("<@" + userId + "> 无法播放歌曲**" + title + "**。").queue();
+                    channel.sendMessage("<@" + userId + "> 无法播放歌曲**" + keyword + "**。").queue();
                 }
             });
         } catch (Exception e) {
@@ -124,21 +111,21 @@ public class AudioPlayerSendHandler implements AudioSendHandler {
     }
 
     public void toggleLoop(MessageChannel channel, String userId) {
-        YoutubeTrack youtubeTrack = scheduler.toggleLoop();
-        if (youtubeTrack == null) {
+        AudioTrack audioTrack = scheduler.toggleLoop();
+        if (audioTrack == null) {
             channel.sendMessage("<@" + userId + "> 当前没有正在播放的歌曲。先使用`yf play`播放歌曲后再使用`loop`指令。").queue();
         } else {
-            if (youtubeTrack.isLoop()) {
-                channel.sendMessage("<@" + userId + "> 正在循环播放歌曲**" + youtubeTrack.getTitle() + "**").queue();
+            if (scheduler.isLoop()) {
+                channel.sendMessage("<@" + userId + "> 正在循环播放歌曲**" + audioTrack.getInfo().title + "**").queue();
             } else {
-                channel.sendMessage("<@" + userId + "> 已停止循环播放歌曲**" + youtubeTrack.getTitle() + "**").queue();
+                channel.sendMessage("<@" + userId + "> 已停止循环播放歌曲**" + audioTrack.getInfo().title + "**").queue();
             }
         }
     }
 
     public void showQueue(MessageChannel channel) {
-        List<YoutubeTrack> youtubeTrackList = scheduler.getQueue();
-        if (youtubeTrackList.size() == 0) {
+        List<AudioTrack> audioTracks = scheduler.getQueue();
+        if (audioTracks.size() == 0) {
             channel.sendMessage(new EmbedBuilder()
                     .setTitle("当前播放队列")
                     .setDescription("当前播放队列中没有歌曲。使用以下指令添加歌曲到播放列表。\n`yf play 关键词或者Youtube网址`")
@@ -146,11 +133,11 @@ public class AudioPlayerSendHandler implements AudioSendHandler {
         } else {
             int count = 1;
             StringBuilder description = new StringBuilder();
-            for (YoutubeTrack t : youtubeTrackList) {
+            for (AudioTrack t : audioTracks) {
                 description.append(count).append(". ");
-                description.append("[").append(t.getTitle()).append("](").append(t.getUrl()).append(")");
+                description.append("[").append(t.getInfo().title).append("](").append(t.getInfo().uri).append(")");
                 if (count == 1) {
-                    if (t.isLoop()) {
+                    if (scheduler.isLoop()) {
                         description.append("（正在循环播放）");
                     } else {
                         description.append("（正在播放）");
