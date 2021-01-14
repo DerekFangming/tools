@@ -51,46 +51,52 @@ public class AudioPlayerSendHandler implements AudioSendHandler {
     public void loadAndPlay(String keyword, MessageChannel channel, String userId) {
 
         try {
-            Request request = new Request.Builder()
-                    .url(HttpUrl.parse("https://www.googleapis.com/youtube/v3/search").newBuilder()
-                            .addQueryParameter("part", "snippet")
-                            .addQueryParameter("maxResults", "1")
-                            .addQueryParameter("type", "video")
-                            .addQueryParameter("key", toolsProperties.getYoutubeApiKey())
-                            .addQueryParameter("q", keyword)
-                            .build())
-                    .build();
-            Call call = client.newCall(request);
-            Response response = call.execute();
-            JSONObject json = new JSONObject(Objects.requireNonNull(response.body()).string());
-            JSONArray items = json.getJSONArray("items");
-            JSONObject firstResult = items.getJSONObject(0);
-            JSONObject snippet = firstResult.getJSONObject("snippet");
+            String trackUrl;
+            String title;
+            if (keyword.contains("www.youtube.com")) {
+                trackUrl = keyword;
+                title = "unknown";
+            } else {
+                Request request = new Request.Builder()
+                        .url(HttpUrl.parse("https://www.googleapis.com/youtube/v3/search").newBuilder()
+                                .addQueryParameter("part", "snippet")
+                                .addQueryParameter("maxResults", "1")
+                                .addQueryParameter("type", "video")
+                                .addQueryParameter("key", toolsProperties.getYoutubeApiKey())
+                                .addQueryParameter("q", keyword)
+                                .build())
+                        .build();
+                Call call = client.newCall(request);
+                Response response = call.execute();
+                JSONObject json = new JSONObject(Objects.requireNonNull(response.body()).string());
+                JSONArray items = json.getJSONArray("items");
+                JSONObject firstResult = items.getJSONObject(0);
+                JSONObject snippet = firstResult.getJSONObject("snippet");
+                trackUrl = "https://www.youtube.com/watch?v=" + firstResult.getJSONObject("id").getString("videoId");
+                title = snippet.getString("title");
+            }
 
-
-            String trackUrl = "https://www.youtube.com/watch?v=" + firstResult.getJSONObject("id").getString("videoId");
-            String title = snippet.getString("title");
             playerManager.loadItemOrdered(scheduler, trackUrl, new AudioLoadResultHandler() {
                 @Override
                 public void trackLoaded(AudioTrack track) {
-                    channel.sendMessage("<@" + userId + "> 歌曲**" + title + "**已加入播放队列。").queue();
+                    channel.sendMessage("<@" + userId + "> 歌曲**" + track.getInfo().title + "**已加入播放队列。").queue();
                     scheduler.queue(YoutubeTrack.builder()
-                            .title(title)
-                            .url(trackUrl)
+                            .title(track.getInfo().title)
+                            .url(track.getInfo().uri)
                             .track(track)
                             .build());
                 }
 
                 @Override
                 public void playlistLoaded(AudioPlaylist playlist) {
-//                AudioTrack track = playlist.getSelectedTrack();
-//
-//                if (track == null) {
-//                    track = playlist.getTracks().get(0);
-//                }
-//
-//                System.out.println("playlistLoaded");
-//                scheduler.queue(track);
+
+                    channel.sendMessage("<@" + userId + "> " + playlist.getTracks().size() + "首歌曲已加入播放队列。").queue();
+
+                    playlist.getTracks().forEach(t -> scheduler.queue(YoutubeTrack.builder()
+                            .title(t.getInfo().title)
+                            .url(t.getInfo().uri)
+                            .track(t)
+                            .build()));
                 }
 
                 @Override
