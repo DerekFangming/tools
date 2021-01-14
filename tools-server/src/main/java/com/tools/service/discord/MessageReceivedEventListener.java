@@ -312,7 +312,6 @@ public class MessageReceivedEventListener extends BaseEventListener {
                 audioManager.openAudioConnection(voiceChannel);
 
                 String[] extrasArray = Arrays.copyOfRange(command, 2, command.length);
-                System.out.println(String.join(" ", extrasArray));
 
                 audioPlayerSendHandler.loadAndPlay(String.join(" ", extrasArray), channel, member.getId());
 

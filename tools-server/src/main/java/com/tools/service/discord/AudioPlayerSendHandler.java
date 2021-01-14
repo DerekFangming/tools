@@ -134,17 +134,25 @@ public class AudioPlayerSendHandler implements AudioSendHandler {
             int count = 1;
             StringBuilder description = new StringBuilder();
             for (AudioTrack t : audioTracks) {
-                description.append(count).append(". ");
-                description.append("[").append(t.getInfo().title).append("](").append(t.getInfo().uri).append(")");
+                StringBuilder song = new StringBuilder();
+                song.append(count).append(". ");
+                song.append("[").append(t.getInfo().title).append("](").append(t.getInfo().uri).append(")");
                 if (count == 1) {
                     if (scheduler.isLoop()) {
-                        description.append("（正在循环播放）");
+                        song.append("（正在循环播放）");
                     } else {
-                        description.append("（正在播放）");
+                        song.append("（正在播放）");
                     }
                 }
-                description.append("\n");
-                count ++;
+                song.append("\n");
+
+                if (description.length() + song.length() < 2000) {
+                    description.append(song);
+                    count++;
+                } else {
+                    description.append("\n还有").append(audioTracks.size() - count + 1).append("首歌曲。");
+                    break;
+                }
             }
 
             channel.sendMessage(new EmbedBuilder()
