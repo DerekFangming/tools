@@ -127,8 +127,9 @@ public class MessageReceivedEventListener extends BaseEventListener {
 
                         public void onFailure(@NotNull Call call, @NotNull IOException e) {
                             channel.sendMessage("<@" + member.getId() + "> 你绑定的Origin ID **" + command[3] +
-                            "** 不存在，请重新绑定。你可以尝试在 https://apex.tracker.gg 上搜索你的ID。你的Origin ID是加好友是输入的" +
-                            "ID，不是登录Origin的用户名。").queue();
+                                    "** 不存在，请重新绑定。我们的数据来自apex tracker。 你可以尝试在 https://apex.tracker.gg 上搜索你的ID。" +
+                                    "你的Origin ID是加好友时输入的ID。如果还是无法找到你的ID，可以给apex tracker提交表格来让他们找到你的账号。" +
+                                    "https://thetrackernetwork.com/contact?site=apex.tracker.gg&reason=support").queue();
                         }
                     });
                     return;
