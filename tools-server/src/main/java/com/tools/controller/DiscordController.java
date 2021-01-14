@@ -153,4 +153,10 @@ public class DiscordController {
         }
     }
 
+    @GetMapping("/admin/birthday")
+    @PreAuthorize("hasRole('ADMIN')")
+    public void runBirthday() {
+        discordService.announceBirthDay();
+    }
+
 }

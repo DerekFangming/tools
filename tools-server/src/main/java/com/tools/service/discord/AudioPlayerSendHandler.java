@@ -68,7 +68,6 @@ public class AudioPlayerSendHandler implements AudioSendHandler {
                 JSONObject json = new JSONObject(Objects.requireNonNull(response.body()).string());
                 JSONArray items = json.getJSONArray("items");
                 JSONObject firstResult = items.getJSONObject(0);
-                JSONObject snippet = firstResult.getJSONObject("snippet");
                 trackUrl = "https://www.youtube.com/watch?v=" + firstResult.getJSONObject("id").getString("videoId");
             }
 
