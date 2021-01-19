@@ -27,6 +27,7 @@ public class TrackScheduler extends AudioEventAdapter {
     }
 
     public void nextTrack() {
+        loop = false;
         player.stopTrack();
         queue.poll();
         AudioTrack track = queue.peek();
@@ -36,6 +37,7 @@ public class TrackScheduler extends AudioEventAdapter {
     }
 
     public void stop() {
+        loop = false;
         player.stopTrack();
         queue.clear();
     }

@@ -9,13 +9,23 @@ import com.tools.repository.DiscordGuildRepo;
 import com.tools.repository.DiscordUserLogRepo;
 import com.tools.repository.DiscordUserRepo;
 import com.tools.service.discord.DiscordService;
+import com.tools.type.DiscordUserLogActionType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.apachecommons.CommonsLog;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -93,7 +103,26 @@ public class DiscordController {
     @PreAuthorize("hasRole('DC')")
     public List<DiscordUserLog> getUserLogs(@PathVariable("guildId") String guildId) {
         if ("default".equalsIgnoreCase(guildId)) {
+
+
+//
+//            Specification<DiscordUserLog> spec = (Specification<DiscordUserLog>) (root, query, criteriaBuilder) -> {
+//                return criteriaBuilder.equal(root.get("action"), DiscordUserLogActionType.BOOST);
+//            };
+//
+//            Page<DiscordUserLog> page = discordUserLogRepo.findAll(spec, PageRequest.of(0, 15, Sort.by(Sort.Direction.DESC, "id")));
+//            int totalPages = page.getTotalPages();
+//
+//            return page.getContent();
+
             return discordUserLogRepo.findAllByOrderByIdDesc();
+
+
+//            return discordUserLogRepo.findAllByOrderByIdDesc((Specification<DiscordUserLog>) (root, query, criteriaBuilder) -> {
+//                return criteriaBuilder.and(criteriaBuilder.lessThan(root.get("created"), Instant.now()),
+//                        criteriaBuilder.equal(root.get("action"), DiscordUserLogActionType.BOOST));
+//                return criteriaBuilder.equal(root.get("action"), DiscordUserLogActionType.BOOST);
+//            });
         } else {
             return Collections.emptyList();
         }
