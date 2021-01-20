@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { Title } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -41,8 +41,9 @@ export class DiscordComponent implements OnInit {
   selectedWelcomeRoleName = '';
   selectedBirthdayRoleName = '';
 
-  currentPage = 0;
+  currentPage = -1;
   totalPages = 0;
+  totalLogs = 0;
   resultPerPage = 15;
   math = Math;
 
@@ -60,7 +61,7 @@ export class DiscordComponent implements OnInit {
   onTabSelected(newTab: string) {
     this.tab = newTab;
     if (this.tab == 'logs') {
-      this.loadUserLogs();
+      this.loadUserLogs(0);
     } else {
       this.loadBotConfig();
     }
@@ -72,25 +73,35 @@ export class DiscordComponent implements OnInit {
     });
   }
 
-  loadUserLogs() {
+  loadUserLogs(page: number) {
+    if (page < 0 || (page > this.totalPages && this.totalPages != -1)) return;
     this.loadingUserLogs = true;
-    this.currentPage = 0;
-    this.http.get<DiscordUserLog[]>(environment.urlPrefix + 'api/discord/default/user-logs').subscribe(userLogList => {
-      this.userLogList = userLogList.filter(ul => {
-        let created = new Date(ul.created).toLocaleDateString('en', {year: 'numeric', month: '2-digit', day: 'numeric'}).split('/');
+    this.currentPage = page;
 
-        let nameMatched = this.displayName.trim() == '' || ul.name.toLowerCase().includes(this.displayName.trim().toLowerCase())
-         || ul.nickname.toLowerCase().includes(this.displayName.trim().toLowerCase());
-        let fromMatched = this.fromDate == null || !new NgbDate(Number(created[2]), Number(created[0]), Number(created[1]))
-          .before({ year: this.fromDate.year, month: this.fromDate.month, day: this.fromDate.day });
-        let toMatched = this.toDate == null || !new NgbDate(Number(created[2]), Number(created[0]), Number(created[1]))
-          .after({ year: this.toDate.year, month: this.toDate.month, day: this.toDate.day });
-        let actionMatched = this.action == '' || this.action == ul.action.toLowerCase();
+    let queryParam = new HttpParams().set('limit', this.resultPerPage.toString())
+      .set('offset', (this.resultPerPage * this.currentPage).toString());
+    if (this.displayName.trim() != '') {
+      queryParam = queryParam.set('keyword', this.displayName.trim());
+    }
+    if (this.action != '') {
+      queryParam = queryParam.set('action', this.action);
+    }
+    if (this.fromDate != null) {
+      queryParam = queryParam.set('from', new Date(this.fromDate.year + '-' + this.fromDate.month + '-' + this.fromDate.day).toISOString());
+    }
+    if (this.toDate != null) {
+      queryParam = queryParam.set('to', new Date(this.toDate.year + '-' + this.toDate.month + '-' + this.toDate.day).toISOString());
+    }
 
-        return nameMatched && fromMatched && toMatched && actionMatched;
-      });
-      this.totalPages = Math.ceil(this.userLogList.length / this.resultPerPage);
-      this.onPageIndexSelected(1);
+    const httpOptions = {
+      params: queryParam,
+      observe: 'response' as 'response'
+    };
+    this.http.get<DiscordUserLog[]>(environment.urlPrefix + 'api/discord/default/user-logs', httpOptions).subscribe(res => {
+      this.userLogList = res.body;
+      this.pagedUserLogList = res.body;
+      this.totalLogs = Number(res.headers.get('X-Total-Count'));
+      this.totalPages = Math.ceil(Number(res.headers.get('X-Total-Count')) / this.resultPerPage - 1);
       this.loadingUserLogs = false;
     }, error => {
       this.loadingUserLogs = false;
@@ -167,20 +178,7 @@ export class DiscordComponent implements OnInit {
 
   onActionSelected(action: string) {
     this.action = action;
-    this.loadUserLogs();
-  }
-
-  onPageIndexSelected(newPage: number) {
-    if(newPage != this.currentPage) {
-      this.currentPage = newPage;
-
-      let startIndex = newPage - 1;
-      if (newPage == this.totalPages) {
-        this.pagedUserLogList = this.userLogList.slice(startIndex * this.resultPerPage, this.userLogList.length);
-      } else {
-        this.pagedUserLogList = this.userLogList.slice(startIndex * this.resultPerPage, newPage * this.resultPerPage);
-      }
-    }
+    this.loadUserLogs(0);
   }
 
   onWelcomeChannelSelected(option: DiscordObject) {

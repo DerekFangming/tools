@@ -10,6 +10,8 @@ import java.util.stream.Collectors;
 
 public class WebUtil {
 
+    public static final String TOTAL_COUNT = "X-Total-Count";
+
     public static Map<String, String> getRequestHeaders(HttpServletRequest request) {
         return Collections
                 .list(request.getHeaderNames())

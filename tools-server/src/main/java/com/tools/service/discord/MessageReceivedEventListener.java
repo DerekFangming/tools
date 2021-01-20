@@ -325,8 +325,6 @@ public class MessageReceivedEventListener extends BaseEventListener {
                 audioPlayerSendHandler.showQueue(channel);
             } else if ("loop".equalsIgnoreCase(command[1])) {
                 audioPlayerSendHandler.toggleLoop(channel, member.getId());
-            } else if ("kobe".equalsIgnoreCase(command[1])) {
-                channel.sendMessage("Kobe哥哥也太能白给了吧").queue();
             } else if ("ping".equalsIgnoreCase(command[1])) {
                 channel.sendMessage("Bot operational. Latency " + event.getJDA().getGatewayPing() + " ms").queue();
             } else {

@@ -8,6 +8,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
+import static com.tools.util.WebUtil.TOTAL_COUNT;
 import static org.springframework.core.Ordered.HIGHEST_PRECEDENCE;
 
 @Component
@@ -28,7 +29,7 @@ public class CORSFilter implements Filter {
             response.setHeader("Access-Control-Max-Age", "3600");
             response.setHeader("Access-Control-Allow-Headers", "Origin, Content-Type, Accept, Authorization");
             response.setHeader("Access-Control-Allow-Credentials", "true");
-            response.setHeader("Access-Control-Expose-Headers", "Location, X-Total-Count");
+            response.setHeader("Access-Control-Expose-Headers", "Location, " + TOTAL_COUNT);
             filterChain.doFilter(servletRequest, servletResponse);
         } else {
             filterChain.doFilter(servletRequest, servletResponse);

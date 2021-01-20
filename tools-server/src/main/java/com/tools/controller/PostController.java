@@ -18,6 +18,8 @@ import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static com.tools.util.WebUtil.TOTAL_COUNT;
+
 @RestController
 @RequestMapping(value = "/api/posts")
 @CommonsLog
@@ -51,7 +53,7 @@ public class PostController {
         }
 
         return ResponseEntity.ok()
-                .header("X-Total-Count", String.valueOf(postRepo.countByViewed(null)))
+                .header(TOTAL_COUNT, String.valueOf(postRepo.countByViewed(null)))
                 .body(postList.stream().map(p -> modelMapper.map(p, PostDto.class)).collect(Collectors.toList()));
     }
 

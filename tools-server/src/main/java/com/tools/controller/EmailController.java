@@ -30,6 +30,8 @@ import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static com.tools.util.WebUtil.TOTAL_COUNT;
+
 @RestController
 @RequestMapping(value = "/api/email")
 @RequiredArgsConstructor(onConstructor_={@Autowired})
@@ -48,7 +50,7 @@ public class EmailController {
         List<Email> emailList = emailRepo.findAllByOrderByIdDesc(PageRequest.of(page, size));
 
         return ResponseEntity.ok()
-                .header("X-Total-Count", String.valueOf(emailRepo.count()))
+                .header(TOTAL_COUNT, String.valueOf(emailRepo.count()))
                 .body(emailList.stream().map(p -> modelMapper.map(p, EmailDto.class)).collect(Collectors.toList()));
     }
 

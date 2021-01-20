@@ -24,15 +24,15 @@
   <div class="form-row mt-3">
     <div class="col-sm-12 col-md-5 mb-3">
       <label>User name</label>
-      <input type="text" class="form-control" [(ngModel)]="displayName" (keyup.enter)="loadUserLogs()">
+      <input type="text" class="form-control" [(ngModel)]="displayName" (keyup.enter)="loadUserLogs(0)">
     </div>
     <div class="col-6 col-sm-6 col-md-2 mb-3">
       <label>From date</label>
-      <input type="text" class="form-control" ngbDatepicker #df="ngbDatepicker" (click)="df.toggle()" [(ngModel)]="fromDate" (ngModelChange)="loadUserLogs()">
+      <input type="text" class="form-control" ngbDatepicker #df="ngbDatepicker" (click)="df.toggle()" [(ngModel)]="fromDate" (ngModelChange)="loadUserLogs(0)">
     </div>
     <div class="col-6 col-sm-6 col-md-2 mb-3">
       <label>To date</label>
-      <input type="text" class="form-control" ngbDatepicker #dt="ngbDatepicker" (click)="dt.toggle()" [(ngModel)]="toDate" (ngModelChange)="loadUserLogs()">
+      <input type="text" class="form-control" ngbDatepicker #dt="ngbDatepicker" (click)="dt.toggle()" [(ngModel)]="toDate" (ngModelChange)="loadUserLogs(0)">
     </div>
     <div class="col-6 col-sm-6 col-md-2 mb-3">
       <label for="validationCustom02">Action type</label>
@@ -41,16 +41,16 @@
         <div class="dropdown-menu">
           <a class="dropdown-item pointer" (click)="onActionSelected('')">All</a>
           <div role="separator" class="dropdown-divider"></div>
-          <a class="dropdown-item pointer" (click)="onActionSelected('join')">Join</a>
-          <a class="dropdown-item pointer" (click)="onActionSelected('leave')">Leave</a>
-          <a class="dropdown-item pointer" (click)="onActionSelected('boost')">Boost</a>
+          <a class="dropdown-item pointer" (click)="onActionSelected('JOIN')">Join</a>
+          <a class="dropdown-item pointer" (click)="onActionSelected('LEAVE')">Leave</a>
+          <a class="dropdown-item pointer" (click)="onActionSelected('BOOST')">Boost</a>
         </div>
       </div>
     </div>
     <div class="col-6 col-sm-6 col-md-1 mb-3">
       <label></label>
       <div class="input-group">
-        <button class="btn btn-outline-secondary btn-block mt-2" type="button" (click)="loadUserLogs()">Search</button>
+        <button class="btn btn-outline-secondary btn-block mt-2" type="button" (click)="loadUserLogs(0)">Search</button>
       </div>
     </div>
   </div>
@@ -77,7 +77,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let userLog of pagedUserLogList;">
+          <tr *ngFor="let userLog of userLogList;">
             <th scope="row"> {{ userLog.name }} </th>
             <th scope="row"> {{ userLog.nickname }} </th>
             <td> {{ utils.getType(userLog.action) }} </td>
@@ -89,15 +89,16 @@
   </div>
   <div class="row">
     <div class="col-sm-12 col-md-3 mt-4">
-      <p class="ml-2">Showing {{(currentPage - 1) * resultPerPage + 1}} - {{math.min(currentPage * resultPerPage, userLogList.length)}} of {{userLogList.length}} results</p>
+      <p class="ml-2">Showing {{totalLogs == 0 ? '0' : currentPage * resultPerPage + 1}} - {{math.min((currentPage + 1) * resultPerPage, totalLogs)}} of {{totalLogs}} results</p>
     </div>
     <div class="col-sm-12 col-md-9 mt-4">
       <div class="btn-toolbar mb-3 pull-right" role="toolbar">
         <div class="btn-group mr-2" role="group">
-          <button *ngFor='let key of [].constructor(totalPages); let i = index' type="button" class="btn"
-            [ngClass]="i + 1 == currentPage ? 'btn-secondary' : 'btn-outline-secondary'" (click)="onPageIndexSelected(i + 1)">
-            {{ i + 1 }}
-          </button>
+          <button type="button" class="btn btn-outline-secondary" (click)="loadUserLogs(0)"><i class="fa fa-angle-double-left" aria-hidden="true"></i></button>
+          <button type="button" class="btn btn-outline-secondary" (click)="loadUserLogs(currentPage - 1)"><i class="fa fa-angle-left" aria-hidden="true"></i></button>
+          <button type="button" class="btn btn-secondary">{{ currentPage + 1 }}</button>
+          <button type="button" class="btn btn-outline-secondary" (click)="loadUserLogs(currentPage + 1)"><i class="fa fa-angle-right" aria-hidden="true"></i></button>
+          <button type="button" class="btn btn-outline-secondary" (click)="loadUserLogs(totalPages)"><i class="fa fa-angle-double-right" aria-hidden="true"></i></button>
         </div>
       </div>
     </div>

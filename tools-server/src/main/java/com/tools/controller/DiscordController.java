@@ -5,6 +5,7 @@ import com.tools.domain.DiscordGuild;
 import com.tools.domain.DiscordUser;
 import com.tools.domain.DiscordUserLog;
 import com.tools.dto.DiscordObjectDto;
+import com.tools.dto.PostDto;
 import com.tools.repository.DiscordGuildRepo;
 import com.tools.repository.DiscordUserLogRepo;
 import com.tools.repository.DiscordUserRepo;
@@ -18,6 +19,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
@@ -30,6 +32,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+
+import static com.tools.util.WebUtil.TOTAL_COUNT;
 
 @RestController
 @RequestMapping(value = "/api/discord")
@@ -101,30 +106,38 @@ public class DiscordController {
 
     @GetMapping("/{guildId}/user-logs")
     @PreAuthorize("hasRole('DC')")
-    public List<DiscordUserLog> getUserLogs(@PathVariable("guildId") String guildId) {
+    public ResponseEntity<List<DiscordUserLog>> getUserLogs(@PathVariable("guildId") String guildId, @RequestParam(value = "limit", defaultValue = "15") int limit,
+                                             @RequestParam(value = "offset", defaultValue = "0") int offset, @RequestParam(value = "keyword", required = false) String keyword,
+                                             @RequestParam(value = "from", required = false) Instant from, @RequestParam(value = "to", required = false) Instant to,
+                                             @RequestParam(value = "action", required = false) DiscordUserLogActionType action) {
         if ("default".equalsIgnoreCase(guildId)) {
+            Specification<DiscordUserLog> spec = (Specification<DiscordUserLog>) (root, query, criteriaBuilder) -> {
+                List<Predicate> predicates = new ArrayList<>();
+                if (keyword != null) {
+                    predicates.add(criteriaBuilder.like(criteriaBuilder.upper(root.get("name")), "%" + keyword.trim().toUpperCase() + "%"));
+                }
 
+                if (from != null) {
+                    predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get("created"), from));
+                }
 
-//
-//            Specification<DiscordUserLog> spec = (Specification<DiscordUserLog>) (root, query, criteriaBuilder) -> {
-//                return criteriaBuilder.equal(root.get("action"), DiscordUserLogActionType.BOOST);
-//            };
-//
-//            Page<DiscordUserLog> page = discordUserLogRepo.findAll(spec, PageRequest.of(0, 15, Sort.by(Sort.Direction.DESC, "id")));
-//            int totalPages = page.getTotalPages();
-//
-//            return page.getContent();
+                if (to != null) {
+                    predicates.add(criteriaBuilder.lessThanOrEqualTo(root.get("created"), to));
+                }
 
-            return discordUserLogRepo.findAllByOrderByIdDesc();
+                if (action != null) {
+                    predicates.add(criteriaBuilder.equal(root.get("action"), action));
+                }
+                return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
+            };
 
+            Page<DiscordUserLog> page = discordUserLogRepo.findAll(spec, PageRequest.of(offset/limit, limit, Sort.by(Sort.Direction.DESC, "id")));
 
-//            return discordUserLogRepo.findAllByOrderByIdDesc((Specification<DiscordUserLog>) (root, query, criteriaBuilder) -> {
-//                return criteriaBuilder.and(criteriaBuilder.lessThan(root.get("created"), Instant.now()),
-//                        criteriaBuilder.equal(root.get("action"), DiscordUserLogActionType.BOOST));
-//                return criteriaBuilder.equal(root.get("action"), DiscordUserLogActionType.BOOST);
-//            });
+            return ResponseEntity.ok()
+                    .header(TOTAL_COUNT, String.valueOf(page.getTotalElements()))
+                    .body(page.getContent());
         } else {
-            return Collections.emptyList();
+            return ResponseEntity.ok(Collections.emptyList());
         }
     }
 
