@@ -43,6 +43,7 @@ public class AudioPlayerSendHandler implements AudioSendHandler {
         AudioSourceManagers.registerRemoteSources(playerManager);
 
         audioPlayer = playerManager.createPlayer();
+        audioPlayer.setFrameBufferDuration(5000);
         scheduler = new TrackScheduler(audioPlayer);
         audioPlayer.addListener(scheduler);
     }
