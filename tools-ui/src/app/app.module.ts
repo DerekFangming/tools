@@ -16,6 +16,8 @@ import { EmailComponent } from './email/email.component';
 import { ImgUploadComponent } from './img-upload/img-upload.component';
 import { DiscordComponent } from './discord/discord.component';
 import { NotifierModule } from 'angular-notifier';
+import { APP_BASE_HREF } from '@angular/common';
+import { getBaseLocation } from './utils.service';
 
 @NgModule({
   declarations: [
@@ -41,11 +43,18 @@ import { NotifierModule } from 'angular-notifier';
       }
     })
   ],
-  providers: [{
-    provide: HTTP_INTERCEPTORS,
-    useClass: AuthenticationInterceptor,
-    multi: true
-  }],
+  providers: [
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: AuthenticationInterceptor,
+      multi: true
+    },
+    {
+      provide: APP_BASE_HREF,
+      useFactory: getBaseLocation
+    }
+  ],
   bootstrap: [AppComponent]
 })
+
 export class AppModule { }
