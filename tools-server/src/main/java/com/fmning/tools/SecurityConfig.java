@@ -1,5 +1,6 @@
 package com.fmning.tools;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.security.oauth2.client.EnableOAuth2Sso;
@@ -33,20 +34,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     }
 
     @Bean
-    public PrincipalExtractor githubPrincipalExtractor() {
-        return new GithubPrincipalExtractor();
+    public PrincipalExtractor toolsPrincipalExtractor(ObjectMapper objectMapper) {
+        return new ToolsPrincipalExtractor(objectMapper);
     }
-
-//    @Bean
-//    public UserAuthenticationConverter userAuthenticationConverter () {
-//        return new MyUserConverter();
-//    }
-//
-//    @Bean
-//    public AccessTokenConverter accessTokenConverter() {
-//        DefaultAccessTokenConverter datc
-//                = new DefaultAccessTokenConverter();
-//        datc.setUserTokenConverter(userAuthenticationConverter());
-//        return datc;
-//    }
 }

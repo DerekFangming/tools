@@ -15,6 +15,7 @@ import okhttp3.OkHttpClient;
 import org.modelmapper.Converter;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -84,4 +85,19 @@ public class BeanConfig {
                 .addEventListeners(messageReceivedEventListener, memberJoinedEventListener, memberRemoveEventListener, memberUpdateEventListener)
                 .build().awaitReady();
     }
+
+    @Bean
+    @ConditionalOnProperty(name="tools.hi", havingValue="true")
+    public Obj obj1() {
+        System.out.println("obj1 started");
+        return new Obj();
+    }
+
+    @Bean
+    @ConditionalOnProperty(name="tools.hi", havingValue="false")
+    public Obj obj2() {
+        System.out.println("obj2 started");
+        return new Obj();
+    }
+
 }
