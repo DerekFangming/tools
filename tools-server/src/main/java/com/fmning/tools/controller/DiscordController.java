@@ -196,4 +196,9 @@ public class DiscordController {
         discordService.announceBirthDay();
     }
 
+    @GetMapping("/admin/test")
+    public void runBirthday1() {
+        discordService.createRole(toolsProperties.getDcDefaultGuildId());
+    }
+
 }

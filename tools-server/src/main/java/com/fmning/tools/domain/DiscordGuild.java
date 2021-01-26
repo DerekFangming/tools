@@ -6,10 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.DynamicUpdate;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 
 @Entity
 @Table(name="tl_discord_guilds")
@@ -65,4 +62,19 @@ public class DiscordGuild {
 
     @Column(name="birthday_channel_id")
     private String birthdayChannelId;
+
+    @Column(name="role_enabled")
+    private boolean roleEnabled;
+
+    @Column(name="role_level_requirement")
+    private int roleLevelRequirement;
+
+    @Column(name="role_name_blacklist")
+    private String roleNameBlacklist;
+
+    @Column(name="role_color_blacklist")
+    private String roleColorBlacklist;
+
+    @Column(name="role_rank_role_id")
+    private String roleRankRoleId;
 }

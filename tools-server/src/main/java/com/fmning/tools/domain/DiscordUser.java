@@ -54,4 +54,7 @@ public class DiscordUser {
 
     @Column(name="birthday")
     private String birthday;
+
+    @Column(name="level_tag_id")
+    private String levelTagId;
 }
