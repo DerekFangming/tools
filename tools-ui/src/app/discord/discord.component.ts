@@ -29,6 +29,8 @@ export class DiscordComponent implements OnInit {
   guildConfig: DiscordGuildConfig;
   guildRoleList: DiscordObject[];
   guildChannelList: DiscordObject[];
+  roleNameBlacklist: String[];
+  roleColorBlacklist: String[];
 
   displayName = '';
   fromDate: any;
@@ -40,6 +42,8 @@ export class DiscordComponent implements OnInit {
   
   selectedWelcomeRoleName = '';
   selectedBirthdayRoleName = '';
+  selectedLevelRankRoleName = '';
+  selectedBoostRankRoleName = '';
 
   currentPage = -1;
   totalPages = 0;
@@ -120,6 +124,9 @@ export class DiscordComponent implements OnInit {
     this.http.get<DiscordGuildConfig>(environment.urlPrefix + 'api/discord/default/config').subscribe(guildConfig => {
       this.guildConfig = guildConfig;
       this.processSelectedDropdowns();
+
+      this.roleNameBlacklist = guildConfig.roleNameBlacklist.split(/,+/);
+      this.roleColorBlacklist = guildConfig.roleColorBlacklist.split(/,+/);
       this.loadingBotConfig = false;
     }, error => {
       this.loadingBotConfig = false;
@@ -173,6 +180,19 @@ export class DiscordComponent implements OnInit {
       } else {
         this.selectedBirthdayRoleName = this.guildRoleList.find(r => r.id == this.guildConfig.birthdayRoleId).name;
       }
+
+      if (this.guildConfig.roleLevelRankRoleId == null) {
+        this.selectedLevelRankRoleName = this.guildRoleList[0].name;
+      } else {
+        this.selectedLevelRankRoleName = this.guildRoleList.find(r => r.id == this.guildConfig.roleLevelRankRoleId).name;
+      }
+
+      if (this.guildConfig.roleLevelRankRoleId == null) {
+        this.selectedBoostRankRoleName = this.guildRoleList[0].name;
+      } else {
+        this.selectedBoostRankRoleName = this.guildRoleList.find(r => r.id == this.guildConfig.roleBoostRankRoleId).name;
+      }
+      
     }
   }
 

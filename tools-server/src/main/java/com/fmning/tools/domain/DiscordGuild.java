@@ -75,6 +75,9 @@ public class DiscordGuild {
     @Column(name="role_color_blacklist")
     private String roleColorBlacklist;
 
-    @Column(name="role_rank_role_id")
-    private String roleRankRoleId;
+    @Column(name="role_level_rank_role_id")
+    private String roleLevelRankRoleId;
+
+    @Column(name="role_boost_rank_role_id")
+    private String roleBoostRankRoleId;
 }

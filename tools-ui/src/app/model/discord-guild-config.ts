@@ -11,4 +11,10 @@ export class DiscordGuildConfig {
   birthdayMessage: string;
   birthdayRoleId: string;
   birthdayChannelId: string;
+  roleEnabled: boolean;
+  roleLevelRequirement: number;
+  roleNameBlacklist: string;
+  roleColorBlacklist: string;
+  roleLevelRankRoleId: string;
+  roleBoostRankRoleId: string;
 }

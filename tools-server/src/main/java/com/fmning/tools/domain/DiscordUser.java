@@ -57,4 +57,7 @@ public class DiscordUser {
 
     @Column(name="level_tag_id")
     private String levelTagId;
+
+    @Column(name="boost_tag_id")
+    private String boostTagId;
 }

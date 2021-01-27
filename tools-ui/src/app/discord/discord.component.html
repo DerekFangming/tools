@@ -173,6 +173,62 @@
         <div class="card-header">
           <div class="row">
             <div class="col-9">
+              <h5 class="header-text pt-2">Selfserve roles</h5>
+            </div>
+            <div class="col-3">
+              <label class="switch pull-right">
+                <input type="checkbox" [(ngModel)]="guildConfig.roleEnabled">
+                <span class="slider round"></span>
+              </label>
+            </div>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="form-row">
+            <div class="form-group col-md-6 mt-2">
+              <label>Level requirement</label>
+              <input type="text" class="form-control" [(ngModel)]="guildConfig.roleLevelRequirement">
+            </div>
+            <div class="form-group col-md-6 mt-2">
+              <label>Role location (New role will be placed before this role)</label>
+              <div class="dropdown">
+                <a class="btn btn-secondary dropdown-toggle" href="#" role="button" data-toggle="dropdown">{{selectedRankRoleName}}</a>
+                <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+                  <a class="dropdown-item pointer" *ngFor="let role of guildRoleList;" (click)="onBirthdayRoleSelected(role)">{{role.name}}</a>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group col-md-6 mt-2">
+              <label>Role name blacklist</label>
+              <input type="text" class="form-control mb-2">
+              <span *ngFor="let roleName of roleNameBlacklist;"  class="badge badge-pill badge-primary mr-2">
+                <span class="h6 ml-2 mr-1">{{ roleName }}</span>
+                <i class="fa fa-lg fa-times-circle-o pointer ml-1 my-2" aria-hidden="true"></i>
+              </span>
+            </div>
+            <div class="form-group col-md-6 mt-2">
+              <label>Role color blacklist</label>
+              <input type="text" class="form-control mb-2">
+              <span *ngFor="let roleColor of roleColorBlacklist;"  class="badge badge-pill badge-primary mr-2">
+                <span class="h6 ml-2 mr-1">{{ roleColor }}</span>
+                <i class="fa fa-lg fa-times-circle-o pointer ml-1 my-2" aria-hidden="true"></i>
+              </span>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row mb-5">
+    <div class="col mt-4">
+      <div class="card">
+        <div class="card-header">
+          <div class="row">
+            <div class="col-9">
               <h5 class="header-text pt-2">Birthday blessing</h5>
             </div>
             <div class="col-3">
