@@ -166,6 +166,17 @@ public class DiscordController {
             throw new IllegalArgumentException("Welcome announcement channel has to be set when welcome message is turned on.");
         }
 
+        // Validate role settings
+        if (discordGuild.isRoleEnabled()) {
+            if (discordGuild.getRoleLevelRequirement() <= 0) {
+                throw new IllegalArgumentException("Level requirement must be greater than 0");
+            } else if (StringUtils.isBlank(discordGuild.getRoleLevelRankRoleId())) {
+                throw new IllegalArgumentException("Level role location must be selected.");
+            } else if (StringUtils.isBlank(discordGuild.getRoleBoostRankRoleId())) {
+                throw new IllegalArgumentException("Boost role location must be selected.");
+            }
+        }
+
         // Validate birthday settings
         if (discordGuild.isBirthdayEnabled()) {
             if (discordGuild.getBirthdayChannelId() == null) {
@@ -198,7 +209,6 @@ public class DiscordController {
 
     @GetMapping("/admin/test")
     public void runBirthday1() {
-        discordService.createRole(toolsProperties.getDcDefaultGuildId());
     }
 
 }

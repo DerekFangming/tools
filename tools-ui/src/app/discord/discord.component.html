@@ -173,7 +173,7 @@
         <div class="card-header">
           <div class="row">
             <div class="col-9">
-              <h5 class="header-text pt-2">Selfserve roles</h5>
+              <h5 class="header-text pt-2">Roles</h5>
             </div>
             <div class="col-3">
               <label class="switch pull-right">
@@ -185,35 +185,46 @@
         </div>
         <div class="card-body">
           <div class="form-row">
+            <div class="form-group col mt-2">
+              <label>Level role's level requirement</label>
+              <input type="number" min="1" class="form-control" [(ngModel)]="guildConfig.roleLevelRequirement">
+            </div>
+          </div>
+          <div class="form-row">
             <div class="form-group col-md-6 mt-2">
-              <label>Level requirement</label>
-              <input type="text" class="form-control" [(ngModel)]="guildConfig.roleLevelRequirement">
+              <label>Level role location (New role will be placed before this role)</label>
+              <div class="dropdown">
+                <a class="btn btn-secondary dropdown-toggle" href="#" role="button" data-toggle="dropdown">{{selectedLevelRankRoleName}}</a>
+                <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+                  <a class="dropdown-item pointer" *ngFor="let role of guildRoleList;" (click)="onLevelRankRoleSelected(role)">{{role.name}}</a>
+                </div>
+              </div>
             </div>
             <div class="form-group col-md-6 mt-2">
-              <label>Role location (New role will be placed before this role)</label>
+              <label>Boost role location (New role will be placed before this role)</label>
               <div class="dropdown">
-                <a class="btn btn-secondary dropdown-toggle" href="#" role="button" data-toggle="dropdown">{{selectedRankRoleName}}</a>
+                <a class="btn btn-secondary dropdown-toggle" href="#" role="button" data-toggle="dropdown">{{selectedBoostRankRoleName}}</a>
                 <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
-                  <a class="dropdown-item pointer" *ngFor="let role of guildRoleList;" (click)="onBirthdayRoleSelected(role)">{{role.name}}</a>
+                  <a class="dropdown-item pointer" *ngFor="let role of guildRoleList;" (click)="onBoostRankRoleSelected(role)">{{role.name}}</a>
                 </div>
               </div>
             </div>
           </div>
           <div class="form-row">
             <div class="form-group col-md-6 mt-2">
-              <label>Role name blacklist</label>
-              <input type="text" class="form-control mb-2">
-              <span *ngFor="let roleName of roleNameBlacklist;"  class="badge badge-pill badge-primary mr-2">
+              <label>Role name blacklist(Cannot include any of these keywords)</label>
+              <input type="text" class="form-control mb-2" [(ngModel)]="forbiddenRoleName" (keydown.enter)="addForbiddenRoleName()">
+              <span *ngFor="let roleName of roleNameBlacklist;"  class="badge badge-pill badge-primary mr-2 mt-2">
                 <span class="h6 ml-2 mr-1">{{ roleName }}</span>
-                <i class="fa fa-lg fa-times-circle-o pointer ml-1 my-2" aria-hidden="true"></i>
+                <i class="fa fa-lg fa-times-circle-o pointer ml-1 my-2" (click)="removeForbiddenRoleName(roleName)"></i>
               </span>
             </div>
             <div class="form-group col-md-6 mt-2">
-              <label>Role color blacklist</label>
-              <input type="text" class="form-control mb-2">
-              <span *ngFor="let roleColor of roleColorBlacklist;"  class="badge badge-pill badge-primary mr-2">
+              <label>Role color blacklist(Cannot be exactly the same)</label>
+              <input type="text" class="form-control mb-2" [(ngModel)]="forbiddenRoleColor" (keydown.enter)="addForbiddenRoleColor()">
+              <span *ngFor="let roleColor of roleColorBlacklist;"  class="badge badge-pill badge-primary mr-2 mt-2">
                 <span class="h6 ml-2 mr-1">{{ roleColor }}</span>
-                <i class="fa fa-lg fa-times-circle-o pointer ml-1 my-2" aria-hidden="true"></i>
+                <i class="fa fa-lg fa-times-circle-o pointer ml-1 my-2" (click)="removeForbiddenRoleColor(roleColor)"></i>
               </span>
             </div>
           </div>
@@ -279,7 +290,7 @@
           <div class="card-body">
             <div class="container">
               <button type="button" class="btn btn-primary pull-right ml-2" [disabled]="updatingConfig" (click)="onSaveChanges()"><i class="fa fa-refresh fa-spin mr-2" *ngIf=updatingConfig></i>Save changes</button>
-              <button type="button" class="btn btn-secondary pull-right" [disabled]="updatingConfig" (click)="loadBotConfig()"><i class="fa fa-refresh fa-spin mr-2" *ngIf=updatingConfig></i>Restore</button>
+              <button type="button" class="btn btn-secondary pull-right" [disabled]="updatingConfig" (click)="loadBotConfig()"><i class="fa fa-refresh fa-spin mr-2" *ngIf=updatingConfig></i>Discard changes</button>
             </div>
           </div>
         </div>

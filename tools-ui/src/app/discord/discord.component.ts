@@ -45,6 +45,9 @@ export class DiscordComponent implements OnInit {
   selectedLevelRankRoleName = '';
   selectedBoostRankRoleName = '';
 
+  forbiddenRoleName = '';
+  forbiddenRoleColor = '';
+
   currentPage = -1;
   totalPages = 0;
   totalLogs = 0;
@@ -221,14 +224,54 @@ export class DiscordComponent implements OnInit {
     this.guildConfig.birthdayRoleId = option.id;
   }
 
+  onLevelRankRoleSelected(option: DiscordObject) {
+    this.selectedLevelRankRoleName = option.name;
+    this.guildConfig.roleLevelRankRoleId = option.id;
+  }
+
+  onBoostRankRoleSelected(option: DiscordObject) {
+    this.selectedBoostRankRoleName = option.name;
+    this.guildConfig.roleBoostRankRoleId = option.id;
+  }
+
+  addForbiddenRoleName() {
+    this.forbiddenRoleName = this.forbiddenRoleName.trim();
+    let found = this.roleNameBlacklist.find(r => r == this.forbiddenRoleName);
+    if (found == null) {
+      this.roleNameBlacklist.push(this.forbiddenRoleName);
+    }
+    this.forbiddenRoleName = '';
+  }
+
+  removeForbiddenRoleName(name: string) {
+    this.roleNameBlacklist = this.roleNameBlacklist.filter(r => r != name);
+  }
+
+  addForbiddenRoleColor() {
+    this.forbiddenRoleColor = this.forbiddenRoleColor.trim();
+    let found = this.roleColorBlacklist.find(r => r == this.forbiddenRoleColor);
+    if (found == null) {
+      this.roleColorBlacklist.push(this.forbiddenRoleColor);
+    }
+    this.forbiddenRoleColor = '';
+  }
+
+  removeForbiddenRoleColor(name: string) {
+    this.roleColorBlacklist = this.roleColorBlacklist.filter(r => r != name);
+  }
+
   onSaveChanges() {
+    this.guildConfig.roleNameBlacklist = this.roleNameBlacklist.join();
+    this.guildConfig.roleColorBlacklist = this.roleColorBlacklist.join();
+
+
     this.updatingConfig = true;
     this.http.post<DiscordGuildConfig>(environment.urlPrefix + 'api/discord/default/config', this.guildConfig).subscribe(() => {
       this.notifierService.notify('success', 'Changes saved successfully.');
       this.updatingConfig = false;
     }, error => {
       this.updatingConfig = false;
-      this.notifierService.notify('error', error);
+      this.notifierService.notify('error', error.message);
     });
   }
 
