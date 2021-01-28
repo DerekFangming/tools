@@ -1,16 +1,17 @@
 package com.fmning.tools.service.discord;
 
 import com.fmning.tools.domain.DiscordGuild;
+import com.fmning.tools.domain.DiscordRoleRequest;
 import com.fmning.tools.domain.DiscordUser;
 import com.fmning.tools.repository.DiscordGuildRepo;
-import com.fmning.tools.repository.DiscordUserLogRepo;
+import com.fmning.tools.repository.DiscordRoleRequestRepo;
 import com.fmning.tools.repository.DiscordUserRepo;
+import com.fmning.tools.type.DiscordRoleRequestType;
 import lombok.RequiredArgsConstructor;
-import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.MessageChannel;
-import net.dv8tion.jda.api.entities.Role;
+import net.dv8tion.jda.api.JDA;
+import net.dv8tion.jda.api.entities.*;
 import okhttp3.*;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -20,8 +21,10 @@ import org.springframework.stereotype.Service;
 import java.awt.*;
 import java.io.IOException;
 import java.time.Instant;
+import java.util.List;
 import java.util.Objects;
 import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static com.fmning.tools.service.discord.MessageReceivedEventListener.userMentionPattern;
 
@@ -31,9 +34,10 @@ public class DiscordRoleService {
 
     private final DiscordGuildRepo discordGuildRepo;
     private final DiscordUserRepo discordUserRepo;
-    private final DiscordUserLogRepo discordUserLogRepo;
-    private final AudioPlayerSendHandler audioPlayerSendHandler;
+    private final DiscordRoleRequestRepo discordRoleRequestRepo;
     private final OkHttpClient client;
+
+    private Pattern userMentionIdPattern = Pattern.compile("<@!(.*?)>");
 
     public void createUpdateRole(String[] command, MessageChannel channel, Member member, boolean isBoostRole) {
         DiscordGuild discordGuild = discordGuildRepo.findById(member.getGuild().getId()).orElse(null);
@@ -187,7 +191,7 @@ public class DiscordRoleService {
         }
     }
 
-    public void shareRole(String[] command, MessageChannel channel, Member member) {
+    public void shareRole(String[] command, MessageChannel channel, Member member, List<Member> mentions) {
         DiscordGuild discordGuild = discordGuildRepo.findById(member.getGuild().getId()).orElse(null);
         if (discordGuild == null || !discordGuild.isRoleEnabled()) return;
 
@@ -196,20 +200,63 @@ public class DiscordRoleService {
             return;
         }
 
-        Matcher matcher = userMentionPattern.matcher(command[2]);
-        String mention = null;
-        while (matcher.find()) {mention= matcher.group(0);}
-        if (mention == null) {
+        if (mentions.size() == 0) {
             channel.sendMessage("<@" + member.getId() + "> 无法识别tag指令。使用yf help查看如何分享tag。").queue();
             return;
         }
 
-//        Guild guild = member.getGuild();
         DiscordUser user = discordUserRepo.findById(member.getId()).orElse(fromMember(member));
         if (user.getLevelRoleId() == null) {
             channel.sendMessage("<@" + member.getId() + "> 你没有等级tag可以分享，请先创建你的等级tag。").queue();
+        } else {
+            Guild guild = member.getGuild();
+            Role role = guild.getRoleById(user.getLevelRoleId());
+            Member mentionedMember = mentions.get(0);
+            if (mentionedMember.getRoles().stream().anyMatch(r -> r.getId().equals(user.getLevelRoleId()))) {
+                channel.sendMessage("<@" + member.getId() + "> " + mentionedMember.getEffectiveName() + "已拥有你的等级tag **" + role.getName() + "**。").queue();
+                return;
+            }
+
+            String key = RandomStringUtils.randomAlphanumeric(6);
+            discordRoleRequestRepo.save(DiscordRoleRequest.builder()
+                    .id(key)
+                    .guildId(guild.getId())
+                    .roleId(user.getLevelRoleId())
+                    .action(DiscordRoleRequestType.SHARE)
+                    .requesterId(user.getId())
+                    .approverId(mentionedMember.getId())
+                    .created(Instant.now())
+                    .build());
+            channel.sendMessage("<@" + mentionedMember.getId() + "> " + member.getEffectiveName() + "想要给你tag **" +
+                    role.getName() + "**。使用这个指令接受这个tag：\n`yf confirmTag " + key + "`").queue();
+        }
+    }
+
+    public void confirmRole(String[] command, MessageChannel channel, Member member) {
+        DiscordGuild discordGuild = discordGuildRepo.findById(member.getGuild().getId()).orElse(null);
+        if (discordGuild == null || !discordGuild.isRoleEnabled()) return;
+
+        if (command.length < 3) {
+            channel.sendMessage("<@" + member.getId() + "> 无法识别tag指令。使用yf help查看如何分享tag。").queue();
+            return;
         }
 
+        DiscordRoleRequest request = discordRoleRequestRepo.findById(command[2].trim()).orElse(null);
+        if (request == null) {
+            channel.sendMessage("<@" + member.getId() + "> 验证码 **" + command[2] + "**不存在。").queue();
+            return;
+        } else if (!request.getApproverId().equals(member.getId())) {
+            channel.sendMessage("<@" + member.getId() + "> 你无法使用这个验证码。").queue();
+            return;
+        }
+
+        Guild guild = member.getGuild();
+        if (request.getAction() == DiscordRoleRequestType.SHARE) {
+            Role role = guild.getRoleById(request.getRoleId());
+            if (role != null) guild.addRoleToMember(member, role).queue();
+            discordRoleRequestRepo.delete(request);
+            channel.sendMessage("<@" + member.getId() + "> tag分享成功。").queue();
+        }
 
     }
 

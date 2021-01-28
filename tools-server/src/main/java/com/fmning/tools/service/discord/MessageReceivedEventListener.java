@@ -334,7 +334,9 @@ public class MessageReceivedEventListener extends BaseEventListener {
             } else if ("boosttag".equalsIgnoreCase(command[1])) {
                 discordRoleService.createUpdateRole(command, channel, member, true);
             } else if ("sharetag".equalsIgnoreCase(command[1])) {
-                discordRoleService.shareRole(command, channel, member);
+                discordRoleService.shareRole(command, channel, member, event.getMessage().getMentionedMembers());
+            } else if ("confirmtag".equalsIgnoreCase(command[1])) {
+                discordRoleService.confirmRole(command, channel, member);
             } else if ("ping".equalsIgnoreCase(command[1])) {
                 channel.sendMessage("Bot operational. Latency " + event.getJDA().getGatewayPing() + " ms").queue();
             } else {

@@ -107,9 +107,8 @@ create table tl_discord_user_logs (
 );
 
 create table tl_discord_role_requests (
-    id serial primary key,
+    id text primary key,
 	guild_id text,
-	key text,
 	role_id text,
 	action text,
 	requester_id text,
