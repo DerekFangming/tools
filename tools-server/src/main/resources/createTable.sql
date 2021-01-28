@@ -72,7 +72,13 @@ create table tl_discord_guilds (
 	birthday_enabled boolean,
 	birthday_message text,
 	birthday_role_id text,
-	birthday_channel_id text
+	birthday_channel_id text,
+	role_enabled boolean,
+	role_level_requirement integer,
+	role_name_blacklist text,
+	role_color_blacklist text,
+	role_level_rank_role_id text,
+	role_boost_rank_role_id text
 );
 
 create table tl_discord_users (
@@ -86,7 +92,9 @@ create table tl_discord_users (
 	joined_date timestamp without time zone,
 	boosted_date timestamp without time zone,
 	apex_id text,
-	birthday text
+	birthday text,
+	level_role_id text,
+	boost_role_id text
 );
 
 create table tl_discord_user_logs (
@@ -95,6 +103,17 @@ create table tl_discord_user_logs (
 	user_id text,
 	name text,
 	action text,
+	created timestamp without time zone not null
+);
+
+create table tl_discord_role_requests (
+    id serial primary key,
+	guild_id text,
+	key text,
+	role_id text,
+	action text,
+	requester_id text,
+	approver_id text,
 	created timestamp without time zone not null
 );
 

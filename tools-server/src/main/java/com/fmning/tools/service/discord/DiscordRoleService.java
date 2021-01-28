@@ -21,6 +21,9 @@ import java.awt.*;
 import java.io.IOException;
 import java.time.Instant;
 import java.util.Objects;
+import java.util.regex.Matcher;
+
+import static com.fmning.tools.service.discord.MessageReceivedEventListener.userMentionPattern;
 
 @Service
 @RequiredArgsConstructor(onConstructor_={@Autowired})
@@ -35,6 +38,38 @@ public class DiscordRoleService {
     public void createUpdateRole(String[] command, MessageChannel channel, Member member, boolean isBoostRole) {
         DiscordGuild discordGuild = discordGuildRepo.findById(member.getGuild().getId()).orElse(null);
         if (discordGuild == null || !discordGuild.isRoleEnabled()) return;
+
+        if (command.length == 2) {
+            DiscordUser user = discordUserRepo.findById(member.getId()).orElse(fromMember(member));
+            StringBuilder sb = new StringBuilder("<@" + member.getId() + ">");
+
+            String levelRoleName = null;
+            if (user.getLevelRoleId() != null) {
+                Role role = member.getGuild().getRoleById(user.getLevelRoleId());
+                levelRoleName = role.getName();
+            }
+
+            String boostRoleName = null;
+            if (user.getBoostRoleId() != null) {
+                Role role = member.getGuild().getRoleById(user.getBoostRoleId());
+                boostRoleName = role.getName();
+            }
+
+            if (levelRoleName == null && boostRoleName == null) {
+                channel.sendMessage(sb.append(" 你尚未拥有任何tag。").toString()).queue();
+                return;
+            } else {
+                sb.append(" 你当前拥有");
+                if (levelRoleName != null) sb.append("等级tag **").append(levelRoleName).append("**");
+                if (boostRoleName != null) {
+                    if (levelRoleName != null) sb.append(" 和");
+                    sb.append("Server Booster专属tag **").append(boostRoleName).append("**");
+                }
+
+                channel.sendMessage(sb.append("。").toString()).queue();
+                return;
+            }
+        }
 
         if (command.length < 4) {
             channel.sendMessage("<@" + member.getId() + "> 无法识别tag指令。使用yf help查看如何创建tag。").queue();
@@ -64,7 +99,7 @@ public class DiscordRoleService {
         }
 
         if (isBoostRole) {
-            if (member.getTimeBoosted() != null) {
+            if (member.getTimeBoosted() == null) {
                 channel.sendMessage("<@" + member.getId() + "> 只有Server Booster才可以创建专属tag。").queue();
             } else {
                 createUpdateAndAssignRole(member, channel, discordGuild, command[2].trim(), color, isBoostRole);
@@ -110,13 +145,13 @@ public class DiscordRoleService {
         Guild guild = member.getGuild();
         DiscordUser user = discordUserRepo.findById(member.getId()).orElse(fromMember(member));
         if (isBoostRole) {
-            if (user.getBoostTagId() == null) {
+            if (user.getBoostRoleId() == null) {
                 Role role = guild.createRole()
                         .setColor(Color.decode(color))
                         .setHoisted(isBoostRole)
                         .setName(name)
                         .complete();
-                user.setBoostTagId(role.getId());
+                user.setBoostRoleId(role.getId());
                 discordUserRepo.save(user);
 
                 //Add role to member and then move rank
@@ -125,18 +160,18 @@ public class DiscordRoleService {
                 guild.modifyRolePositions().selectPosition(role).moveTo(targetRole.getPosition()).queue();
                 channel.sendMessage("<@" + member.getId() + "> 专属tag **" + name + "**已创建成功。").queue();
             } else {
-                Role role = guild.getRoleById(user.getBoostTagId());
+                Role role = guild.getRoleById(user.getBoostRoleId());
                 role.getManager().setName(name).setColor(Color.decode(color)).queue();
                 channel.sendMessage("<@" + member.getId() + "> 专属tag **" + name + "**已更新成功。").queue();
             }
         } else {
-            if (user.getLevelTagId() == null) {
+            if (user.getLevelRoleId() == null) {
                 Role role = guild.createRole()
                         .setColor(Color.decode(color))
                         .setHoisted(isBoostRole)
                         .setName(name)
                         .complete();
-                user.setLevelTagId(role.getId());
+                user.setLevelRoleId(role.getId());
                 discordUserRepo.save(user);
 
                 //Add role to member and then move rank
@@ -145,11 +180,37 @@ public class DiscordRoleService {
                 guild.modifyRolePositions().selectPosition(role).moveTo(targetRole.getPosition()).queue();
                 channel.sendMessage("<@" + member.getId() + "> tag **" + name + "**已创建成功。").queue();
             } else {
-                Role role = guild.getRoleById(user.getLevelTagId());
+                Role role = guild.getRoleById(user.getLevelRoleId());
                 role.getManager().setName(name).setColor(Color.decode(color)).queue();
                 channel.sendMessage("<@" + member.getId() + "> tag **" + name + "**已更新成功。").queue();
             }
         }
+    }
+
+    public void shareRole(String[] command, MessageChannel channel, Member member) {
+        DiscordGuild discordGuild = discordGuildRepo.findById(member.getGuild().getId()).orElse(null);
+        if (discordGuild == null || !discordGuild.isRoleEnabled()) return;
+
+        if (command.length < 3) {
+            channel.sendMessage("<@" + member.getId() + "> 无法识别tag指令。使用yf help查看如何分享tag。").queue();
+            return;
+        }
+
+        Matcher matcher = userMentionPattern.matcher(command[2]);
+        String mention = null;
+        while (matcher.find()) {mention= matcher.group(0);}
+        if (mention == null) {
+            channel.sendMessage("<@" + member.getId() + "> 无法识别tag指令。使用yf help查看如何分享tag。").queue();
+            return;
+        }
+
+//        Guild guild = member.getGuild();
+        DiscordUser user = discordUserRepo.findById(member.getId()).orElse(fromMember(member));
+        if (user.getLevelRoleId() == null) {
+            channel.sendMessage("<@" + member.getId() + "> 你没有等级tag可以分享，请先创建你的等级tag。").queue();
+        }
+
+
     }
 
     private DiscordUser fromMember(Member member) {

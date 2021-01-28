@@ -55,9 +55,9 @@ public class DiscordUser {
     @Column(name="birthday")
     private String birthday;
 
-    @Column(name="level_tag_id")
-    private String levelTagId;
+    @Column(name="level_role_id")
+    private String levelRoleId;
 
-    @Column(name="boost_tag_id")
-    private String boostTagId;
+    @Column(name="boost_role_id")
+    private String boostRoleId;
 }

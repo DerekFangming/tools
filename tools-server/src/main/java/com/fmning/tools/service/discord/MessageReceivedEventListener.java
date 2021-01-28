@@ -41,7 +41,7 @@ public class MessageReceivedEventListener extends BaseEventListener {
     private final DiscordRoleService discordRoleService;
     private final OkHttpClient client;
 
-    private Pattern userMentionPattern = Pattern.compile("<@.*?>");
+    public static Pattern userMentionPattern = Pattern.compile("<@.*?>");
     private Pattern birthdayPattern = Pattern.compile("([0-9][0-9])-([0-3][0-9])");
     private ArrayList<String> nbList = new ArrayList<String>() {{
         add(" 可太牛逼了");
@@ -333,6 +333,8 @@ public class MessageReceivedEventListener extends BaseEventListener {
                 discordRoleService.createUpdateRole(command, channel, member, false);
             } else if ("boosttag".equalsIgnoreCase(command[1])) {
                 discordRoleService.createUpdateRole(command, channel, member, true);
+            } else if ("sharetag".equalsIgnoreCase(command[1])) {
+                discordRoleService.shareRole(command, channel, member);
             } else if ("ping".equalsIgnoreCase(command[1])) {
                 channel.sendMessage("Bot operational. Latency " + event.getJDA().getGatewayPing() + " ms").queue();
             } else {
