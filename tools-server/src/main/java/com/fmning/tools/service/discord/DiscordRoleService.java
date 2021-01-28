@@ -232,6 +232,49 @@ public class DiscordRoleService {
         }
     }
 
+    public void requestRole(String[] command, MessageChannel channel, Member member, List<Member> mentions) {
+        DiscordGuild discordGuild = discordGuildRepo.findById(member.getGuild().getId()).orElse(null);
+        if (discordGuild == null || !discordGuild.isRoleEnabled()) return;
+
+        if (command.length < 3) {
+            channel.sendMessage("<@" + member.getId() + "> 无法识别tag指令。使用yf help查看如何分享tag。").queue();
+            return;
+        }
+
+        if (mentions.size() == 0) {
+            channel.sendMessage("<@" + member.getId() + "> 无法识别tag指令。使用yf help查看如何分享tag。").queue();
+            return;
+        }
+
+        Member mentionedMember = mentions.get(0);
+        DiscordUser user = discordUserRepo.findById(mentionedMember.getId()).orElse(null);
+        if (user == null) {
+            channel.sendMessage("<@" + member.getId() + "> 系统错误，请联系管理员。").queue();
+        } else if (user.getLevelRoleId() == null) {
+            channel.sendMessage("<@" + member.getId() + "> " + user.getNickname() + "尚未创建等级tag，无法分享给你。").queue();
+        } else {
+            Guild guild = member.getGuild();
+            Role role = guild.getRoleById(user.getLevelRoleId());
+            if (member.getRoles().stream().anyMatch(r -> r.getId().equals(user.getLevelRoleId()))) {
+                channel.sendMessage("<@" + member.getId() + "> 你已拥有" + user.getNickname() + "的等级tag **" + role.getName() + "**。").queue();
+                return;
+            }
+
+            String key = RandomStringUtils.randomAlphanumeric(6);
+            discordRoleRequestRepo.save(DiscordRoleRequest.builder()
+                    .id(key)
+                    .guildId(guild.getId())
+                    .roleId(user.getLevelRoleId())
+                    .action(DiscordRoleRequestType.REQUEST)
+                    .requesterId(member.getId())
+                    .approverId(mentionedMember.getId())
+                    .created(Instant.now())
+                    .build());
+            channel.sendMessage("<@" + mentionedMember.getId() + "> " + member.getEffectiveName() + "想要你的等级tag **" +
+                    role.getName() + "**。使用这个指令分享这个tag：\n`yf confirmTag " + key + "`").queue();
+        }
+    }
+
     public void confirmRole(String[] command, MessageChannel channel, Member member) {
         DiscordGuild discordGuild = discordGuildRepo.findById(member.getGuild().getId()).orElse(null);
         if (discordGuild == null || !discordGuild.isRoleEnabled()) return;
@@ -254,6 +297,11 @@ public class DiscordRoleService {
         if (request.getAction() == DiscordRoleRequestType.SHARE) {
             Role role = guild.getRoleById(request.getRoleId());
             if (role != null) guild.addRoleToMember(member, role).queue();
+            discordRoleRequestRepo.delete(request);
+            channel.sendMessage("<@" + member.getId() + "> tag分享成功。").queue();
+        } else if (request.getAction() == DiscordRoleRequestType.REQUEST) {
+            Role role = guild.getRoleById(request.getRoleId());
+            if (role != null) guild.addRoleToMember(request.getRequesterId(), role).queue();
             discordRoleRequestRepo.delete(request);
             channel.sendMessage("<@" + member.getId() + "> tag分享成功。").queue();
         }

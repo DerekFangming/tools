@@ -335,6 +335,8 @@ public class MessageReceivedEventListener extends BaseEventListener {
                 discordRoleService.createUpdateRole(command, channel, member, true);
             } else if ("sharetag".equalsIgnoreCase(command[1])) {
                 discordRoleService.shareRole(command, channel, member, event.getMessage().getMentionedMembers());
+            } else if ("requesttag".equalsIgnoreCase(command[1])) {
+                discordRoleService.requestRole(command, channel, member, event.getMessage().getMentionedMembers());
             } else if ("confirmtag".equalsIgnoreCase(command[1])) {
                 discordRoleService.confirmRole(command, channel, member);
             } else if ("ping".equalsIgnoreCase(command[1])) {
