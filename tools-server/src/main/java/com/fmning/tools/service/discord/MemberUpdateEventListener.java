@@ -9,6 +9,7 @@ import com.fmning.tools.repository.DiscordUserLogRepo;
 import com.fmning.tools.repository.DiscordUserRepo;
 import com.fmning.tools.type.DiscordUserLogActionType;
 import lombok.RequiredArgsConstructor;
+import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.User;
@@ -43,11 +44,7 @@ public class MemberUpdateEventListener extends BaseEventListener {
                             .joinedDate(Instant.from(member.getTimeJoined()))
                             .build());
 
-            if (user.getId().equals("360222890718920705")) {// TODO
-                System.out.println("******** myself captured");
-            }
-
-            // Compare
+            // Capture unboost situation
             if (discordUser.getBoostedDate() != null && member.getTimeBoosted() == null) {
                 discordUserLogRepo.save(DiscordUserLog.builder()
                         .guildId(discordUser.getGuildId())
@@ -57,6 +54,19 @@ public class MemberUpdateEventListener extends BaseEventListener {
                         .action(DiscordUserLogActionType.UN_BOOST)
                         .created(Instant.now())
                         .build());
+
+                if (discordUser.getBoostRoleId() != null) {
+                    Guild guild = member.getGuild();
+                    Role role = guild.getRoleById(discordUser.getBoostRoleId());
+
+                    if (role == null) {
+                        logError(event, discordGuildRepo, new IllegalStateException("Failed to delete role when user unboosted " + discordUser.getBoostRoleId()));
+                    } else {
+                        role.delete().queue();
+                        discordUser.setBoostRoleId(null);
+                    }
+                }
+
             } else if (discordUser.getBoostedDate() != null && member.getTimeBoosted() != null) {
                 Instant boostedTime = Instant.from(member.getTimeBoosted());
 

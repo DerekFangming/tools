@@ -8,6 +8,7 @@ import com.fmning.tools.repository.DiscordUserRepo;
 import com.fmning.tools.type.DiscordUserLogActionType;
 import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberRemoveEvent;
 import org.jetbrains.annotations.NotNull;
@@ -41,10 +42,24 @@ public class MemberRemoveEventListener extends BaseEventListener {
                     .action(DiscordUserLogActionType.LEAVE)
                     .created(Instant.now())
                     .build());
-            // delete role // TODO also uboost
 
-            // Remove birthday if registered
-            if (discordUser != null) discordUserRepo.delete(discordUser);
+            // Delete user
+            if (discordUser != null) {
+                String roles = "" + discordUser.getLevelRoleId() + " - " + discordUser.getBoostRoleId();
+                try {
+                    if (discordUser.getLevelRoleId() != null) {
+                        Role role = guild.getRoleById(discordUser.getLevelRoleId());
+                        role.delete().queue();
+                    }
+                    if (discordUser.getBoostRoleId() != null) {
+                        Role role = guild.getRoleById(discordUser.getBoostRoleId());
+                        role.delete().queue();
+                    }
+                } catch (Exception e) {
+                    logError(event, discordGuildRepo, new IllegalStateException("Failed to delete " + roles, e));
+                }
+                discordUserRepo.delete(discordUser);
+            }
 
         } catch (Exception e) {
             logError(event, discordGuildRepo, e);
