@@ -8,6 +8,7 @@ import com.fmning.tools.repository.DiscordRoleRequestRepo;
 import com.fmning.tools.repository.DiscordUserRepo;
 import com.fmning.tools.type.DiscordRoleRequestType;
 import lombok.RequiredArgsConstructor;
+import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.*;
 import okhttp3.*;
@@ -21,10 +22,12 @@ import org.springframework.stereotype.Service;
 import java.awt.*;
 import java.io.IOException;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import static com.fmning.tools.service.discord.MessageReceivedEventListener.userMentionPattern;
 
@@ -38,6 +41,7 @@ public class DiscordRoleService {
     private final OkHttpClient client;
 
     private Pattern userMentionIdPattern = Pattern.compile("<@!(.*?)>");
+    private String description;
 
     public void createUpdateRole(String[] command, MessageChannel channel, Member member, boolean isBoostRole) {
         DiscordGuild discordGuild = discordGuildRepo.findById(member.getGuild().getId()).orElse(null);
@@ -296,16 +300,116 @@ public class DiscordRoleService {
         Guild guild = member.getGuild();
         if (request.getAction() == DiscordRoleRequestType.SHARE) {
             Role role = guild.getRoleById(request.getRoleId());
-            if (role != null) guild.addRoleToMember(member, role).queue();
-            discordRoleRequestRepo.delete(request);
-            channel.sendMessage("<@" + member.getId() + "> tag分享成功。").queue();
+            if (role != null) {
+                guild.addRoleToMember(member, role).queue();
+                discordRoleRequestRepo.delete(request);
+                channel.sendMessage("<@" + member.getId() + "> tag分享成功。").queue();
+            } else {
+                channel.sendMessage("<@" + member.getId() + "> tag分享失败，请联系管理员。").queue();
+            }
         } else if (request.getAction() == DiscordRoleRequestType.REQUEST) {
             Role role = guild.getRoleById(request.getRoleId());
-            if (role != null) guild.addRoleToMember(request.getRequesterId(), role).queue();
-            discordRoleRequestRepo.delete(request);
-            channel.sendMessage("<@" + member.getId() + "> tag分享成功。").queue();
+            if (role != null) {
+                guild.addRoleToMember(request.getRequesterId(), role).queue();
+                discordRoleRequestRepo.delete(request);
+                channel.sendMessage("<@" + member.getId() + "> tag分享成功。").queue();
+            } else {
+                channel.sendMessage("<@" + member.getId() + "> tag分享失败，请联系管理员。").queue();
+            }
+        } else if (request.getAction() == DiscordRoleRequestType.DELETE) {
+            Role role = guild.getRoleById(request.getRoleId());
+            if (role != null) {
+                DiscordUser user = discordUserRepo.findById(member.getId()).orElseThrow(() -> new IllegalStateException("User not found"));
+                if (request.getRoleId().equals(user.getLevelRoleId())) user.setLevelRoleId(null);
+                if (request.getRoleId().equals(user.getBoostRoleId())) user.setBoostRoleId(null);
+                role.delete().queue();
+                discordRoleRequestRepo.delete(request);
+                discordUserRepo.save(user);
+                channel.sendMessage("<@" + member.getId() + "> tag删除成功。").queue();
+            } else {
+                channel.sendMessage("<@" + member.getId() + "> tag删除失败，请联系管理员。").queue();
+            }
+        } else if (request.getAction() == DiscordRoleRequestType.REMOVE) {
+            Role role = guild.getRoleById(request.getRoleId());
+            if (role != null) {
+                guild.removeRoleFromMember(member, role).queue();
+                discordRoleRequestRepo.delete(request);
+                channel.sendMessage("<@" + member.getId() + "> tag删除成功。").queue();
+            } else {
+                channel.sendMessage("<@" + member.getId() + "> tag删除 失败，请联系管理员。").queue();
+            }
+        }
+    }
+
+    public void deleteRole(String[] command, MessageChannel channel, Member member) {
+        DiscordGuild discordGuild = discordGuildRepo.findById(member.getGuild().getId()).orElse(null);
+        if (discordGuild == null || !discordGuild.isRoleEnabled()) return;
+
+        DiscordUser user = discordUserRepo.findById(member.getId()).orElse(fromMember(member));
+        List<Role> levelRoles = member.getRoles().stream().filter(r -> {
+            if (r.getId().equals(user.getLevelRoleId()) || r.getId().equals(user.getBoostRoleId())) return false;
+
+            return discordUserRepo.findByLevelRoleId(r.getId()).size() > 0;
+        }).collect(Collectors.toList());
+
+        Guild guild = member.getGuild();
+        StringBuilder sb = new StringBuilder();
+        List<DiscordRoleRequest> requestList = new ArrayList<>();
+        if (user.getLevelRoleId() != null) {
+            Role role = guild.getRoleById(user.getLevelRoleId());
+            String key = RandomStringUtils.randomAlphanumeric(6);
+            requestList.add(DiscordRoleRequest.builder()
+                    .id(key)
+                    .guildId(guild.getId())
+                    .roleId(user.getLevelRoleId())
+                    .action(DiscordRoleRequestType.DELETE)
+                    .approverId(member.getId())
+                    .created(Instant.now())
+                    .build());
+            sb.append("**等级Tag：** 删除后所有拥有此tag的人都将失去这个tag\n`yf confirmTag ").append(key).append("` 将删除 **")
+                    .append(role == null ? "你的等级tag" : role.getName()).append("**\n\n");
+        }
+        if (user.getBoostRoleId() != null) {
+            Role role = guild.getRoleById(user.getBoostRoleId());
+            String key = RandomStringUtils.randomAlphanumeric(6);
+            requestList.add(DiscordRoleRequest.builder()
+                    .id(key)
+                    .guildId(guild.getId())
+                    .roleId(user.getBoostRoleId())
+                    .action(DiscordRoleRequestType.DELETE)
+                    .approverId(member.getId())
+                    .created(Instant.now())
+                    .build());
+            sb.append("**Booster Tag：** 删除后你将失去单独的在线成员组\n`yf confirmTag ").append(key).append("` 将删除 **")
+                    .append(role == null ? "你的专属tag" : role.getName()).append("**\n\n");
         }
 
+        if (levelRoles.size() > 0) {
+            sb.append("**分享给你的Tag：** 删除后你自己将失去这个tag\n");
+            for (Role r : levelRoles) {
+                String key = RandomStringUtils.randomAlphanumeric(6);
+                requestList.add(DiscordRoleRequest.builder()
+                        .id(key)
+                        .guildId(guild.getId())
+                        .roleId(r.getId())
+                        .action(DiscordRoleRequestType.REMOVE)
+                        .approverId(member.getId())
+                        .created(Instant.now())
+                        .build());
+                sb.append("`yf confirmTag ").append(key).append("` 将删除 **").append(r.getName()).append("**\n");
+            }
+        }
+
+        description = sb.toString();
+        if (description.length() == 0) {
+            channel.sendMessage("<@" + member.getId() + "> 你没有tag可以删除。").queue();
+        } else {
+            discordRoleRequestRepo.saveAll(requestList);
+            channel.sendMessage(new EmbedBuilder()
+                    .setTitle("删除Tag")
+                    .setDescription(description)
+                    .build()).queue();
+        }
     }
 
     private DiscordUser fromMember(Member member) {

@@ -1,5 +1,6 @@
 package com.fmning.tools.service.discord;
 
+import com.fmning.tools.domain.DiscordUser;
 import com.fmning.tools.domain.DiscordUserLog;
 import com.fmning.tools.repository.DiscordGuildRepo;
 import com.fmning.tools.repository.DiscordUserLogRepo;
@@ -29,18 +30,21 @@ public class MemberRemoveEventListener extends BaseEventListener {
             User user = event.getUser();
             Guild guild = event.getGuild();
 
+            DiscordUser discordUser = discordUserRepo.findById(user.getId()).orElse(null);
+
             // Log user leave
             discordUserLogRepo.save(DiscordUserLog.builder()
                     .guildId(guild.getId())
                     .userId(user.getId())
                     .name(user.getName())
-                    .nickname(user.getName())
+                    .nickname(discordUser == null ? user.getName() : discordUser.getNickname())
                     .action(DiscordUserLogActionType.LEAVE)
                     .created(Instant.now())
                     .build());
+            // delete role // TODO also uboost
 
             // Remove birthday if registered
-            discordUserRepo.findById(user.getId()).ifPresent(discordUserRepo::delete);
+            if (discordUser != null) discordUserRepo.delete(discordUser);
 
         } catch (Exception e) {
             logError(event, discordGuildRepo, e);

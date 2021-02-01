@@ -331,14 +331,16 @@ public class MessageReceivedEventListener extends BaseEventListener {
                 audioPlayerSendHandler.toggleLoop(channel, member.getId());
             } else if ("tag".equalsIgnoreCase(command[1])) {
                 discordRoleService.createUpdateRole(command, channel, member, false);
-            } else if ("boosttag".equalsIgnoreCase(command[1])) {
+            } else if ("boostTag".equalsIgnoreCase(command[1])) {
                 discordRoleService.createUpdateRole(command, channel, member, true);
-            } else if ("sharetag".equalsIgnoreCase(command[1])) {
+            } else if ("shareTag".equalsIgnoreCase(command[1])) {
                 discordRoleService.shareRole(command, channel, member, event.getMessage().getMentionedMembers());
-            } else if ("requesttag".equalsIgnoreCase(command[1])) {
+            } else if ("requestTag".equalsIgnoreCase(command[1])) {
                 discordRoleService.requestRole(command, channel, member, event.getMessage().getMentionedMembers());
-            } else if ("confirmtag".equalsIgnoreCase(command[1])) {
+            } else if ("confirmTag".equalsIgnoreCase(command[1])) {
                 discordRoleService.confirmRole(command, channel, member);
+            } else if ("deleteTag".equalsIgnoreCase(command[1])) {
+                discordRoleService.deleteRole(command, channel, member);
             } else if ("ping".equalsIgnoreCase(command[1])) {
                 channel.sendMessage("Bot operational. Latency " + event.getJDA().getGatewayPing() + " ms").queue();
             } else {
