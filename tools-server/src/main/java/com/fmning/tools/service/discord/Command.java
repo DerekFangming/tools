@@ -44,7 +44,7 @@ public class Command {
         if (commands.length > ind) {
             String command = commands[ind];
             if (command.equalsIgnoreCase(name)) return true;
-            return alias == null || command.equalsIgnoreCase(alias);
+            return command.equalsIgnoreCase(alias);
         }
 
         return false;
