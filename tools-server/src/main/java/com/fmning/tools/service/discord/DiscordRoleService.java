@@ -26,6 +26,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import static com.fmning.tools.util.DiscordUtil.fromMember;
+
 @Service
 @RequiredArgsConstructor(onConstructor_={@Autowired})
 public class DiscordRoleService {
@@ -369,18 +371,5 @@ public class DiscordRoleService {
                     .setDescription(description)
                     .build()).queue();
         }
-    }
-
-    private DiscordUser fromMember(Member member) {
-        return DiscordUser.builder()
-                .id(member.getId())
-                .guildId(member.getGuild().getId())
-                .name(member.getUser().getName())
-                .nickname(member.getEffectiveName())
-                .avatarId(member.getUser().getAvatarId())
-                .createdDate(Instant.from(member.getUser().getTimeCreated()))
-                .joinedDate(Instant.from(member.getTimeJoined()))
-                .boostedDate(member.getTimeBoosted() == null ? null : Instant.from(member.getTimeBoosted()))
-                .build();
     }
 }

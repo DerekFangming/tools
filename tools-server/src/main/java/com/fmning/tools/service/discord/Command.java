@@ -27,6 +27,19 @@ public class Command {
         return commands.length;
     }
 
+    public String from(int startInd) {
+        StringBuilder res = new StringBuilder();
+
+        for (int i = startInd; i < commands.length; i ++) {
+            res.append(commands[i]).append(" ");
+        }
+
+        if (res.length() == 0) {
+            return null;
+        }
+        return res.toString().trim();
+    }
+
     public boolean equals(int ind, String name, String alias) {
         if (commands.length > ind) {
             String command = commands[ind];
