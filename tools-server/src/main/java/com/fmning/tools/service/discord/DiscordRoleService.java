@@ -67,7 +67,7 @@ public class DiscordRoleService {
         }
     }
 
-    public void createUpdateRole(MessageChannel channel, Member member, String name, String color, boolean isBoostRole) {
+    public void createUpdateRole(MessageChannel channel, Member member, String color, String name, boolean isBoostRole) {
         DiscordGuild discordGuild = discordGuildRepo.findById(member.getGuild().getId()).orElse(null);
         if (discordGuild == null || !discordGuild.isRoleEnabled()) return;
 

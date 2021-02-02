@@ -111,7 +111,10 @@ public class DiscordController {
             Specification<DiscordUserLog> spec = (Specification<DiscordUserLog>) (root, query, criteriaBuilder) -> {
                 List<Predicate> predicates = new ArrayList<>();
                 if (keyword != null) {
-                    predicates.add(criteriaBuilder.like(criteriaBuilder.upper(root.get("name")), "%" + keyword.trim().toUpperCase() + "%"));
+                    List<Predicate> or = new ArrayList<>();
+                    or.add(criteriaBuilder.like(criteriaBuilder.upper(root.get("name")), "%" + keyword.trim().toUpperCase() + "%"));
+                    or.add(criteriaBuilder.like(criteriaBuilder.upper(root.get("nickname")), "%" + keyword.trim().toUpperCase() + "%"));
+                    predicates.add(criteriaBuilder.or(or.toArray(new Predicate[0])));
                 }
 
                 if (from != null) {

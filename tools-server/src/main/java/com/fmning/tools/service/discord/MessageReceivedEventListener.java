@@ -99,10 +99,12 @@ public class MessageReceivedEventListener extends BaseEventListener {
                     discordRoleService.requestRole(channel, member, event.getMessage().getMentionedMembers().get(0));
                 } else if (command.length() == 4 && command.equals(2, "confirm", "c")) {
                     discordRoleService.confirmRole(channel, member, command.get(3));
-                } else if (command.length() == 4) {
-                    discordRoleService.createUpdateRole(channel, member, command.get(2), command.get(3),  false);
-                } else if (command.length() == 5 && command.equals(2, "boost", "b")) {
-                    discordRoleService.createUpdateRole(channel, member, command.get(3), command.get(4), true);
+                } else if (command.length() >= 4) {
+                    if (command.length() == 5 && command.equals(2, "boost", "b")) {
+                        discordRoleService.createUpdateRole(channel, member, command.get(3), command.from(4), true);
+                    } else {
+                        discordRoleService.createUpdateRole(channel, member, command.get(2), command.from(3), false);
+                    }
                 } else {
                     invalidCommand(channel, member, content);
                 }
