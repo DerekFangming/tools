@@ -160,8 +160,8 @@ export class DiscordComponent implements OnInit {
       this.guildChannelList.unshift(new DiscordObject({id: null, name: 'Disable channel message'}))
       this.guildRoleList.unshift(new DiscordObject({id: null, name: 'Disable role assignment'}))
 
-      this.selectedWelcomeChannelName = this.getRoleNameFromList(this.guildConfig.welcomeChannelId);
-      this.selectedBirthdayChannelName = this.getRoleNameFromList(this.guildConfig.birthdayChannelId);
+      this.selectedWelcomeChannelName = this.getChannelNameFromList(this.guildConfig.welcomeChannelId);
+      this.selectedBirthdayChannelName = this.getChannelNameFromList(this.guildConfig.birthdayChannelId);
       this.selectedWelcomeRoleName = this.getRoleNameFromList(this.guildConfig.welcomeRoleId);
       this.selectedBirthdayRoleName = this.getRoleNameFromList(this.guildConfig.birthdayRoleId);
       this.selectedLevelRankRoleName = this.getRoleNameFromList(this.guildConfig.roleLevelRankRoleId);
@@ -176,6 +176,15 @@ export class DiscordComponent implements OnInit {
     } else {
       let role = this.guildRoleList.find(r => r.id == roleId);
       return role == null ? this.guildRoleList[0].name : role.name;
+    }
+  }
+
+  getChannelNameFromList(channelId: string) {
+    if (channelId == null) {
+      return this.guildChannelList[0].name;
+    } else {
+      let channel = this.guildChannelList.find(r => r.id == channelId);
+      return channel == null ? this.guildChannelList[0].name : channel.name;
     }
   }
 
