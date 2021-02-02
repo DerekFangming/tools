@@ -85,14 +85,14 @@ public class DiscordRoleService {
         }
 
         for(String n : discordGuild.getRoleNameBlacklist().split("\\,+")) {
-            if (command[2].toLowerCase().contains(n)) {
+            if (command[2].toLowerCase().contains(n.toLowerCase())) {
                 channel.sendMessage("<@" + member.getId() + "> tag名字不能包含字符**" + n + "**。").queue();
                 return;
             }
         }
 
         for(String c : discordGuild.getRoleColorBlacklist().split("\\,+")) {
-            if (command[3].toLowerCase().contains(c)) {
+            if (command[3].toLowerCase().contains(c.toLowerCase())) {
                 channel.sendMessage("<@" + member.getId() + "> tag颜色不可以是**" + c + "**。").queue();
                 return;
             }
