@@ -23,4 +23,18 @@ public class Command {
         return null;
     }
 
+    public int length() {
+        return commands.length;
+    }
+
+    public boolean equals(int ind, String name, String alias) {
+        if (commands.length > ind) {
+            String command = commands[ind];
+            if (command.equalsIgnoreCase(name)) return true;
+            return alias == null || command.equalsIgnoreCase(alias);
+        }
+
+        return false;
+    }
+
 }

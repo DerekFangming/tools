@@ -1,5 +1,6 @@
 package com.fmning.tools.service;
 
+import com.fmning.tools.ToolsProperties;
 import com.fmning.tools.domain.Post;
 import com.fmning.tools.repository.PostRepo;
 import com.fmning.tools.type.HtmlReaderType;
@@ -64,6 +65,7 @@ public class PostService {
 
     private final PostRepo postRepo;
     private final QueryService queryService;
+    private final ToolsProperties toolsProperties;
 
     @PostConstruct
     public void init() {
@@ -85,12 +87,12 @@ public class PostService {
 
     @Scheduled(cron = "0 0 14 * * ?")// Every 2 seconds 0/2 * * * * ?
     public void autoLoad() {
-        loadPosts();
+        if (toolsProperties.isProduction()) loadPosts();
     }
 
     @Scheduled(cron = "0 0 16 * * ?")
     public void autoCleanup() {
-        cleanupViewedPosts();
+        if (toolsProperties.isProduction()) cleanupViewedPosts();
     }
 
     public String getPostUrl(int id) {

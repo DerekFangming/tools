@@ -160,42 +160,22 @@ export class DiscordComponent implements OnInit {
       this.guildChannelList.unshift(new DiscordObject({id: null, name: 'Disable channel message'}))
       this.guildRoleList.unshift(new DiscordObject({id: null, name: 'Disable role assignment'}))
 
-      if (this.guildConfig.welcomeChannelId == null) {
-        this.selectedWelcomeChannelName = this.guildChannelList[0].name;
-      } else {
-        this.selectedWelcomeChannelName = this.guildChannelList.find(c => c.id == this.guildConfig.welcomeChannelId).name;
-      }
-
-      if (this.guildConfig.birthdayChannelId == null) {
-        this.selectedBirthdayChannelName = this.guildChannelList[0].name;
-      } else {
-        this.selectedBirthdayChannelName = this.guildChannelList.find(c => c.id == this.guildConfig.birthdayChannelId).name;
-      }
-
-      if (this.guildConfig.welcomeRoleId == null) {
-        this.selectedWelcomeRoleName = this.guildRoleList[0].name;
-      } else {
-        this.selectedWelcomeRoleName = this.guildRoleList.find(r => r.id == this.guildConfig.welcomeRoleId).name;
-      }
-
-      if (this.guildConfig.birthdayRoleId == null) {
-        this.selectedBirthdayRoleName = this.guildRoleList[0].name;
-      } else {
-        this.selectedBirthdayRoleName = this.guildRoleList.find(r => r.id == this.guildConfig.birthdayRoleId).name;
-      }
-
-      if (this.guildConfig.roleLevelRankRoleId == null) {
-        this.selectedLevelRankRoleName = this.guildRoleList[0].name;
-      } else {
-        this.selectedLevelRankRoleName = this.guildRoleList.find(r => r.id == this.guildConfig.roleLevelRankRoleId).name;
-      }
-
-      if (this.guildConfig.roleLevelRankRoleId == null) {
-        this.selectedBoostRankRoleName = this.guildRoleList[0].name;
-      } else {
-        this.selectedBoostRankRoleName = this.guildRoleList.find(r => r.id == this.guildConfig.roleBoostRankRoleId).name;
-      }
+      this.selectedWelcomeChannelName = this.getRoleNameFromList(this.guildConfig.welcomeChannelId);
+      this.selectedBirthdayChannelName = this.getRoleNameFromList(this.guildConfig.birthdayChannelId);
+      this.selectedWelcomeRoleName = this.getRoleNameFromList(this.guildConfig.welcomeRoleId);
+      this.selectedBirthdayRoleName = this.getRoleNameFromList(this.guildConfig.birthdayRoleId);
+      this.selectedLevelRankRoleName = this.getRoleNameFromList(this.guildConfig.roleLevelRankRoleId);
+      this.selectedBoostRankRoleName = this.getRoleNameFromList(this.guildConfig.roleBoostRankRoleId);
       
+    }
+  }
+
+  getRoleNameFromList(roleId: string) {
+    if (roleId == null) {
+      return this.guildRoleList[0].name;
+    } else {
+      let role = this.guildRoleList.find(r => r.id == roleId);
+      return role == null ? this.guildRoleList[0].name : role.name;
     }
   }
 

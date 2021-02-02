@@ -83,6 +83,8 @@ public class MessageReceivedEventListener extends BaseEventListener {
                 return;
             }
 
+            Command command1 = new Command(content); // TODO
+
             String[] command = content.split("\\s+");
 
             MessageChannel channel = event.getChannel();
@@ -329,26 +331,36 @@ public class MessageReceivedEventListener extends BaseEventListener {
                 audioPlayerSendHandler.showQueue(channel);
             } else if ("loop".equalsIgnoreCase(command[1])) {
                 audioPlayerSendHandler.toggleLoop(channel, member.getId());
-            } else if ("tag".equalsIgnoreCase(command[1])) {
-                discordRoleService.createUpdateRole(command, channel, member, false);
-            } else if ("boostTag".equalsIgnoreCase(command[1])) {
-                discordRoleService.createUpdateRole(command, channel, member, true);
-            } else if ("shareTag".equalsIgnoreCase(command[1])) {
-                discordRoleService.shareRole(command, channel, member, event.getMessage().getMentionedMembers());
-            } else if ("requestTag".equalsIgnoreCase(command[1])) {
-                discordRoleService.requestRole(command, channel, member, event.getMessage().getMentionedMembers());
-            } else if ("confirmTag".equalsIgnoreCase(command[1])) {
-                discordRoleService.confirmRole(command, channel, member);
-            } else if ("deleteTag".equalsIgnoreCase(command[1])) {
-                discordRoleService.deleteRole(command, channel, member);
+            } else if (command1.equals(1, "tag", "t")) {
+                if (command1.length() == 2) {
+                    discordRoleService.getRoleStatus(channel, member);
+                } else if (command1.length() == 3 && command1.equals(2, "delete", "d")) {
+                    discordRoleService.deleteRole(channel, member);
+                } else if (command1.length() == 4 && command1.equals(2, "share", "s") && event.getMessage().getMentionedMembers().size() > 0) {
+                    discordRoleService.shareRole(channel, member, event.getMessage().getMentionedMembers().get(0));
+                } else if (command1.length() == 4 && command1.equals(2, "request", "r") && event.getMessage().getMentionedMembers().size() > 0) {
+                    discordRoleService.requestRole(channel, member, event.getMessage().getMentionedMembers().get(0));
+                } else if (command1.length() == 4 && command1.equals(2, "confirm", "c")) {
+                    discordRoleService.confirmRole(channel, member, command1.get(3));
+                } else if (command1.length() == 4) {
+                    discordRoleService.createUpdateRole(channel, member, command1.get(2), command1.get(3),  false);
+                } else if (command1.length() == 5 && command1.equals(2, "boost", "b")) {
+                    discordRoleService.createUpdateRole(channel, member, command1.get(3), command1.get(4), true);
+                } else {
+                    invalidCommand(channel, member, content);
+                }
             } else if ("ping".equalsIgnoreCase(command[1])) {
                 channel.sendMessage("Bot operational. Latency " + event.getJDA().getGatewayPing() + " ms").queue();
             } else {
-                channel.sendMessage("<@" + member.getId() + "> 无法识别指令 **" + content + "**。请运行yf help查看指令说明。").queue();
+                invalidCommand(channel, member, content);
             }
         } catch (Exception e) {
             logError(event, discordGuildRepo, e);
         }
+    }
+
+    private void invalidCommand(MessageChannel channel, Member member, String content) {
+        channel.sendMessage("<@" + member.getId() + "> 无法识别指令 **" + content + "**。请运行yf help查看指令说明。").queue();
     }
 
     private DiscordUser fromMember(Member member) {

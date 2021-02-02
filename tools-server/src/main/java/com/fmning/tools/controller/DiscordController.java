@@ -168,8 +168,8 @@ public class DiscordController {
 
         // Validate role settings
         if (discordGuild.isRoleEnabled()) {
-            if (discordGuild.getRoleLevelRequirement() <= 0) {
-                throw new IllegalArgumentException("Level requirement must be greater than 0");
+            if (discordGuild.getRoleLevelRequirement() < 0) {
+                throw new IllegalArgumentException("Level requirement cannot be a negative number");
             } else if (StringUtils.isBlank(discordGuild.getRoleLevelRankRoleId())) {
                 throw new IllegalArgumentException("Level role location must be selected.");
             } else if (StringUtils.isBlank(discordGuild.getRoleBoostRankRoleId())) {
