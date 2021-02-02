@@ -6,6 +6,7 @@ import com.fmning.tools.ToolsProperties;
 import com.fmning.tools.domain.DiscordUser;
 import com.fmning.tools.dto.DiscordObjectDto;
 import com.fmning.tools.repository.DiscordGuildRepo;
+import com.fmning.tools.repository.DiscordRoleRequestRepo;
 import com.fmning.tools.repository.DiscordUserRepo;
 import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.JDA;
@@ -17,6 +18,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.List;
@@ -28,6 +30,7 @@ public class DiscordService extends BaseEventListener {
 
     private final DiscordGuildRepo discordGuildRepo;
     private final DiscordUserRepo discordUserRepo;
+    private final DiscordRoleRequestRepo discordRoleRequestRepo;
     private final JDA jda;
     private final ToolsProperties toolsProperties;
     private final ObjectMapper objectMapper;
@@ -66,6 +69,11 @@ public class DiscordService extends BaseEventListener {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    @Scheduled(cron = "0 0 18 * * *")
+    public void cleanUpRoleRequests() {
+        discordRoleRequestRepo.deleteByCreated(Instant.now().minus(1, ChronoUnit.DAYS));
     }
 
     public List<DiscordObjectDto> getTextChannels(String guildId) {
