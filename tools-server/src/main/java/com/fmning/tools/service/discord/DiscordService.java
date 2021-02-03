@@ -3,9 +3,11 @@ package com.fmning.tools.service.discord;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fmning.tools.ToolsProperties;
+import com.fmning.tools.domain.DiscordRole;
 import com.fmning.tools.domain.DiscordUser;
 import com.fmning.tools.dto.DiscordObjectDto;
 import com.fmning.tools.repository.DiscordGuildRepo;
+import com.fmning.tools.repository.DiscordRoleRepo;
 import com.fmning.tools.repository.DiscordRoleRequestRepo;
 import com.fmning.tools.repository.DiscordUserRepo;
 import lombok.RequiredArgsConstructor;
@@ -24,6 +26,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static com.fmning.tools.util.DiscordUtil.toHexString;
+
 @Service
 @RequiredArgsConstructor(onConstructor_={@Autowired})
 public class DiscordService extends BaseEventListener {
@@ -34,6 +38,7 @@ public class DiscordService extends BaseEventListener {
     private final JDA jda;
     private final ToolsProperties toolsProperties;
     private final ObjectMapper objectMapper;
+    private final DiscordRoleRepo discordRoleRepo;
 
     @Scheduled(cron = "0 0 4 * * *")
     public void announceBirthDay() {
@@ -103,6 +108,23 @@ public class DiscordService extends BaseEventListener {
                     .collect(Collectors.toList());
         } else {
             return Collections.emptyList();
+        }
+    }
+
+    public void seedRoles() {
+
+        Guild guild = jda.getGuildById(toolsProperties.getDcDefaultGuildId());
+        if (guild != null) {
+            guild.getRoles().forEach(r -> {
+                DiscordRole role = DiscordRole.builder()
+                        .id(r.getId())
+                        .guildId(toolsProperties.getDcDefaultGuildId())
+                        .name(r.getName())
+                        .color(toHexString(r.getColor()))
+                        .position(r.getPositionRaw())
+                        .created(Instant.from(r.getTimeCreated())).build();
+                discordRoleRepo.save(role);
+            });
         }
     }
 

@@ -1,14 +1,11 @@
 package com.fmning.tools.controller;
 
 import com.fmning.tools.domain.DiscordUser;
-import com.fmning.tools.repository.DiscordRoleRequestRepo;
-import com.fmning.tools.repository.DiscordUserRepo;
+import com.fmning.tools.repository.*;
 import com.fmning.tools.ToolsProperties;
 import com.fmning.tools.domain.DiscordGuild;
 import com.fmning.tools.domain.DiscordUserLog;
 import com.fmning.tools.dto.DiscordObjectDto;
-import com.fmning.tools.repository.DiscordGuildRepo;
-import com.fmning.tools.repository.DiscordUserLogRepo;
 import com.fmning.tools.service.discord.DiscordService;
 import com.fmning.tools.type.DiscordUserLogActionType;
 import lombok.RequiredArgsConstructor;
@@ -213,9 +210,9 @@ public class DiscordController {
     }
 
     private final DiscordRoleRequestRepo discordRoleRequestRepo;
-    @GetMapping("/admin/test")
-    public void runBirthday1() {
-        discordRoleRequestRepo.deleteByCreated(Instant.now().minus(1, ChronoUnit.DAYS));
+    @GetMapping("/admin/sync")
+    public void sync() {
+        discordService.seedRoles();
     }
 
 }
