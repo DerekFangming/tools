@@ -1,6 +1,6 @@
 package com.fmning.tools.type;
 
-public enum DiscordRoleTypes {
+public enum DiscordRoleType {
     LEVEL,
     BOOST
 }

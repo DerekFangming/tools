@@ -3,7 +3,6 @@ package com.fmning.tools.service.discord;
 import com.fmning.tools.domain.DiscordRole;
 import com.fmning.tools.repository.DiscordRoleRepo;
 import lombok.RequiredArgsConstructor;
-import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.events.role.RoleCreateEvent;
 import net.dv8tion.jda.api.events.role.RoleDeleteEvent;
 import net.dv8tion.jda.api.events.role.update.*;
@@ -11,9 +10,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Nonnull;
-import java.awt.*;
-import java.time.Instant;
 
+import static com.fmning.tools.util.DiscordUtil.fromRole;
 import static com.fmning.tools.util.DiscordUtil.toHexString;
 
 @Component
@@ -24,8 +22,16 @@ public class RoleEventListener extends BaseEventListener {
 
     @Override
     public void onRoleCreate(@Nonnull RoleCreateEvent event) {
-        DiscordRole role = discordRoleRepo.findById(event.getRole().getId()).orElse(fromRole(event.getRole()));
-        discordRoleRepo.save(role);
+        new java.util.Timer().schedule(
+                new java.util.TimerTask() {
+                    @Override
+                    public void run() {
+                        DiscordRole role = discordRoleRepo.findById(event.getRole().getId()).orElse(null);
+                        if (role == null) discordRoleRepo.save(fromRole(event.getRole()));
+                    }
+                },
+                3000
+        );
     }
 
     @Override
@@ -42,16 +48,5 @@ public class RoleEventListener extends BaseEventListener {
         role.setPosition(event.getRole().getPositionRaw());
 
         discordRoleRepo.save(role);
-    }
-
-    private DiscordRole fromRole(Role role) {
-        return DiscordRole.builder()
-                .id(role.getId())
-                .guildId(role.getGuild().getId())
-                .name(role.getName())
-                .color(toHexString(role.getColor()))
-                .position(role.getPositionRaw())
-                .created(Instant.from(role.getTimeCreated()))
-                .build();
     }
 }

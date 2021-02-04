@@ -92,9 +92,18 @@ create table tl_discord_users (
 	joined_date timestamp without time zone,
 	boosted_date timestamp without time zone,
 	apex_id text,
-	birthday text,
-	level_role_id text,
-	boost_role_id text
+	birthday text
+);
+
+create table tl_discord_roles (
+	id text primary key,
+	guild_id text,
+	name text,
+	color text,
+	position integer,
+	created timestamp without time zone,
+	owner_id text,
+	type text
 );
 
 create table tl_discord_user_logs (

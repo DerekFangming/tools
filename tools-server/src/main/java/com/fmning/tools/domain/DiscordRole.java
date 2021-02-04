@@ -1,6 +1,6 @@
 package com.fmning.tools.domain;
 
-import com.fmning.tools.type.DiscordRoleTypes;
+import com.fmning.tools.type.DiscordRoleType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -38,9 +38,9 @@ public class DiscordRole {
     private Instant created;
 
     @Column(name="owner_id")
-    private String owner_id;
+    private String ownerId;
 
     @Column(name="type")
     @Enumerated(EnumType.STRING)
-    private DiscordRoleTypes type;
+    private DiscordRoleType type;
 }

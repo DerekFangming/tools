@@ -1,7 +1,9 @@
 package com.fmning.tools.util;
 
+import com.fmning.tools.domain.DiscordRole;
 import com.fmning.tools.domain.DiscordUser;
 import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.Role;
 
 import java.awt.*;
 import java.time.Instant;
@@ -17,6 +19,17 @@ public class DiscordUtil {
                 .createdDate(Instant.from(member.getUser().getTimeCreated()))
                 .joinedDate(Instant.from(member.getTimeJoined()))
                 .boostedDate(member.getTimeBoosted() == null ? null : Instant.from(member.getTimeBoosted()))
+                .build();
+    }
+
+    public static DiscordRole fromRole(Role role) {
+        return DiscordRole.builder()
+                .id(role.getId())
+                .guildId(role.getGuild().getId())
+                .name(role.getName())
+                .color(toHexString(role.getColor()))
+                .position(role.getPositionRaw())
+                .created(Instant.from(role.getTimeCreated()))
                 .build();
     }
 

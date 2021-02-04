@@ -1,12 +1,15 @@
 package com.fmning.tools.service.discord;
 
 import com.fmning.tools.domain.DiscordGuild;
+import com.fmning.tools.domain.DiscordRole;
 import com.fmning.tools.domain.DiscordRoleRequest;
 import com.fmning.tools.domain.DiscordUser;
 import com.fmning.tools.repository.DiscordGuildRepo;
+import com.fmning.tools.repository.DiscordRoleRepo;
 import com.fmning.tools.repository.DiscordRoleRequestRepo;
 import com.fmning.tools.repository.DiscordUserRepo;
 import com.fmning.tools.type.DiscordRoleRequestType;
+import com.fmning.tools.type.DiscordRoleType;
 import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.*;
@@ -20,6 +23,7 @@ import org.springframework.stereotype.Service;
 
 import java.awt.*;
 import java.io.IOException;
+import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -27,6 +31,7 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 import static com.fmning.tools.util.DiscordUtil.fromMember;
+import static com.fmning.tools.util.DiscordUtil.fromRole;
 
 @Service
 @RequiredArgsConstructor(onConstructor_={@Autowired})
@@ -35,32 +40,25 @@ public class DiscordRoleService {
     private final DiscordGuildRepo discordGuildRepo;
     private final DiscordUserRepo discordUserRepo;
     private final DiscordRoleRequestRepo discordRoleRequestRepo;
+    private final DiscordRoleRepo discordRoleRepo;
     private final OkHttpClient client;
 
     public void getRoleStatus(MessageChannel channel, Member member) {
         DiscordUser user = discordUserRepo.findById(member.getId()).orElse(fromMember(member));
         StringBuilder sb = new StringBuilder("<@" + member.getId() + ">");
+        List<DiscordRole> roles = discordRoleRepo.findByOwnerId(user.getId());
 
-        String levelRoleName = null;
-        if (user.getLevelRoleId() != null) {
-            Role role = member.getGuild().getRoleById(user.getLevelRoleId());
-            levelRoleName = role == null ? "无法读取" : role.getName();
-        }
+        DiscordRole levelRole = roles.stream().filter(r -> r.getType() == DiscordRoleType.LEVEL).findFirst().orElse(null);
+        DiscordRole boostRole = roles.stream().filter(r -> r.getType() == DiscordRoleType.BOOST).findFirst().orElse(null);
 
-        String boostRoleName = null;
-        if (user.getBoostRoleId() != null) {
-            Role role = member.getGuild().getRoleById(user.getBoostRoleId());
-            boostRoleName = role == null ? "无法读取" : role.getName();
-        }
-
-        if (levelRoleName == null && boostRoleName == null) {
+        if (levelRole == null && boostRole == null) {
             channel.sendMessage(sb.append(" 你尚未拥有任何tag。").toString()).queue();
         } else {
             sb.append(" 你当前拥有");
-            if (levelRoleName != null) sb.append("等级tag **").append(levelRoleName).append("**");
-            if (boostRoleName != null) {
-                if (levelRoleName != null) sb.append(" 和");
-                sb.append("Server Booster专属tag **").append(boostRoleName).append("**");
+            if (levelRole != null) sb.append("等级tag **").append(levelRole.getName()).append("**");
+            if (boostRole != null) {
+                if (levelRole != null) sb.append(" 和");
+                sb.append("Server Booster专属tag **").append(boostRole.getName()).append("**");
             }
 
             channel.sendMessage(sb.append("。").toString()).queue();
@@ -141,14 +139,17 @@ public class DiscordRoleService {
         Guild guild = member.getGuild();
         DiscordUser user = discordUserRepo.findById(member.getId()).orElse(fromMember(member));
         if (isBoostRole) {
-            if (user.getBoostRoleId() == null) {
+            DiscordRole boostRole = discordRoleRepo.findByOwnerIdAndType(user.getId(), DiscordRoleType.BOOST);
+            if (boostRole == null) {
                 Role role = guild.createRole()
                         .setColor(Color.decode(color))
                         .setHoisted(isBoostRole)
                         .setName(name)
                         .complete();
-                user.setBoostRoleId(role.getId());
-                discordUserRepo.save(user);
+                DiscordRole discordRole = discordRoleRepo.findById(role.getId()).orElse(fromRole(role));
+                discordRole.setType(DiscordRoleType.BOOST);
+                discordRole.setOwnerId(user.getId());
+                discordRoleRepo.save(discordRole);
 
                 //Add role to member and then move rank
                 guild.addRoleToMember(member.getId(), role).queue();
@@ -156,27 +157,30 @@ public class DiscordRoleService {
                 guild.modifyRolePositions().selectPosition(role).moveTo(targetRole.getPosition()).queue();
                 channel.sendMessage("<@" + member.getId() + "> 专属tag **" + name + "**已创建成功。").queue();
             } else {
-                Role role = guild.getRoleById(user.getBoostRoleId());
+                Role role = guild.getRoleById(boostRole.getId());
                 role.getManager().setName(name).setColor(Color.decode(color)).queue();
                 channel.sendMessage("<@" + member.getId() + "> 专属tag **" + name + "**已更新成功。").queue();
             }
         } else {
-            if (user.getLevelRoleId() == null) {
+            DiscordRole levelRole = discordRoleRepo.findByOwnerIdAndType(user.getId(), DiscordRoleType.LEVEL);
+            if (levelRole == null) {
                 Role role = guild.createRole()
                         .setColor(Color.decode(color))
                         .setHoisted(isBoostRole)
                         .setName(name)
                         .complete();
-                user.setLevelRoleId(role.getId());
-                discordUserRepo.save(user);
+                DiscordRole discordRole = discordRoleRepo.findById(role.getId()).orElse(fromRole(role));
+                discordRole.setType(DiscordRoleType.LEVEL);
+                discordRole.setOwnerId(user.getId());
+                discordRoleRepo.save(discordRole);
 
                 //Add role to member and then move rank
-                guild.addRoleToMember(member.getId(), role).queue();
+                guild.addRoleToMember(member.getId(), role).complete();
                 Role targetRole = guild.getRoleById(discordGuild.getRoleLevelRankRoleId());
-                guild.modifyRolePositions().selectPosition(role).moveTo(targetRole.getPosition()).queue();
+                guild.modifyRolePositions().selectPosition(role).moveTo(targetRole.getPosition()).complete();
                 channel.sendMessage("<@" + member.getId() + "> tag **" + name + "**已创建成功。").queue();
             } else {
-                Role role = guild.getRoleById(user.getLevelRoleId());
+                Role role = guild.getRoleById(levelRole.getId());
                 role.getManager().setName(name).setColor(Color.decode(color)).queue();
                 channel.sendMessage("<@" + member.getId() + "> tag **" + name + "**已更新成功。").queue();
             }
@@ -187,13 +191,13 @@ public class DiscordRoleService {
         DiscordGuild discordGuild = discordGuildRepo.findById(member.getGuild().getId()).orElse(null);
         if (discordGuild == null || !discordGuild.isRoleEnabled()) return;
 
-        DiscordUser user = discordUserRepo.findById(member.getId()).orElse(fromMember(member));
-        if (user.getLevelRoleId() == null) {
+        DiscordRole levelRole = discordRoleRepo.findByOwnerIdAndType(member.getId(), DiscordRoleType.LEVEL);
+        if (levelRole == null) {
             channel.sendMessage("<@" + member.getId() + "> 你没有等级tag可以分享，请先创建你的等级tag。").queue();
         } else {
             Guild guild = member.getGuild();
-            Role role = guild.getRoleById(user.getLevelRoleId());
-            if (mentionedMember.getRoles().stream().anyMatch(r -> r.getId().equals(user.getLevelRoleId()))) {
+            Role role = guild.getRoleById(levelRole.getId());
+            if (mentionedMember.getRoles().stream().anyMatch(r -> r.getId().equals(levelRole.getId()))) {
                 channel.sendMessage("<@" + member.getId() + "> " + mentionedMember.getEffectiveName() + "已拥有你的等级tag **" + role.getName() + "**。").queue();
                 return;
             }
@@ -202,9 +206,9 @@ public class DiscordRoleService {
             discordRoleRequestRepo.save(DiscordRoleRequest.builder()
                     .id(key)
                     .guildId(guild.getId())
-                    .roleId(user.getLevelRoleId())
+                    .roleId(levelRole.getId())
                     .action(DiscordRoleRequestType.SHARE)
-                    .requesterId(user.getId())
+                    .requesterId(member.getId())
                     .approverId(mentionedMember.getId())
                     .created(Instant.now())
                     .build());
@@ -217,16 +221,15 @@ public class DiscordRoleService {
         DiscordGuild discordGuild = discordGuildRepo.findById(member.getGuild().getId()).orElse(null);
         if (discordGuild == null || !discordGuild.isRoleEnabled()) return;
 
-        DiscordUser user = discordUserRepo.findById(mentionedMember.getId()).orElse(null);
-        if (user == null) {
-            channel.sendMessage("<@" + member.getId() + "> 系统错误，请联系管理员。").queue();
-        } else if (user.getLevelRoleId() == null) {
-            channel.sendMessage("<@" + member.getId() + "> " + user.getNickname() + "尚未创建等级tag，无法分享给你。").queue();
+//        DiscordUser user = discordUserRepo.findById(mentionedMember.getId()).orElse(null);
+        DiscordRole levelRole = discordRoleRepo.findByOwnerIdAndType(mentionedMember.getId(), DiscordRoleType.LEVEL);
+        if (levelRole == null) {
+            channel.sendMessage("<@" + member.getId() + "> " + mentionedMember.getEffectiveName() + "尚未创建等级tag，无法分享给你。").queue();
         } else {
             Guild guild = member.getGuild();
-            Role role = guild.getRoleById(user.getLevelRoleId());
-            if (member.getRoles().stream().anyMatch(r -> r.getId().equals(user.getLevelRoleId()))) {
-                channel.sendMessage("<@" + member.getId() + "> 你已拥有" + user.getNickname() + "的等级tag **" + role.getName() + "**。").queue();
+            Role role = guild.getRoleById(levelRole.getId());
+            if (member.getRoles().stream().anyMatch(r -> r.getId().equals(levelRole.getId()))) {
+                channel.sendMessage("<@" + member.getId() + "> 你已拥有" + mentionedMember.getEffectiveName() + "的等级tag **" + role.getName() + "**。").queue();
                 return;
             }
 
@@ -234,7 +237,7 @@ public class DiscordRoleService {
             discordRoleRequestRepo.save(DiscordRoleRequest.builder()
                     .id(key)
                     .guildId(guild.getId())
-                    .roleId(user.getLevelRoleId())
+                    .roleId(levelRole.getId())
                     .action(DiscordRoleRequestType.REQUEST)
                     .requesterId(member.getId())
                     .approverId(mentionedMember.getId())
@@ -280,12 +283,8 @@ public class DiscordRoleService {
         } else if (request.getAction() == DiscordRoleRequestType.DELETE) {
             Role role = guild.getRoleById(request.getRoleId());
             if (role != null) {
-                DiscordUser user = discordUserRepo.findById(member.getId()).orElseThrow(() -> new IllegalStateException("User not found"));
-                if (request.getRoleId().equals(user.getLevelRoleId())) user.setLevelRoleId(null);
-                if (request.getRoleId().equals(user.getBoostRoleId())) user.setBoostRoleId(null);
                 role.delete().queue();
                 discordRoleRequestRepo.delete(request);
-                discordUserRepo.save(user);
                 channel.sendMessage("<@" + member.getId() + "> tag删除成功。").queue();
             } else {
                 channel.sendMessage("<@" + member.getId() + "> tag删除失败，请联系管理员。").queue();
@@ -306,48 +305,47 @@ public class DiscordRoleService {
         DiscordGuild discordGuild = discordGuildRepo.findById(member.getGuild().getId()).orElse(null);
         if (discordGuild == null || !discordGuild.isRoleEnabled()) return;
 
-        DiscordUser user = discordUserRepo.findById(member.getId()).orElse(fromMember(member));
-        List<Role> levelRoles = member.getRoles().stream().filter(r -> {
-            if (r.getId().equals(user.getLevelRoleId()) || r.getId().equals(user.getBoostRoleId())) return false;
-
-            return discordUserRepo.findByLevelRoleId(r.getId()).size() > 0;
+        List<Role> sharedRoles = member.getRoles().stream().filter(r -> {
+            DiscordRole role = discordRoleRepo.findById(r.getId()).orElse(null);
+            return role != null && role.getOwnerId() != null && !role.getOwnerId().equalsIgnoreCase(member.getId());
         }).collect(Collectors.toList());
 
         Guild guild = member.getGuild();
         StringBuilder sb = new StringBuilder();
         List<DiscordRoleRequest> requestList = new ArrayList<>();
-        if (user.getLevelRoleId() != null) {
-            Role role = guild.getRoleById(user.getLevelRoleId());
+        DiscordRole levelRole = discordRoleRepo.findByOwnerIdAndType(member.getId(), DiscordRoleType.LEVEL);
+        if (levelRole != null) {
             String key = RandomStringUtils.randomAlphanumeric(6);
             requestList.add(DiscordRoleRequest.builder()
                     .id(key)
                     .guildId(guild.getId())
-                    .roleId(user.getLevelRoleId())
+                    .roleId(levelRole.getId())
                     .action(DiscordRoleRequestType.DELETE)
                     .approverId(member.getId())
                     .created(Instant.now())
                     .build());
             sb.append("**等级Tag：** 删除后所有拥有此tag的人都将失去这个tag\n`yf tag confirm ").append(key).append("` 将删除 **")
-                    .append(role == null ? "你的等级tag" : role.getName()).append("**\n\n");
+                    .append(levelRole.getName()).append("**\n\n");
         }
-        if (user.getBoostRoleId() != null) {
-            Role role = guild.getRoleById(user.getBoostRoleId());
+
+        DiscordRole boostRole = discordRoleRepo.findByOwnerIdAndType(member.getId(), DiscordRoleType.BOOST);
+        if (boostRole != null) {
             String key = RandomStringUtils.randomAlphanumeric(6);
             requestList.add(DiscordRoleRequest.builder()
                     .id(key)
                     .guildId(guild.getId())
-                    .roleId(user.getBoostRoleId())
+                    .roleId(boostRole.getId())
                     .action(DiscordRoleRequestType.DELETE)
                     .approverId(member.getId())
                     .created(Instant.now())
                     .build());
             sb.append("**Booster Tag：** 删除后你将失去单独的在线成员组\n`yf tag confirm ").append(key).append("` 将删除 **")
-                    .append(role == null ? "你的专属tag" : role.getName()).append("**\n\n");
+                    .append(boostRole.getName()).append("**\n\n");
         }
 
-        if (levelRoles.size() > 0) {
+        if (sharedRoles.size() > 0) {
             sb.append("**分享给你的Tag：** 删除后你自己将失去这个tag\n");
-            for (Role r : levelRoles) {
+            for (Role r : sharedRoles) {
                 String key = RandomStringUtils.randomAlphanumeric(6);
                 requestList.add(DiscordRoleRequest.builder()
                         .id(key)

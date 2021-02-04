@@ -54,10 +54,4 @@ public class DiscordUser {
 
     @Column(name="birthday")
     private String birthday;
-
-    @Column(name="level_role_id")
-    private String levelRoleId;
-
-    @Column(name="boost_role_id")
-    private String boostRoleId;
 }

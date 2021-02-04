@@ -1,8 +1,10 @@
 package com.fmning.tools.service.discord;
 
+import com.fmning.tools.domain.DiscordRole;
 import com.fmning.tools.domain.DiscordUser;
 import com.fmning.tools.domain.DiscordUserLog;
 import com.fmning.tools.repository.DiscordGuildRepo;
+import com.fmning.tools.repository.DiscordRoleRepo;
 import com.fmning.tools.repository.DiscordUserLogRepo;
 import com.fmning.tools.repository.DiscordUserRepo;
 import com.fmning.tools.type.DiscordUserLogActionType;
@@ -16,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.time.Instant;
+import java.util.List;
 
 @Component
 @RequiredArgsConstructor(onConstructor_={@Autowired})
@@ -24,6 +27,7 @@ public class MemberRemoveEventListener extends BaseEventListener {
     private final DiscordGuildRepo discordGuildRepo;
     private final DiscordUserRepo discordUserRepo;
     private final DiscordUserLogRepo discordUserLogRepo;
+    private final DiscordRoleRepo discordRoleRepo;
 
     @Override
     public void onGuildMemberRemove(@NotNull GuildMemberRemoveEvent event) {
@@ -43,21 +47,14 @@ public class MemberRemoveEventListener extends BaseEventListener {
                     .created(Instant.now())
                     .build());
 
+            // Delete role
+            discordRoleRepo.findByOwnerId(user.getId()).forEach(r -> {
+                Role role = guild.getRoleById(r.getId());
+                if (role != null) role.delete().queue();
+            });
+
             // Delete user
             if (discordUser != null) {
-                String roles = "" + discordUser.getLevelRoleId() + " - " + discordUser.getBoostRoleId();
-                try {
-                    if (discordUser.getLevelRoleId() != null) {
-                        Role role = guild.getRoleById(discordUser.getLevelRoleId());
-                        role.delete().queue();
-                    }
-                    if (discordUser.getBoostRoleId() != null) {
-                        Role role = guild.getRoleById(discordUser.getBoostRoleId());
-                        role.delete().queue();
-                    }
-                } catch (Exception e) {
-                    logError(event, discordGuildRepo, new IllegalStateException("Failed to delete " + roles, e));
-                }
                 discordUserRepo.delete(discordUser);
             }
 
