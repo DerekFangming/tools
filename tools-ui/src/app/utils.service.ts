@@ -28,14 +28,3 @@ export class UtilsService {
   }
   
 }
-
-export function getBaseLocation() {
-  if (environment.production) {
-    let paths: string[] = location.pathname.split('/').splice(1, 1);
-    let basePath: string = (paths && paths[0]) || '';
-    console.log(basePath);
-    return '/' + basePath;
-  } else {
-    return '/';
-  }
-}

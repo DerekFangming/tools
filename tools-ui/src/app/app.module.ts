@@ -16,8 +16,9 @@ import { EmailComponent } from './email/email.component';
 import { ImgUploadComponent } from './img-upload/img-upload.component';
 import { DiscordComponent } from './discord/discord.component';
 import { NotifierModule } from 'angular-notifier';
-import { APP_BASE_HREF } from '@angular/common';
-import { getBaseLocation } from './utils.service';
+import { DiscordConfigComponent } from './discord-config/discord-config.component';
+import { DiscordUserComponent } from './discord-user/discord-user.component';
+import { DiscordRoleComponent } from './discord-role/discord-role.component';
 
 @NgModule({
   declarations: [
@@ -29,7 +30,10 @@ import { getBaseLocation } from './utils.service';
     HomeComponent,
     EmailComponent,
     ImgUploadComponent,
-    DiscordComponent
+    DiscordComponent,
+    DiscordConfigComponent,
+    DiscordUserComponent,
+    DiscordRoleComponent
   ],
   imports: [
     BrowserModule,
@@ -48,10 +52,6 @@ import { getBaseLocation } from './utils.service';
       provide: HTTP_INTERCEPTORS,
       useClass: AuthenticationInterceptor,
       multi: true
-    },
-    {
-      provide: APP_BASE_HREF,
-      useFactory: getBaseLocation
     }
   ],
   bootstrap: [AppComponent]

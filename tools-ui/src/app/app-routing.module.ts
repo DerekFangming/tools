@@ -8,11 +8,17 @@ import { HomeComponent } from './home/home.component';
 import { EmailComponent } from './email/email.component';
 import { ImgUploadComponent } from './img-upload/img-upload.component';
 import { DiscordComponent } from './discord/discord.component';
+import { DiscordUserComponent } from './discord-user/discord-user.component';
+import { DiscordRoleComponent } from './discord-role/discord-role.component';
+import { DiscordConfigComponent } from './discord-config/discord-config.component';
 
 
 const routes: Routes = [
   { path: 'home', component: HomeComponent },
   { path: 'discord', component: DiscordComponent },
+  { path: 'discord/user', component: DiscordUserComponent},
+  { path: 'discord/role', component: DiscordRoleComponent},
+  { path: 'discord/config', component: DiscordConfigComponent},
   { path: 'clipboard', component: ClipboardComponent },
   { path: 'heic', component: HeicComponent },
   { path: 's8', component: ImgComponent },
