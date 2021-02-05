@@ -22,7 +22,6 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.persistence.criteria.Predicate;
 import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -41,42 +40,6 @@ public class DiscordController {
     private final DiscordGuildRepo discordGuildRepo;
     private final DiscordUserRepo discordUserRepo;
     private final DiscordUserLogRepo discordUserLogRepo;
-
-
-    @GetMapping("/members")
-    @PreAuthorize("hasRole('DC')")
-    public List<DiscordUser> members() {
-        return discordService.getMembers(toolsProperties.getDcDefaultGuildId());
-    }
-
-    @GetMapping("/members/sync")
-    @PreAuthorize("hasRole('DC')")
-    public List<String> sync(@RequestParam(value = "print", defaultValue="true") boolean print) {
-        List<String> res = new ArrayList<>();
-        List<DiscordUser> users = discordService.getMembers(toolsProperties.getDcDefaultGuildId());
-        users.forEach(user -> {
-            DiscordUser existingUser = discordUserRepo.findById(user.getId()).orElse(null);
-            if (existingUser == null) {
-                if (!print) {
-                    discordUserRepo.save(user);
-                }
-                res.add(user.getId() + ":add:" + user.getNickname());
-            } else {
-                if (!print) {
-                    existingUser.setNickname(user.getNickname());
-                    existingUser.setRoles(user.getRoles());
-                    existingUser.setAvatarId(user.getAvatarId());
-                    existingUser.setJoinedDate(user.getJoinedDate());
-                    existingUser.setCreatedDate(user.getCreatedDate());
-                    existingUser.setBoostedDate(user.getBoostedDate());
-                    discordUserRepo.save(existingUser);
-                }
-                res.add(user.getId() + ":update:" + user.getNickname());
-            }
-        });
-
-        return res;
-    }
 
     @GetMapping("/{guildId}/channels")
     @PreAuthorize("hasRole('DC')")
@@ -101,9 +64,9 @@ public class DiscordController {
     @GetMapping("/{guildId}/user-logs")
     @PreAuthorize("hasRole('DC')")
     public ResponseEntity<List<DiscordUserLog>> getUserLogs(@PathVariable("guildId") String guildId, @RequestParam(value = "limit", defaultValue = "15") int limit,
-                                             @RequestParam(value = "offset", defaultValue = "0") int offset, @RequestParam(value = "keyword", required = false) String keyword,
-                                             @RequestParam(value = "from", required = false) Instant from, @RequestParam(value = "to", required = false) Instant to,
-                                             @RequestParam(value = "action", required = false) DiscordUserLogActionType action) {
+                                                            @RequestParam(value = "offset", defaultValue = "0") int offset, @RequestParam(value = "keyword", required = false) String keyword,
+                                                            @RequestParam(value = "from", required = false) Instant from, @RequestParam(value = "to", required = false) Instant to,
+                                                            @RequestParam(value = "action", required = false) DiscordUserLogActionType action) {
         if ("default".equalsIgnoreCase(guildId)) {
             Specification<DiscordUserLog> spec = (Specification<DiscordUserLog>) (root, query, criteriaBuilder) -> {
                 List<Predicate> predicates = new ArrayList<>();
@@ -114,22 +77,37 @@ public class DiscordController {
                     predicates.add(criteriaBuilder.or(or.toArray(new Predicate[0])));
                 }
 
-                if (from != null) {
-                    predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get("created"), from));
-                }
-
-                if (to != null) {
-                    predicates.add(criteriaBuilder.lessThanOrEqualTo(root.get("created"), to));
-                }
-
-                if (action != null) {
-                    predicates.add(criteriaBuilder.equal(root.get("action"), action));
-                }
+                if (from != null) predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get("created"), from));
+                if (to != null) predicates.add(criteriaBuilder.lessThanOrEqualTo(root.get("created"), to));
+                if (action != null) predicates.add(criteriaBuilder.equal(root.get("action"), action));
                 return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
             };
 
             Page<DiscordUserLog> page = discordUserLogRepo.findAll(spec, PageRequest.of(offset/limit, limit, Sort.by(Sort.Direction.DESC, "id")));
+            return ResponseEntity.ok()
+                    .header(TOTAL_COUNT, String.valueOf(page.getTotalElements()))
+                    .body(page.getContent());
+        } else {
+            return ResponseEntity.ok(Collections.emptyList());
+        }
+    }
 
+    @GetMapping("/{guildId}/users")
+    @PreAuthorize("hasRole('DC')")
+    public ResponseEntity<List<DiscordUser>> getUsers(@PathVariable("guildId") String guildId, @RequestParam(value = "limit", defaultValue = "15") int limit,
+                                                            @RequestParam(value = "offset", defaultValue = "0") int offset, @RequestParam(value = "keyword", required = false) String keyword) {
+        if ("default".equalsIgnoreCase(guildId)) {
+            Specification<DiscordUser> spec = (Specification<DiscordUser>) (root, query, criteriaBuilder) -> {
+                List<Predicate> predicates = new ArrayList<>();
+                if (keyword != null) {
+                    predicates.add(criteriaBuilder.like(criteriaBuilder.upper(root.get("name")), "%" + keyword.trim().toUpperCase() + "%"));
+                    predicates.add(criteriaBuilder.like(criteriaBuilder.upper(root.get("nickname")), "%" + keyword.trim().toUpperCase() + "%"));
+                    predicates.add(criteriaBuilder.like(criteriaBuilder.upper(root.get("apex_id")), "%" + keyword.trim().toUpperCase() + "%"));
+                }
+                return criteriaBuilder.or(predicates.toArray(new Predicate[0]));
+            };
+
+            Page<DiscordUser> page = discordUserRepo.findAll(spec, PageRequest.of(offset/limit, limit, Sort.by(Sort.Direction.ASC, "id")));
             return ResponseEntity.ok()
                     .header(TOTAL_COUNT, String.valueOf(page.getTotalElements()))
                     .body(page.getContent());
@@ -212,7 +190,8 @@ public class DiscordController {
     private final DiscordRoleRequestRepo discordRoleRequestRepo;
     @GetMapping("/admin/sync")
     public void sync() {
-        discordService.seedRoles();
+//        discordService.seedRoles(toolsProperties.getDcDefaultGuildId());
+//        discordService.seedMembers(toolsProperties.getDcDefaultGuildId());
     }
 
 }

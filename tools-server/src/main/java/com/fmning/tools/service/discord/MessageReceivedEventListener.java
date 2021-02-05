@@ -5,6 +5,7 @@ import com.fmning.tools.repository.DiscordGuildRepo;
 import com.fmning.tools.repository.DiscordUserLogRepo;
 import com.fmning.tools.type.DiscordUserLogActionType;
 import lombok.RequiredArgsConstructor;
+import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.jetbrains.annotations.NotNull;
@@ -69,6 +70,8 @@ public class MessageReceivedEventListener extends BaseEventListener {
                     discordBirthdayService.listMonth(channel, command.get(3));
                 } else if (command.equals(2, "disable", "d")) {
                     discordBirthdayService.disable(channel, member);
+                } else if (event.getMessage().getMentionedMembers().size() > 0) {
+                    discordBirthdayService.getBirthday(channel, member, event.getMessage().getMentionedMembers().get(0));
                 } else {
                     discordBirthdayService.register(channel, member, command.from(2));
                 }

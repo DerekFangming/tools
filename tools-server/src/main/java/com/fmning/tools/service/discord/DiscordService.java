@@ -21,6 +21,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.List;
@@ -111,34 +112,37 @@ public class DiscordService extends BaseEventListener {
         }
     }
 
-    public void seedRoles() {
-
-        Guild guild = jda.getGuildById(toolsProperties.getDcDefaultGuildId());
+    public void seedRoles(String guildId) {
+        Guild guild = jda.getGuildById(guildId);
         if (guild != null) {
             guild.getRoles().forEach(r -> {
-                DiscordRole role = DiscordRole.builder()
-                        .id(r.getId())
-                        .guildId(toolsProperties.getDcDefaultGuildId())
-                        .name(r.getName())
-                        .color(toHexString(r.getColor()))
-                        .position(r.getPositionRaw())
-                        .created(Instant.from(r.getTimeCreated())).build();
-                discordRoleRepo.save(role);
+                DiscordRole role = discordRoleRepo.findById(r.getId()).orElse(null);
+                if (role == null) {
+                    discordRoleRepo.save(DiscordRole.builder()
+                            .id(r.getId())
+                            .guildId(toolsProperties.getDcDefaultGuildId())
+                            .name(r.getName())
+                            .color(toHexString(r.getColor()))
+                            .position(r.getPositionRaw())
+                            .created(Instant.from(r.getTimeCreated())).build());
+                }
             });
         }
     }
 
-    public List<DiscordUser> getMembers(String guildId) {
+    public void seedMembers(String guildId) {
         Guild guild = jda.getGuildById(guildId);
-        return guild.getMembers().stream()
-                .map(m -> {
+        if (guild != null) {
+            guild.getMembers().forEach(m -> {
+                DiscordUser user = discordUserRepo.findById(m.getId()).orElse(null);
+                if (user == null) {
                     String roles;
                     try {
                         roles = objectMapper.writeValueAsString(m.getRoles().stream().map(Role::getId).collect(Collectors.toList()));
                     } catch (JsonProcessingException e) {
                         roles = "";
                     }
-                    return DiscordUser.builder()
+                    discordUserRepo.save(DiscordUser.builder()
                             .id(m.getId())
                             .name(m.getUser().getName())
                             .guildId(guildId)
@@ -148,9 +152,10 @@ public class DiscordService extends BaseEventListener {
                             .createdDate(Instant.from(m.getUser().getTimeCreated()))
                             .joinedDate(Instant.from(m.getTimeJoined()))
                             .boostedDate(m.getTimeBoosted() == null ? null : Instant.from(m.getTimeBoosted()))
-                            .build();
-                })
-                .collect(Collectors.toList());
+                            .build());
+                }
+            });
+        }
     }
 
 }

@@ -17,3 +17,67 @@
     </div>
   </div>
 </nav>
+
+<div class="container">
+  <div class="form-row mt-3">
+    <div class="col-sm-9 col-md-9 mb-11">
+      <label>Keyword</label>
+      <input type="text" class="form-control" [(ngModel)]="displayName" (keyup.enter)="loadUserLogs(0)">
+    </div>
+    <div class="col-sm-3 col-md-3 mb-1">
+      <label></label>
+      <div class="input-group">
+        <button class="btn btn-outline-secondary btn-block mt-2" type="button" (click)="loadUserLogs(0)">Search</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div *ngIf="loadingUser" class="container">
+  <div class="row my-5">
+    <div class="col text-center my-5">
+      <i class="fa fa-refresh fa-spin fa-3x" aria-hidden="true"></i>
+    </div>
+  </div>
+</div>
+
+<div *ngIf="!loadingUser" class="container">
+  <div class="row">
+    <div class="col mt-4">
+      <table class="table">
+        <thead>
+          <tr>
+            <th scope="col">Username</th>
+            <th scope="col">Nickname</th>
+            <th scope="col">Action</th>
+            <th scope="col">Time</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let userLog of userLogList;">
+            <th scope="row"> {{ userLog.name }} </th>
+            <th scope="row"> {{ userLog.nickname }} </th>
+            <td> {{ utils.getType(userLog.action) }} </td>
+            <td> {{ utils.getCreatedTime(userLog.created) }} </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-sm-12 col-md-3 mt-4">
+      <p class="ml-2">Showing {{totalLogs == 0 ? '0' : currentPage * resultPerPage + 1}} - {{math.min((currentPage + 1) * resultPerPage, totalLogs)}} of {{totalLogs}} results</p>
+    </div>
+    <div class="col-sm-12 col-md-9 mt-4">
+      <div class="btn-toolbar mb-3 pull-right" role="toolbar">
+        <div class="btn-group mr-2" role="group">
+          <button type="button" class="btn btn-outline-secondary" (click)="loadUserLogs(0)"><i class="fa fa-angle-double-left" aria-hidden="true"></i></button>
+          <button type="button" class="btn btn-outline-secondary" (click)="loadUserLogs(currentPage - 1)"><i class="fa fa-angle-left" aria-hidden="true"></i></button>
+          <button type="button" class="btn btn-secondary">{{ currentPage + 1 }}</button>
+          <button type="button" class="btn btn-outline-secondary" (click)="loadUserLogs(currentPage + 1)"><i class="fa fa-angle-right" aria-hidden="true"></i></button>
+          <button type="button" class="btn btn-outline-secondary" (click)="loadUserLogs(totalPages)"><i class="fa fa-angle-double-right" aria-hidden="true"></i></button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

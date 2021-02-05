@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import okhttp3.OkHttpClient;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -34,6 +35,16 @@ public class DiscordBirthdayService {
         } else {
             channel.sendMessage("**全部已注册的生日**\n\n" + users.stream().map(u -> "**" + u.getBirthday() + ":** " + u.getNickname())
                     .collect(Collectors.joining("\n"))).queue();
+        }
+    }
+
+    public void getBirthday(MessageChannel channel, Member member, Member mentioned) {
+        DiscordUser user = discordUserRepo.findById(mentioned.getId()).orElse(null);
+        if (user != null && !StringUtils.isBlank(user.getBirthday())) {
+            String[] birthday = user.getBirthday().split("-");
+            channel.sendMessage("<@" + member.getId() + "> " + mentioned.getEffectiveName() + "的生日是" + birthday[0] + "月" + birthday[1] + "日。").queue();
+        } else {
+            channel.sendMessage("<@" + member.getId() + "> " + mentioned.getEffectiveName() + "尚未注册生日。").queue();
         }
     }
 

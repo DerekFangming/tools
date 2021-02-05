@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { DiscordUser } from '../model/discord-user';
 
 @Component({
   selector: 'app-discord-user',
@@ -6,6 +7,9 @@ import { Component, OnInit } from '@angular/core';
   styleUrls: ['./discord-user.component.css']
 })
 export class DiscordUserComponent implements OnInit {
+
+  loadingUser = false;
+  userLogList: DiscordUser[];
 
   constructor() { }
 

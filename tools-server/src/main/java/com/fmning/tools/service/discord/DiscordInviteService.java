@@ -1,8 +1,6 @@
 package com.fmning.tools.service.discord;
 
 import com.fmning.tools.domain.DiscordUser;
-import com.fmning.tools.repository.DiscordGuildRepo;
-import com.fmning.tools.repository.DiscordRoleRequestRepo;
 import com.fmning.tools.repository.DiscordUserRepo;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -18,6 +16,8 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.util.Objects;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static com.fmning.tools.util.DiscordUtil.fromMember;
 
@@ -27,6 +27,7 @@ public class DiscordInviteService {
 
     private final DiscordUserRepo discordUserRepo;
     private final OkHttpClient client;
+    private Pattern userPattern = Pattern.compile("<@!(.*?)>");
 
     public void linkAccount(MessageChannel channel, Member member, String apexId) {
         Request request = new Request.Builder()
@@ -79,7 +80,7 @@ public class DiscordInviteService {
         } else if (discordUser.getApexId() == null) {
             channel.sendMessage(new EmbedBuilder()
                     .setAuthor(member.getEffectiveName() + " 请求Apex组队", null, member.getUser().getAvatarUrl())
-                    .setTitle(apexDto.getComments())
+                    .setTitle(processComment(apexDto.getComments()))
                     .setDescription(apexDto.getInviteUrl() == null ? apexDto.getInviteUrl() : "[:race_car: 点此上车 :race_car:](" + apexDto.getInviteUrl() + ")")
                     .setFooter("绑定apex账号之后才能显示战绩。使用yf help查看如何绑定。")
                     .build()).queue();
@@ -121,7 +122,7 @@ public class DiscordInviteService {
                     channel.sendMessage(new EmbedBuilder()
                             .setAuthor(member.getEffectiveName() + " 请求Apex组队", null, member.getUser().getAvatarUrl())
                             .setThumbnail(apexDto.getRankAvatar())
-                            .setTitle(apexDto.getComments())
+                            .setTitle(processComment(apexDto.getComments()))
                             .setDescription(apexDto.getInviteUrl() == null ? apexDto.getInviteUrl() : "[:race_car: 点此上车 :race_car:](" + apexDto.getInviteUrl() + ")")
                             .addField("Origin ID", discordUser.getApexId(), true)
                             .addField("段位", apexDto.getRankName(), true)
@@ -135,7 +136,7 @@ public class DiscordInviteService {
             public void onFailure(@NotNull Call call, @NotNull IOException e) {
                 channel.sendMessage(new EmbedBuilder()
                         .setAuthor(member.getEffectiveName() + " 请求Apex组队", null, member.getUser().getAvatarUrl())
-                        .setTitle(apexDto.getComments())
+                        .setTitle(processComment(apexDto.getComments()))
                         .setDescription(apexDto.getInviteUrl() == null ? apexDto.getInviteUrl() : "[:race_car: 点此上车 :race_car:](" + apexDto.getInviteUrl() + ")")
                         .addField("Origin ID", discordUser.getApexId(), true)
                         .addField("段位", "无法读取", true)
@@ -159,10 +160,22 @@ public class DiscordInviteService {
 
         channel.sendMessage(new EmbedBuilder()
                 .setAuthor(member.getEffectiveName() + " 请求组队", null, member.getUser().getAvatarUrl())
-                .setTitle(comments)
+                .setTitle(processComment(comments))
                 .setDescription(inviteUrl == null ? inviteUrl : "[:race_car: 点此上车 :race_car:](" + inviteUrl + ")")
                 .setThumbnail("https://i.imgur.com/JCIxnvM.jpg")
                 .build()).queue();
+    }
+
+    private String processComment(String comment) {
+        String res = comment;
+        Matcher matcher = userPattern.matcher(comment);
+        while (matcher.find()) {
+            System.out.println(matcher.group(0) + " " + matcher.group(1));
+            DiscordUser user = discordUserRepo.findById(matcher.group(1)).orElse(null);
+            if (user != null) res = res.replaceAll(matcher.group(0), user.getNickname());
+        }
+
+        return res;
     }
 
     @Data
