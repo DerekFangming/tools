@@ -19,7 +19,7 @@ export class DiscordComponent implements OnInit {
   loadingUserLogs = false;
   userLogList: DiscordUserLog[];
 
-  displayName = '';
+  keyword = '';
   fromDate: any;
   toDate:any;
   action = '';
@@ -45,8 +45,8 @@ export class DiscordComponent implements OnInit {
 
     let queryParam = new HttpParams().set('limit', this.resultPerPage.toString())
       .set('offset', (this.resultPerPage * this.currentPage).toString());
-    if (this.displayName.trim() != '') {
-      queryParam = queryParam.set('keyword', this.displayName.trim());
+    if (this.keyword.trim() != '') {
+      queryParam = queryParam.set('keyword', this.keyword.trim());
     }
     if (this.action != '') {
       queryParam = queryParam.set('action', this.action);

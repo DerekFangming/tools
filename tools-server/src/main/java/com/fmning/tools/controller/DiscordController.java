@@ -102,9 +102,9 @@ public class DiscordController {
                 if (keyword != null) {
                     predicates.add(criteriaBuilder.like(criteriaBuilder.upper(root.get("name")), "%" + keyword.trim().toUpperCase() + "%"));
                     predicates.add(criteriaBuilder.like(criteriaBuilder.upper(root.get("nickname")), "%" + keyword.trim().toUpperCase() + "%"));
-                    predicates.add(criteriaBuilder.like(criteriaBuilder.upper(root.get("apex_id")), "%" + keyword.trim().toUpperCase() + "%"));
+                    predicates.add(criteriaBuilder.like(criteriaBuilder.upper(root.get("apexId")), "%" + keyword.trim().toUpperCase() + "%"));
                 }
-                return criteriaBuilder.or(predicates.toArray(new Predicate[0]));
+                return predicates.size() == 0 ? criteriaBuilder.and(predicates.toArray(new Predicate[0])) : criteriaBuilder.or(predicates.toArray(new Predicate[0]));
             };
 
             Page<DiscordUser> page = discordUserRepo.findAll(spec, PageRequest.of(offset/limit, limit, Sort.by(Sort.Direction.ASC, "id")));

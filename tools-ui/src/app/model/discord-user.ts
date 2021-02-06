@@ -4,4 +4,6 @@ export class DiscordUser {
     nickname: string;
     apexId: string;
     birthday: string;
+    joinedDate: string;
+    boostDate: string;
   }

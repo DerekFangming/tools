@@ -171,7 +171,6 @@ public class DiscordInviteService {
         String res = comment;
         Matcher matcher = userPattern.matcher(comment);
         while (matcher.find()) {
-            System.out.println(matcher.group(0) + " " + matcher.group(1));
             DiscordUser user = discordUserRepo.findById(matcher.group(1)).orElse(null);
             if (user != null) res = res.replaceAll(matcher.group(0), user.getNickname());
         }
