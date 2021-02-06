@@ -14,6 +14,7 @@ export class DiscordRoleComponent implements OnInit {
 
   loadingRoles = false;
   keyword = '';
+  type = '';
   roleList: DiscordRole[];
 
   currentPage = -1;
@@ -40,7 +41,9 @@ export class DiscordRoleComponent implements OnInit {
     if (this.keyword.trim() != '') {
       queryParam = queryParam.set('keyword', this.keyword.trim());
     }
-
+    if (this.type != '') {
+      queryParam = queryParam.set('type', this.type);
+    }
     const httpOptions = {
       params: queryParam,
       observe: 'response' as 'response'
@@ -54,6 +57,11 @@ export class DiscordRoleComponent implements OnInit {
       this.loadingRoles = false;
       console.log(error.error);
     });
+  }
+
+  onTypeSelected(type: string) {
+    this.type = type;
+    this.loadRoles(0);
   }
 
 }
