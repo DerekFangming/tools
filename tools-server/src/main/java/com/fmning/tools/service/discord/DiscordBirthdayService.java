@@ -1,13 +1,10 @@
 package com.fmning.tools.service.discord;
 
 import com.fmning.tools.domain.DiscordUser;
-import com.fmning.tools.repository.DiscordGuildRepo;
-import com.fmning.tools.repository.DiscordRoleRequestRepo;
 import com.fmning.tools.repository.DiscordUserRepo;
 import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.MessageChannel;
-import okhttp3.OkHttpClient;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

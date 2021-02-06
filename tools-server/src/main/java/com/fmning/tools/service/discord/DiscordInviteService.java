@@ -167,6 +167,7 @@ public class DiscordInviteService {
     }
 
     private String processComment(String comment) {
+        if (comment == null) return comment;
         String res = comment;
         Matcher matcher = userPattern.matcher(comment);
         while (matcher.find()) {
