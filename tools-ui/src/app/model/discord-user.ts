@@ -5,5 +5,5 @@ export class DiscordUser {
     apexId: string;
     birthday: string;
     joinedDate: string;
-    boostDate: string;
+    boostedDate: string;
   }
