@@ -22,7 +22,9 @@ export class DiscordUserComponent implements OnInit {
   resultPerPage = 15;
   math = Math;
 
-  constructor(private http: HttpClient, private title: Title, public utils: UtilsService) { }
+  constructor(private http: HttpClient, private title: Title, public utils: UtilsService) {
+    this.title.setTitle('Discord Users');
+  }
 
   ngOnInit() {
     this.loadUsers(0);

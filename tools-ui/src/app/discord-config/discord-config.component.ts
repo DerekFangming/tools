@@ -37,7 +37,7 @@ export class DiscordConfigComponent implements OnInit {
   forbiddenRoleColor = '';
 
   constructor(private http: HttpClient, private title: Title, public utils: UtilsService, private notifierService: NotifierService) {
-    this.title.setTitle('Discord Insights');
+    this.title.setTitle('Discord Configurations');
   }
 
   ngOnInit() {
@@ -73,7 +73,7 @@ export class DiscordConfigComponent implements OnInit {
       console.log(error.error);
     });
 
-    this.http.get<DiscordObject[]>(environment.urlPrefix + 'api/discord/default/roles').subscribe(guildRoleList => {
+    this.http.get<DiscordObject[]>(environment.urlPrefix + 'api/discord/default/role-configs').subscribe(guildRoleList => {
       this.guildRoleList = guildRoleList;
       this.processSelectedDropdowns();
       this.loadingRoles = false;

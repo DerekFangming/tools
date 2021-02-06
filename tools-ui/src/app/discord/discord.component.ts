@@ -1,11 +1,7 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { Title } from '@angular/platform-browser';
-import { ActivatedRoute, Router } from '@angular/router';
-import { NotifierService } from 'angular-notifier';
 import { environment } from 'src/environments/environment';
-import { DiscordGuildConfig } from '../model/discord-guild-config';
-import { DiscordObject } from '../model/discord-object';
 import { DiscordUserLog } from '../model/discord-user-log';
 import { UtilsService } from '../utils.service';
 

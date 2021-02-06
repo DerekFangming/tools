@@ -43,4 +43,12 @@ public class DiscordRole {
     @Column(name="type")
     @Enumerated(EnumType.STRING)
     private DiscordRoleType type;
+
+    @Transient
+    private String ownerName;
+
+    public DiscordRole withOwnerName(String ownerName) {
+        this.ownerName = ownerName;
+        return this;
+    }
 }
