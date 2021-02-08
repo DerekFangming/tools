@@ -123,7 +123,7 @@ public class DiscordController {
         Specification<DiscordRole> spec = (Specification<DiscordRole>) (root, query, criteriaBuilder) -> {
             List<Predicate> predicates = new ArrayList<>();
             if (keyword != null) predicates.add(criteriaBuilder.like(criteriaBuilder.upper(root.get("name")), "%" + keyword.trim().toUpperCase() + "%"));
-            if (type != null) predicates.add(criteriaBuilder.equal(root.get("type"), type));
+//            if (type != null) predicates.add(criteriaBuilder.equal(root.get("type"), type));
             return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
         };
 
@@ -131,10 +131,11 @@ public class DiscordController {
         return ResponseEntity.ok()
                 .header(TOTAL_COUNT, String.valueOf(page.getTotalElements()))
                 .body(page.getContent().stream().map(r -> {
-                    if (r.getOwnerId() == null) return r;
-                    DiscordUser user = discordUserRepo.findById(r.getOwnerId()).orElse(null);
-                    if (user != null) return r.withOwnerName(user.getNickname());
                     return r;
+//                    if (r.getOwnerId() == null) return r;
+//                    DiscordUser user = discordUserRepo.findById(r.getOwnerId()).orElse(null);
+//                    if (user != null) return r.withOwnerName(user.getNickname());
+//                    return r;
                 }).collect(Collectors.toList()));
     }
 
@@ -209,7 +210,6 @@ public class DiscordController {
         discordService.announceBirthDay();
     }
 
-    private final DiscordRoleRequestRepo discordRoleRequestRepo;
     @GetMapping("/admin/sync")
     public void sync() {
 //        discordService.seedRoles(toolsProperties.getDcDefaultGuildId());

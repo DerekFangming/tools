@@ -3,10 +3,11 @@ package com.fmning.tools.service.discord;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fmning.tools.domain.DiscordRole;
+import com.fmning.tools.domain.DiscordRoleMapping;
 import com.fmning.tools.domain.DiscordUser;
 import com.fmning.tools.domain.DiscordUserLog;
 import com.fmning.tools.repository.DiscordGuildRepo;
-import com.fmning.tools.repository.DiscordRoleRepo;
+import com.fmning.tools.repository.DiscordRoleMappingRepo;
 import com.fmning.tools.repository.DiscordUserLogRepo;
 import com.fmning.tools.repository.DiscordUserRepo;
 import com.fmning.tools.type.DiscordRoleType;
@@ -33,7 +34,7 @@ public class MemberUpdateEventListener extends BaseEventListener {
     private final DiscordUserLogRepo discordUserLogRepo;
     private final DiscordGuildRepo discordGuildRepo;
     private final ObjectMapper objectMapper;
-    private final DiscordRoleRepo discordRoleRepo;
+    private final DiscordRoleMappingRepo discordRoleMappingRepo;
 
     public void onGuildMemberUpdate(@Nonnull GuildMemberUpdateEvent event) {
         try {
@@ -59,11 +60,10 @@ public class MemberUpdateEventListener extends BaseEventListener {
                         .created(Instant.now())
                         .build());
 
-                DiscordRole boostRole = discordRoleRepo.findByOwnerIdAndType(member.getId(), DiscordRoleType.BOOST);
+                DiscordRoleMapping boostRole = discordRoleMappingRepo.findByOwnerIdAndType(user.getId(), DiscordRoleType.BOOST);
                 if (boostRole != null) {
                     Guild guild = member.getGuild();
-                    Role role = guild.getRoleById(boostRole.getId());
-
+                    Role role = guild.getRoleById(boostRole.getRoleId());
                     if (role == null) {
                         logError(event, discordGuildRepo, new IllegalStateException("Failed to delete role when user unboosted " + boostRole.getId()));
                     } else {

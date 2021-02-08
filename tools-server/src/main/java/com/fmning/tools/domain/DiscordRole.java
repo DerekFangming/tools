@@ -37,13 +37,6 @@ public class DiscordRole {
     @Column(name="created")
     private Instant created;
 
-    @Column(name="owner_id")
-    private String ownerId;// TODO
-
-    @Column(name="type")
-    @Enumerated(EnumType.STRING)
-    private DiscordRoleType type;// TODO
-
     @Transient
     private String ownerName;
 

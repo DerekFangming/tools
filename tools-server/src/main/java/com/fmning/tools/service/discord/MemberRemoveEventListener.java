@@ -3,10 +3,8 @@ package com.fmning.tools.service.discord;
 import com.fmning.tools.domain.DiscordRole;
 import com.fmning.tools.domain.DiscordUser;
 import com.fmning.tools.domain.DiscordUserLog;
-import com.fmning.tools.repository.DiscordGuildRepo;
-import com.fmning.tools.repository.DiscordRoleRepo;
-import com.fmning.tools.repository.DiscordUserLogRepo;
-import com.fmning.tools.repository.DiscordUserRepo;
+import com.fmning.tools.repository.*;
+import com.fmning.tools.type.DiscordRoleType;
 import com.fmning.tools.type.DiscordUserLogActionType;
 import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.entities.Guild;
@@ -28,6 +26,7 @@ public class MemberRemoveEventListener extends BaseEventListener {
     private final DiscordUserRepo discordUserRepo;
     private final DiscordUserLogRepo discordUserLogRepo;
     private final DiscordRoleRepo discordRoleRepo;
+    private final DiscordRoleMappingRepo discordRoleMappingRepo;
 
     @Override
     public void onGuildMemberRemove(@NotNull GuildMemberRemoveEvent event) {
@@ -48,10 +47,14 @@ public class MemberRemoveEventListener extends BaseEventListener {
                     .build());
 
             // Delete role
-            discordRoleRepo.findByOwnerId(user.getId()).forEach(r -> {
-                Role role = guild.getRoleById(r.getId());
-                if (role != null) role.delete().queue();
+            discordRoleMappingRepo.findByOwnerId(user.getId()).forEach(rm -> {
+                if (rm.getType() == DiscordRoleType.LEVEL || rm.getType() == DiscordRoleType.BOOST) {
+                    Role role = guild.getRoleById(rm.getRoleId());
+                    if (role != null) role.delete().queue();
+                }
+                discordRoleMappingRepo.delete(rm);
             });
+
 
             // Delete user
             if (discordUser != null) {

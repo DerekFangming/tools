@@ -6,10 +6,7 @@ import com.fmning.tools.ToolsProperties;
 import com.fmning.tools.domain.DiscordRole;
 import com.fmning.tools.domain.DiscordUser;
 import com.fmning.tools.dto.DiscordObjectDto;
-import com.fmning.tools.repository.DiscordGuildRepo;
-import com.fmning.tools.repository.DiscordRoleRepo;
-import com.fmning.tools.repository.DiscordRoleRequestRepo;
-import com.fmning.tools.repository.DiscordUserRepo;
+import com.fmning.tools.repository.*;
 import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
@@ -21,7 +18,6 @@ import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.List;
@@ -35,7 +31,7 @@ public class DiscordService extends BaseEventListener {
 
     private final DiscordGuildRepo discordGuildRepo;
     private final DiscordUserRepo discordUserRepo;
-    private final DiscordRoleRequestRepo discordRoleRequestRepo;
+    private final DiscordRoleMappingRepo discordRoleMappingRepo;
     private final JDA jda;
     private final ToolsProperties toolsProperties;
     private final ObjectMapper objectMapper;
@@ -79,7 +75,7 @@ public class DiscordService extends BaseEventListener {
 
     @Scheduled(cron = "0 0 18 * * *")
     public void cleanUpRoleRequests() {
-        discordRoleRequestRepo.deleteByCreated(Instant.now().minus(1, ChronoUnit.DAYS));
+        discordRoleMappingRepo.deleteByCreated(Instant.now().minus(1, ChronoUnit.DAYS));
     }
 
     public List<DiscordObjectDto> getTextChannels(String guildId) {

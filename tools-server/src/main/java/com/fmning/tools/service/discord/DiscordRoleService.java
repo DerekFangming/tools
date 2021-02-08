@@ -345,7 +345,9 @@ public class DiscordRoleService {
                 } else{
                     if (sharedRoleFromOthers.length() == 0) sharedRoleFromOthers = "**别人分享给你的Tag：** \n";
                     DiscordRole role = discordRoleRepo.findById(rm.getRoleId()).orElse(null);
-                    sharedRoleFromOthers += "**" + (role == null ? null : role.getName()) + "**\n" ;
+                    DiscordRoleMapping mapping = discordRoleMappingRepo.findByTypeAndRoleId(DiscordRoleType.LEVEL, rm.getRoleId());
+                    String sharedFrom = mapping == null ? "" : discordUserRepo.getNicknameById(mapping.getOwnerId()) + " 分享给你 " ;
+                    sharedRoleFromOthers += sharedFrom + "**" + (role == null ? null : role.getName()) + "**\n" ;
                 }
             }
         }

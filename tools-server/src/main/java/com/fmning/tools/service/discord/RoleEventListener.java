@@ -1,6 +1,7 @@
 package com.fmning.tools.service.discord;
 
 import com.fmning.tools.domain.DiscordRole;
+import com.fmning.tools.repository.DiscordRoleMappingRepo;
 import com.fmning.tools.repository.DiscordRoleRepo;
 import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.events.role.RoleCreateEvent;
@@ -19,27 +20,20 @@ import static com.fmning.tools.util.DiscordUtil.toHexString;
 public class RoleEventListener extends BaseEventListener {
 
     private final DiscordRoleRepo discordRoleRepo;
+    private final DiscordRoleMappingRepo discordRoleMappingRepo;
 
     @Override
     public void onRoleCreate(@Nonnull RoleCreateEvent event) {
-        new java.util.Timer().schedule(
-                new java.util.TimerTask() {
-                    @Override
-                    public void run() {
-                        DiscordRole role = discordRoleRepo.findById(event.getRole().getId()).orElse(null);
-                        if (role == null) discordRoleRepo.save(fromRole(event.getRole()));
-                    }
-                },
-                3000// TODO : remove
-        );
+        DiscordRole role = discordRoleRepo.findById(event.getRole().getId()).orElse(null);
+        if (role == null) discordRoleRepo.save(fromRole(event.getRole()));
     }
 
     @Override
     public void onRoleDelete(@Nonnull RoleDeleteEvent event) {
         discordRoleRepo.findById(event.getRole().getId()).ifPresent(discordRoleRepo::delete);
+        discordRoleMappingRepo.deleteByRoleId(event.getRole().getId());
     }
 
-    //Role Update Events
     @Override
     public void onGenericRoleUpdate(@Nonnull GenericRoleUpdateEvent event) {
         DiscordRole role = discordRoleRepo.findById(event.getRole().getId()).orElse(fromRole(event.getRole()));

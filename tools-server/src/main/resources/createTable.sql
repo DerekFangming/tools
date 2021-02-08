@@ -101,9 +101,7 @@ create table tl_discord_roles (
 	name text,
 	color text,
 	position integer,
-	created timestamp without time zone,
-	owner_id text,
-	type text
+	created timestamp without time zone
 );
 
 create table tl_discord_user_logs (
@@ -123,16 +121,6 @@ create table tl_discord_role_mappings (
 	code text,
 	type text,
 	owner_id text,
-	approver_id text,
-	created timestamp without time zone not null
-);
-
-create table tl_discord_role_requests (// TODO delete
-    id text primary key,
-	guild_id text,
-	role_id text,
-	action text,
-	requester_id text,
 	approver_id text,
 	created timestamp without time zone not null
 );
