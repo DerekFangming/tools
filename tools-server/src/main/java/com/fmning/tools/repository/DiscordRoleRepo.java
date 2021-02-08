@@ -15,4 +15,9 @@ public interface DiscordRoleRepo extends CrudRepository<DiscordRole, String> {
     List<DiscordRole> findByOwnerId(String ownerId);
     DiscordRole findByOwnerIdAndType(String ownerId, DiscordRoleType type);
     Page<DiscordRole> findAll(Specification<DiscordRole> spec, Pageable pageable);
+
+    default String getNameById(String id) {
+        DiscordRole role = findById(id).orElse(null);
+        return role == null ? null : role.getName();
+    }
 }

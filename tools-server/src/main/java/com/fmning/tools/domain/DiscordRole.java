@@ -38,11 +38,11 @@ public class DiscordRole {
     private Instant created;
 
     @Column(name="owner_id")
-    private String ownerId;
+    private String ownerId;// TODO
 
     @Column(name="type")
     @Enumerated(EnumType.STRING)
-    private DiscordRoleType type;
+    private DiscordRoleType type;// TODO
 
     @Transient
     private String ownerName;

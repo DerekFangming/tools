@@ -115,7 +115,19 @@ create table tl_discord_user_logs (
 	created timestamp without time zone not null
 );
 
-create table tl_discord_role_requests (
+create table tl_discord_role_mappings (
+    id serial primary key,
+	guild_id text,
+	role_id text,
+	enabled boolean,
+	code text,
+	type text,
+	owner_id text,
+	approver_id text,
+	created timestamp without time zone not null
+);
+
+create table tl_discord_role_requests (// TODO delete
     id text primary key,
 	guild_id text,
 	role_id text,

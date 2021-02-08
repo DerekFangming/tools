@@ -15,4 +15,9 @@ public interface DiscordUserRepo extends CrudRepository<DiscordUser, String> {
     List<DiscordUser> findByBirthdayNotNullOrderByBirthdayAsc();
     List<DiscordUser> findByBirthdayStartingWithOrderByBirthdayAsc(String birthday);
     Page<DiscordUser> findAll(Specification<DiscordUser> spec, Pageable pageable);
+
+    default String getNicknameById(String id) {
+        DiscordUser user = findById(id).orElse(null);
+        return user == null ? null : user.getNickname();
+    }
 }

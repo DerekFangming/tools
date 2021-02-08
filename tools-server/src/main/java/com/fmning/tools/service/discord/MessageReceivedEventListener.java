@@ -95,7 +95,9 @@ public class MessageReceivedEventListener extends BaseEventListener {
                 if (command.length() == 2) {
                     discordRoleService.getRoleStatus(channel, member);
                 } else if (command.length() == 3 && command.equals(2, "delete", "d")) {
-                    discordRoleService.deleteRole(channel, member);
+                    discordRoleService.showDeleteStatue(channel, member);
+                } else if (command.length() == 4 && command.equals(2, "delete", "d")) {
+                    discordRoleService.deleteRole(channel, member, command.get(3));
                 } else if (command.length() == 4 && command.equals(2, "share", "s") && event.getMessage().getMentionedMembers().size() > 0) {
                     discordRoleService.shareRole(channel, member, event.getMessage().getMentionedMembers().get(0));
                 } else if (command.length() == 4 && command.equals(2, "request", "r") && event.getMessage().getMentionedMembers().size() > 0) {
@@ -113,6 +115,9 @@ public class MessageReceivedEventListener extends BaseEventListener {
                 }
             } else if (command.equals(1, "ping", null)) {
                 channel.sendMessage("Bot operational. Latency " + event.getJDA().getGatewayPing() + " ms").queue();
+            } else if (command.equals(1, "mm", null)) {
+                Role role = event.getJDA().getRoleById("806884054120005662");
+                event.getGuild().getMembersWithRoles(role);
             } else {
                 invalidCommand(channel, member, content);
             }

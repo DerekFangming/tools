@@ -30,7 +30,7 @@ public class RoleEventListener extends BaseEventListener {
                         if (role == null) discordRoleRepo.save(fromRole(event.getRole()));
                     }
                 },
-                3000
+                3000// TODO : remove
         );
     }
 
