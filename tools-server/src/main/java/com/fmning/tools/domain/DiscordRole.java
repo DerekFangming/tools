@@ -38,6 +38,12 @@ public class DiscordRole {
     private Instant created;
 
     @Transient
+    private String ownerId;
+
+    @Transient
+    private DiscordRoleType type;
+
+    @Transient
     private String ownerName;
 
     public DiscordRole withOwnerName(String ownerName) {

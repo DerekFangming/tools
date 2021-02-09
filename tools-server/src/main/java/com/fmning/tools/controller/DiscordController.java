@@ -1,11 +1,9 @@
 package com.fmning.tools.controller;
 
-import com.fmning.tools.domain.DiscordRole;
-import com.fmning.tools.domain.DiscordUser;
+import com.fmning.tools.domain.*;
+import com.fmning.tools.dto.DiscordRoleDto;
 import com.fmning.tools.repository.*;
 import com.fmning.tools.ToolsProperties;
-import com.fmning.tools.domain.DiscordGuild;
-import com.fmning.tools.domain.DiscordUserLog;
 import com.fmning.tools.dto.DiscordObjectDto;
 import com.fmning.tools.service.discord.DiscordService;
 import com.fmning.tools.type.DiscordRoleType;
@@ -44,6 +42,7 @@ public class DiscordController {
     private final DiscordUserRepo discordUserRepo;
     private final DiscordRoleRepo discordRoleRepo;
     private final DiscordUserLogRepo discordUserLogRepo;
+    private final DiscordRoleMappingRepo discordRoleMappingRepo;
 
     @GetMapping("/{guildId}/channels")
     @PreAuthorize("hasRole('DC')")
@@ -116,26 +115,33 @@ public class DiscordController {
 
     @GetMapping("/{guildId}/roles")
     @PreAuthorize("hasRole('DC')")
-    public  ResponseEntity<List<DiscordRole>> getRoles(@PathVariable("guildId") String guildId, @RequestParam(value = "limit", defaultValue = "15") int limit,
+    public  ResponseEntity<List<DiscordRoleDto>> getRoles(@PathVariable("guildId") String guildId, @RequestParam(value = "limit", defaultValue = "15") int limit,
                                       @RequestParam(value = "offset", defaultValue = "0") int offset, @RequestParam(value = "keyword", required = false) String keyword,
                                                        @RequestParam(value = "type", required = false) DiscordRoleType type) {
         if (!"default".equalsIgnoreCase(guildId)) return ResponseEntity.ok(Collections.emptyList());
         Specification<DiscordRole> spec = (Specification<DiscordRole>) (root, query, criteriaBuilder) -> {
             List<Predicate> predicates = new ArrayList<>();
             if (keyword != null) predicates.add(criteriaBuilder.like(criteriaBuilder.upper(root.get("name")), "%" + keyword.trim().toUpperCase() + "%"));
-//            if (type != null) predicates.add(criteriaBuilder.equal(root.get("type"), type));
             return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
         };
 
-        Page<DiscordRole> page = discordRoleRepo.findAll(spec, PageRequest.of(offset/limit, limit, Sort.by(Sort.Direction.DESC, "position")));
+        Page<DiscordRoleDto> page;
+        if (keyword != null && type != null) {
+            page = discordRoleRepo.findAllByKeywordAndType(keyword, type, PageRequest.of(offset/limit, limit, Sort.by(Sort.Direction.DESC, "position")));
+        } else if (keyword != null) {
+            page = discordRoleRepo.findAllByKeyword(keyword, PageRequest.of(offset/limit, limit, Sort.by(Sort.Direction.DESC, "position")));
+        } else if (type != null) {
+            page = discordRoleRepo.findAllByType(type, PageRequest.of(offset/limit, limit, Sort.by(Sort.Direction.DESC, "position")));
+        } else {
+            page = discordRoleRepo.findAll(PageRequest.of(offset / limit, limit, Sort.by(Sort.Direction.DESC, "position")));
+        }
         return ResponseEntity.ok()
                 .header(TOTAL_COUNT, String.valueOf(page.getTotalElements()))
                 .body(page.getContent().stream().map(r -> {
+                    if (r.getOwnerId() == null) return r;
+                    DiscordUser user = discordUserRepo.findById(r.getOwnerId()).orElse(null);
+                    if (user != null) return r.withOwnerName(user.getNickname());
                     return r;
-//                    if (r.getOwnerId() == null) return r;
-//                    DiscordUser user = discordUserRepo.findById(r.getOwnerId()).orElse(null);
-//                    if (user != null) return r.withOwnerName(user.getNickname());
-//                    return r;
                 }).collect(Collectors.toList()));
     }
 
@@ -211,9 +217,16 @@ public class DiscordController {
     }
 
     @GetMapping("/admin/sync")
-    public void sync() {
+    public ResponseEntity<List<DiscordRoleDto>> sync() {
 //        discordService.seedRoles(toolsProperties.getDcDefaultGuildId());
 //        discordService.seedMembers(toolsProperties.getDcDefaultGuildId());
+
+//        DiscordRole a;
+//        DiscordRoleDto d = new DiscordRoleDto(a.Id, a.);
+
+        Page<DiscordRoleDto> roles = discordRoleRepo.findAll(PageRequest.of(0, 15, Sort.by(Sort.Direction.DESC, "position")));
+        System.out.println(1);
+        return ResponseEntity.ok(roles.getContent());
     }
 
 }
