@@ -5,7 +5,6 @@ import com.fmning.tools.dto.DiscordRoleDto;
 import com.fmning.tools.type.DiscordRoleType;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
@@ -14,6 +13,8 @@ import java.util.List;
 
 @Repository
 public interface DiscordRoleRepo extends CrudRepository<DiscordRole, String> {
+
+//    Page<DiscordRoleDto> findAllBySpec(Specification<DiscordRole> spec, Pageable pageable);
 
     @Query("select new com.fmning.tools.dto.DiscordRoleDto(a.id, a.guildId, a.name, a.color, a.position, a.created, b.ownerId, b.type) FROM DiscordRole a left join DiscordRoleMapping b on a.id = b.roleId where b.type != 'SHARE' or b.type is null")
     Page<DiscordRoleDto> findAll(Pageable pageable);

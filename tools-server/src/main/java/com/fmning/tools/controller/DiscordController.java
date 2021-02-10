@@ -20,6 +20,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import javax.persistence.criteria.Join;
+import javax.persistence.criteria.JoinType;
 import javax.persistence.criteria.Predicate;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -120,6 +122,7 @@ public class DiscordController {
                                                        @RequestParam(value = "type", required = false) DiscordRoleType type) {
         if (!"default".equalsIgnoreCase(guildId)) return ResponseEntity.ok(Collections.emptyList());
         Specification<DiscordRole> spec = (Specification<DiscordRole>) (root, query, criteriaBuilder) -> {
+            Join<DiscordRole, DiscordRoleMapping> join = root.join("", JoinType.LEFT);
             List<Predicate> predicates = new ArrayList<>();
             if (keyword != null) predicates.add(criteriaBuilder.like(criteriaBuilder.upper(root.get("name")), "%" + keyword.trim().toUpperCase() + "%"));
             return criteriaBuilder.and(predicates.toArray(new Predicate[0]));

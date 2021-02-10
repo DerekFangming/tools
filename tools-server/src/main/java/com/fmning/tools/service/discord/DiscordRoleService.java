@@ -315,11 +315,12 @@ public class DiscordRoleService {
     }
 
     private String getRoleStatus(String memberId, boolean delete) {
-        String levelRoleId;
+        String levelRoleId = null;
 
         String levelRole = "";
         String boostRole = "";
         String sharedRoleFromOthers = "";
+        String sharedRoleToOthers = "";
 
         List<DiscordRoleMapping> roleMappings = discordRoleMappingRepo.findByOwnerId(memberId);
         for (DiscordRoleMapping rm : roleMappings) {
@@ -338,21 +339,48 @@ public class DiscordRoleService {
                 } else {
                     boostRole = "** Booster Tag：** " + discordRoleRepo.getNameById(rm.getRoleId()) + "**\n\n";
                 }
-            } else if (rm.isEnabled()) {
+            } else {
                 if (delete) {
                     if (sharedRoleFromOthers.length() == 0) sharedRoleFromOthers = "**别人分享给你的Tag：** 删除后你自己将失去这个tag\n";
-                    sharedRoleFromOthers += "`yf tag delete " + rm.getCode() + "` 将删除 **" + discordRoleRepo.getNameById(rm.getRoleId()) + "**\n";
+                    sharedRoleFromOthers += "`yf tag delete " + rm.getCode() + "` 将删除 **" + discordRoleRepo.getNameById(rm.getRoleId()) + "**";
+                    if (!rm.isEnabled()) sharedRoleFromOthers += " (未接受)";
+                    sharedRoleFromOthers += "\n";
                 } else{
                     if (sharedRoleFromOthers.length() == 0) sharedRoleFromOthers = "**别人分享给你的Tag：** \n";
                     DiscordRole role = discordRoleRepo.findById(rm.getRoleId()).orElse(null);
                     DiscordRoleMapping mapping = discordRoleMappingRepo.findByTypeAndRoleId(DiscordRoleType.LEVEL, rm.getRoleId());
                     String sharedFrom = mapping == null ? "" : discordUserRepo.getNicknameById(mapping.getOwnerId()) + " 分享给你 " ;
-                    sharedRoleFromOthers += sharedFrom + "**" + (role == null ? null : role.getName()) + "**\n" ;
+                    sharedRoleFromOthers += sharedFrom + "**" + (role == null ? null : role.getName()) + "**";
+                    if (!rm.isEnabled()) sharedRoleFromOthers += " (未接受)";
+                    sharedRoleFromOthers += "\n";
                 }
             }
         }
 
-        return levelRole + boostRole + sharedRoleFromOthers;
+        if (sharedRoleFromOthers.length() > 0) sharedRoleFromOthers += "\n";
+
+        if (levelRoleId != null) {
+            List<DiscordRoleMapping> sharedRoles = discordRoleMappingRepo.findAllByTypeAndRoleId(DiscordRoleType.SHARE, levelRoleId);
+            for (DiscordRoleMapping rm : sharedRoles) {
+                if (delete) {
+                    if (sharedRoleToOthers.length() == 0) sharedRoleToOthers = "**你分享给别人的Tag：** 删除后那个人将失去这个tag\n";
+                    sharedRoleToOthers += "`yf tag delete " + rm.getCode() + "` 将删除" + discordUserRepo.getNicknameById(rm.getOwnerId()) + "的 **" + discordRoleRepo.getNameById(rm.getRoleId()) + "**";
+                    if (!rm.isEnabled()) sharedRoleToOthers += " (未接受)";
+                    sharedRoleToOthers += "\n";
+                } else{
+                    if (sharedRoleToOthers.length() == 0) sharedRoleToOthers = "**别人分享给你的Tag：** \n";
+                    DiscordRole role = discordRoleRepo.findById(rm.getRoleId()).orElse(null);
+                    DiscordRoleMapping mapping = discordRoleMappingRepo.findByTypeAndRoleId(DiscordRoleType.LEVEL, rm.getRoleId());
+                    String sharedFrom = mapping == null ? "" : discordUserRepo.getNicknameById(mapping.getOwnerId()) + " 分享给你 " ;
+                    sharedRoleToOthers += sharedFrom + "**" + (role == null ? null : role.getName()) + "**";
+                    if (!rm.isEnabled()) sharedRoleToOthers += " (未接受)";
+                    sharedRoleToOthers += "\n";
+                }
+            }
+
+        }
+
+        return levelRole + boostRole + sharedRoleFromOthers + sharedRoleToOthers;
     }
 
     public void deleteRole(MessageChannel channel, Member member, String code) {

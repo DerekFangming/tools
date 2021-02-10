@@ -27,4 +27,5 @@ public interface DiscordRoleMappingRepo extends CrudRepository<DiscordRoleMappin
     void deleteByCreated(Instant created);
 
     List<DiscordRoleMapping> findByOwnerId(String ownerId);
+    List< DiscordRoleMapping> findAllByTypeAndRoleId(DiscordRoleType type, String ownerId);
 }
