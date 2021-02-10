@@ -65,7 +65,7 @@ public class MessageReceivedEventListener extends BaseEventListener {
                 discordInviteService.invite(channel, member, command.from(2));
             } else if (command.equals(1, "birthday", "b")) {
                 if (command.length() == 2) {
-                    discordBirthdayService.listAll(channel);
+                    discordBirthdayService.listSelf(channel, member);
                 } else if (command.equals(2, "month", "m")) {
                     discordBirthdayService.listMonth(channel, command.get(3));
                 } else if (command.equals(2, "disable", "d")) {
