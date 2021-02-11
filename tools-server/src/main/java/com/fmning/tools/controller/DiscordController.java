@@ -121,18 +121,11 @@ public class DiscordController {
                                       @RequestParam(value = "offset", defaultValue = "0") int offset, @RequestParam(value = "keyword", required = false) String keyword,
                                                        @RequestParam(value = "type", required = false) DiscordRoleType type) {
         if (!"default".equalsIgnoreCase(guildId)) return ResponseEntity.ok(Collections.emptyList());
-        Specification<DiscordRole> spec = (Specification<DiscordRole>) (root, query, criteriaBuilder) -> {
-            Join<DiscordRole, DiscordRoleMapping> join = root.join("", JoinType.LEFT);
-            List<Predicate> predicates = new ArrayList<>();
-            if (keyword != null) predicates.add(criteriaBuilder.like(criteriaBuilder.upper(root.get("name")), "%" + keyword.trim().toUpperCase() + "%"));
-            return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
-        };
-
         Page<DiscordRoleDto> page;
         if (keyword != null && type != null) {
-            page = discordRoleRepo.findAllByKeywordAndType(keyword, type, PageRequest.of(offset/limit, limit, Sort.by(Sort.Direction.DESC, "position")));
+            page = discordRoleRepo.findAllByKeywordAndType(keyword.toUpperCase(), type, PageRequest.of(offset/limit, limit, Sort.by(Sort.Direction.DESC, "position")));
         } else if (keyword != null) {
-            page = discordRoleRepo.findAllByKeyword(keyword, PageRequest.of(offset/limit, limit, Sort.by(Sort.Direction.DESC, "position")));
+            page = discordRoleRepo.findAllByKeyword(keyword.toUpperCase(), PageRequest.of(offset/limit, limit, Sort.by(Sort.Direction.DESC, "position")));
         } else if (type != null) {
             page = discordRoleRepo.findAllByType(type, PageRequest.of(offset/limit, limit, Sort.by(Sort.Direction.DESC, "position")));
         } else {

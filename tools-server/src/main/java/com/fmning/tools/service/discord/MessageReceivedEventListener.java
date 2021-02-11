@@ -25,6 +25,7 @@ public class MessageReceivedEventListener extends BaseEventListener {
     private final DiscordBirthdayService discordBirthdayService;
     private final DiscordMusicService discordMusicService;
     private final DiscordMiscService discordMiscService;
+    private final DiscordChannelService discordChannelService;
 
     @Override
     public void onMessageReceived(@NotNull MessageReceivedEvent event) {
@@ -77,12 +78,10 @@ public class MessageReceivedEventListener extends BaseEventListener {
                 }
             } else if (command.equals(1, "nb", "n")) {
                 discordMiscService.nb(channel, member, event.getMessage().getMentionedMembers());
-            } else if (command.equals(1, "come", "c")) {
+            } else if (command.equals(1, "come", null)) {
                 discordMusicService.join(member, event.getGuild().getAudioManager());
             } else if (command.equals(1, "play", "p")) {
                 discordMusicService.play(channel, member, event.getGuild().getAudioManager(), command.from(2));
-
-
             } else if (command.equals(1, "skip", "s")) {
                 discordMusicService.skip();
             } else if (command.equals(1, "stop", null)) {
@@ -113,6 +112,13 @@ public class MessageReceivedEventListener extends BaseEventListener {
                 } else {
                     invalidCommand(channel, member, content);
                 }
+            } else if (command.equals(1, "channel", "c")) {
+//                if (command.length() == 3 && command.equals(2, "delete", "d")) {
+//                    discordChannelService.deleteChannel(channel, member);
+//                } else if (command.length() == 3) {
+//                    discordChannelService.createChannel(channel, member, command.get(2));
+//                }
+                System.out.println(1);
             } else if (command.equals(1, "ping", null)) {
                 channel.sendMessage("Bot operational. Latency " + event.getJDA().getGatewayPing() + " ms").queue();
             } else if (command.equals(1, "mm", null)) {
