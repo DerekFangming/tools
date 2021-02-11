@@ -70,7 +70,7 @@
         <tbody>
           <tr *ngFor="let role of roleList;">
             <th scope="row"> {{ role.name }} </th>
-            <td> <div style="width: 25px; height: 25px;" [ngStyle]="{'backgroundColor': role.color}"><span style="margin-left: 30px;"class="mb-1">{{ role.color }}</span></div></td>
+            <td class="d-flex flex-md-row"> <div style="width: 25px; height: 25px;" [ngStyle]="{'backgroundColor': role.color}"></div><span class="mb-1 ml-2">{{ role.color }}</span></td>
             <td> {{ role.position }} </td>
             <td> {{ utils.getType(role.type) }} </td>
             <td> {{ role.ownerName }} </td>
