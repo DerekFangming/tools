@@ -10,6 +10,7 @@ import com.fmning.tools.repository.*;
 import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.Role;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -152,6 +153,28 @@ public class DiscordService extends BaseEventListener {
                 }
             });
         }
+    }
+
+    public void addRole(String memberId, String roleId) {
+        Guild guild = jda.getGuildById(toolsProperties.getDcDefaultGuildId());
+        Member member = guild.getMemberById(memberId);
+        if (member != null) {
+            Role role = guild.getRoleById(roleId);
+            if (role != null) {
+                guild.addRoleToMember(member, role).complete();
+            } else {throw new IllegalStateException("Null role " + roleId);}
+        } else {throw new IllegalStateException("Null member " + memberId);}
+    }
+
+    public void removeRole(String memberId, String roleId) {
+        Guild guild = jda.getGuildById(toolsProperties.getDcDefaultGuildId());
+        Member member = guild.getMemberById(memberId);
+        if (member != null) {
+            Role role = guild.getRoleById(roleId);
+            if (role != null) {
+                guild.removeRoleFromMember(member, role).queue();
+            } else {throw new IllegalStateException("Null role " + roleId);}
+        } else {throw new IllegalStateException("Null member " + memberId);}
     }
 
 }

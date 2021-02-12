@@ -57,7 +57,7 @@
         </thead>
         <tbody>
           <tr *ngFor="let user of userList;">
-            <th scope="row"> {{ user.name }} </th>
+            <th scope="row"> {{ user.name }}<span class="d-none">{{ user.id }}</span></th>
             <td> {{ user.nickname }} </td>
             <td> {{ user.apexId }} </td>
             <td> {{ user.birthday }} </td>

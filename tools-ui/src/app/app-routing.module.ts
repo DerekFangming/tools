@@ -11,6 +11,7 @@ import { DiscordComponent } from './discord/discord.component';
 import { DiscordUserComponent } from './discord-user/discord-user.component';
 import { DiscordRoleComponent } from './discord-role/discord-role.component';
 import { DiscordConfigComponent } from './discord-config/discord-config.component';
+import { DiscordAdminComponent } from './discord-admin/discord-admin.component';
 
 
 const routes: Routes = [
@@ -19,6 +20,7 @@ const routes: Routes = [
   { path: 'discord/user', component: DiscordUserComponent},
   { path: 'discord/role', component: DiscordRoleComponent},
   { path: 'discord/config', component: DiscordConfigComponent},
+  { path: 'discord/admin', component: DiscordAdminComponent},
   { path: 'clipboard', component: ClipboardComponent },
   { path: 'heic', component: HeicComponent },
   { path: 's8', component: ImgComponent },

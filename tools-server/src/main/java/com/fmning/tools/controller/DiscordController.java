@@ -1,6 +1,7 @@
 package com.fmning.tools.controller;
 
 import com.fmning.tools.domain.*;
+import com.fmning.tools.dto.DiscordAdminDto;
 import com.fmning.tools.dto.DiscordRoleDto;
 import com.fmning.tools.repository.*;
 import com.fmning.tools.ToolsProperties;
@@ -213,6 +214,7 @@ public class DiscordController {
     }
 
     @GetMapping("/admin/sync")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<DiscordRoleDto>> sync() {
 //        discordService.seedRoles(toolsProperties.getDcDefaultGuildId());
 //        discordService.seedMembers(toolsProperties.getDcDefaultGuildId());
@@ -224,5 +226,18 @@ public class DiscordController {
         System.out.println(1);
         return ResponseEntity.ok(roles.getContent());
     }
+
+    @PostMapping("/admin/add-role")
+    @PreAuthorize("hasRole('ADMIN')")
+    public void addRole(@RequestBody DiscordAdminDto discordAdminDto) {
+        discordService.addRole(discordAdminDto.getMemberId(), discordAdminDto.getRoleId());
+    }
+
+    @PostMapping("/admin/remove-role")
+    @PreAuthorize("hasRole('ADMIN')")
+    public void removeRole(@RequestBody DiscordAdminDto discordAdminDto) {
+        discordService.removeRole(discordAdminDto.getMemberId(), discordAdminDto.getRoleId());
+    }
+
 
 }

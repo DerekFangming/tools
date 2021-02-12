@@ -19,6 +19,7 @@ import { NotifierModule } from 'angular-notifier';
 import { DiscordConfigComponent } from './discord-config/discord-config.component';
 import { DiscordUserComponent } from './discord-user/discord-user.component';
 import { DiscordRoleComponent } from './discord-role/discord-role.component';
+import { DiscordAdminComponent } from './discord-admin/discord-admin.component';
 
 @NgModule({
   declarations: [
@@ -33,7 +34,8 @@ import { DiscordRoleComponent } from './discord-role/discord-role.component';
     DiscordComponent,
     DiscordConfigComponent,
     DiscordUserComponent,
-    DiscordRoleComponent
+    DiscordRoleComponent,
+    DiscordAdminComponent
   ],
   imports: [
     BrowserModule,

@@ -1,0 +1,30 @@
+<div class="container">
+  <div class="row mt-5">
+    <div class="col">
+      <label>Assign Role</label>
+      <div class="form-inline">
+        <input type="text" class="form-control mb-2 mr-sm-2" [(ngModel)]="addMemberId" placeholder="Member ID">
+      
+        <div class="input-group mb-2 mr-sm-2">
+          <input type="text" class="form-control" [(ngModel)]="addRoleId" placeholder="Role ID">
+        </div>
+      
+        <button type="submit" class="btn btn-primary mb-2" (click)="addRole()">Submit</button>
+      </div>
+    </div>
+  </div>
+  <div class="row mt-5">
+    <div class="col">
+      <label>Remove Role</label>
+      <div class="form-inline">
+        <input type="text" class="form-control mb-2 mr-sm-2" [(ngModel)]="removeMemberId" placeholder="Member ID">
+      
+        <div class="input-group mb-2 mr-sm-2">
+          <input type="text" class="form-control" [(ngModel)]="removeRoleId" placeholder="Role ID">
+        </div>
+      
+        <button type="submit" class="btn btn-danger mb-2" (click)="removeRole()">Remove</button>
+      </div>
+    </div>
+  </div>
+</div>

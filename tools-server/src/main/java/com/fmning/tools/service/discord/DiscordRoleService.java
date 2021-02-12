@@ -35,23 +35,15 @@ public class DiscordRoleService {
     private final OkHttpClient client;
 
     public void getRoleStatus(MessageChannel channel, Member member) {
-        StringBuilder sb = new StringBuilder("<@" + member.getId() + ">");
 
-        List<DiscordRoleMapping> roleMappings = discordRoleMappingRepo.findByOwnerId(member.getId());
-        DiscordRoleMapping levelRole = roleMappings.stream().filter(rm -> rm.getType() == DiscordRoleType.LEVEL).findFirst().orElse(null);
-        DiscordRoleMapping boostRole = roleMappings.stream().filter(rm -> rm.getType() == DiscordRoleType.BOOST).findFirst().orElse(null);
-
-        if (levelRole == null && boostRole == null) {
-            channel.sendMessage(sb.append(" 你尚未拥有任何tag。").toString()).queue();
+        String message = getRoleStatus(member.getId(), false);
+        if (message.length() == 0) {
+            channel.sendMessage("<@" + member.getId() + "> 你当前没有Tag。使用yf help查看如何创建或分享Tag。").queue();
         } else {
-            sb.append(" 你当前拥有");
-            if (levelRole != null) sb.append("等级tag **").append(discordRoleRepo.getNameById(levelRole.getRoleId())).append("**");
-            if (boostRole != null) {
-                if (levelRole != null) sb.append(" 和");
-                sb.append("Server Booster专属tag **").append(discordRoleRepo.getNameById(boostRole.getRoleId())).append("**");
-            }
-
-            channel.sendMessage(sb.append("。").toString()).queue();
+            channel.sendMessage(new EmbedBuilder()
+                    .setAuthor(member.getEffectiveName(), null, member.getUser().getAvatarUrl())
+                    .setDescription(message)
+                    .build()).queue();
         }
     }
 
@@ -330,14 +322,14 @@ public class DiscordRoleService {
                     levelRole = "**等级Tag：** 删除后所有拥有此tag的人都将失去这个tag\n`yf tag delete " + rm.getCode() +
                             "` 将删除 **" + discordRoleRepo.getNameById(rm.getRoleId()) + "**\n\n";
                 } else {
-                    levelRole = "**等级Tag：** " + discordRoleRepo.getNameById(rm.getRoleId()) + "**\n\n";
+                    levelRole = "**等级Tag：** " + discordRoleRepo.getNameById(rm.getRoleId()) + "\n\n";
                 }
             } else if (rm.getType() == DiscordRoleType.BOOST) {
                 if (delete) {
-                    boostRole = "** Booster Tag：** 删除后你将失去单独的在线成员组\n`yf tag delete " + rm.getCode() +
+                    boostRole = "**Booster Tag：** 删除后你将失去单独的在线成员组\n`yf tag delete " + rm.getCode() +
                             "` 将删除 **" + discordRoleRepo.getNameById(rm.getRoleId()) + "**\n\n";
                 } else {
-                    boostRole = "** Booster Tag：** " + discordRoleRepo.getNameById(rm.getRoleId()) + "**\n\n";
+                    boostRole = "**Booster Tag：** " + discordRoleRepo.getNameById(rm.getRoleId()) + "\n\n";
                 }
             } else {
                 if (delete) {
@@ -363,16 +355,14 @@ public class DiscordRoleService {
             List<DiscordRoleMapping> sharedRoles = discordRoleMappingRepo.findAllByTypeAndRoleId(DiscordRoleType.SHARE, levelRoleId);
             for (DiscordRoleMapping rm : sharedRoles) {
                 if (delete) {
-                    if (sharedRoleToOthers.length() == 0) sharedRoleToOthers = "**你分享给别人的Tag：** 删除后那个人将失去这个tag\n";
-                    sharedRoleToOthers += "`yf tag delete " + rm.getCode() + "` 将删除" + discordUserRepo.getNicknameById(rm.getOwnerId()) + "的 **" + discordRoleRepo.getNameById(rm.getRoleId()) + "**";
+                    if (sharedRoleToOthers.length() == 0) sharedRoleToOthers = "**你分享给别人的Tag：** 删除后对方将失去**" + discordRoleRepo.getNameById(levelRoleId) + "**\n";
+                    sharedRoleToOthers += "`yf tag delete " + rm.getCode() + "` 将删除你分享给" + discordUserRepo.getNicknameById(rm.getOwnerId()) + "的等级Tag。";
                     if (!rm.isEnabled()) sharedRoleToOthers += " (未接受)";
                     sharedRoleToOthers += "\n";
                 } else{
-                    if (sharedRoleToOthers.length() == 0) sharedRoleToOthers = "**别人分享给你的Tag：** \n";
-                    DiscordRole role = discordRoleRepo.findById(rm.getRoleId()).orElse(null);
+                    if (sharedRoleToOthers.length() == 0) sharedRoleToOthers = "**你把等级Tag" + discordRoleRepo.getNameById(levelRoleId) + "分享给了：**\n";
                     DiscordRoleMapping mapping = discordRoleMappingRepo.findByTypeAndRoleId(DiscordRoleType.LEVEL, rm.getRoleId());
-                    String sharedFrom = mapping == null ? "" : discordUserRepo.getNicknameById(mapping.getOwnerId()) + " 分享给你 " ;
-                    sharedRoleToOthers += sharedFrom + "**" + (role == null ? null : role.getName()) + "**";
+                    sharedRoleToOthers += mapping == null ? "无法读取" : discordUserRepo.getNicknameById(mapping.getOwnerId());
                     if (!rm.isEnabled()) sharedRoleToOthers += " (未接受)";
                     sharedRoleToOthers += "\n";
                 }
