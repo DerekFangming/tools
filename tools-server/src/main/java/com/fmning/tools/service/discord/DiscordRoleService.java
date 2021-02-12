@@ -142,13 +142,13 @@ public class DiscordRoleService {
                 guild.addRoleToMember(member.getId(), role).queue();
                 Role targetRole = guild.getRoleById(discordGuild.getRoleBoostRankRoleId());
                 guild.modifyRolePositions().selectPosition(role).moveTo(targetRole.getPosition()).queue();
-                channel.sendMessage("<@" + member.getId() + "> 专属tag **" + name + "**已创建成功。").queue();
+                channel.sendMessage("<@" + member.getId() + "> Booster 专属tag **" + name + "**已创建成功。").queue();
             } else {
                 Role role = guild.getRoleById(boostRole.getRoleId());
                 if (role == null) channel.sendMessage("<@" + member.getId() + "> 系统错误，请联系管理员。").queue();
                 else {
                     role.getManager().setName(name).setColor(Color.decode(color)).queue();
-                    channel.sendMessage("<@" + member.getId() + "> 专属tag **" + name + "**已更新成功。").queue();
+                    channel.sendMessage("<@" + member.getId() + "> Booster 专属tag **" + name + "**已更新成功。").queue();
                 }
             }
         } else {
@@ -173,13 +173,13 @@ public class DiscordRoleService {
                 guild.addRoleToMember(member.getId(), role).complete();
                 Role targetRole = guild.getRoleById(discordGuild.getRoleLevelRankRoleId());
                 guild.modifyRolePositions().selectPosition(role).moveTo(targetRole.getPosition()).complete();
-                channel.sendMessage("<@" + member.getId() + "> tag **" + name + "**已创建成功。").queue();
+                channel.sendMessage("<@" + member.getId() + "> 等级tag **" + name + "**已创建成功。").queue();
             } else {
                 Role role = guild.getRoleById(levelRole.getRoleId());
                 if (role == null) channel.sendMessage("<@" + member.getId() + "> 系统错误，请联系管理员。").queue();
                 else {
                     role.getManager().setName(name).setColor(Color.decode(color)).queue();
-                    channel.sendMessage("<@" + member.getId() + "> tag **" + name + "**已更新成功。").queue();
+                    channel.sendMessage("<@" + member.getId() + "> 等级tag **" + name + "**已更新成功。").queue();
                 }
             }
         }

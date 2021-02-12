@@ -45,7 +45,6 @@ public class DiscordController {
     private final DiscordUserRepo discordUserRepo;
     private final DiscordRoleRepo discordRoleRepo;
     private final DiscordUserLogRepo discordUserLogRepo;
-    private final DiscordRoleMappingRepo discordRoleMappingRepo;
 
     @GetMapping("/{guildId}/channels")
     @PreAuthorize("hasRole('DC')")

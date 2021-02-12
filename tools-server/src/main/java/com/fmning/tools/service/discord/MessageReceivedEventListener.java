@@ -1,5 +1,6 @@
 package com.fmning.tools.service.discord;
 
+import com.fmning.tools.ToolsProperties;
 import com.fmning.tools.domain.DiscordUserLog;
 import com.fmning.tools.repository.DiscordGuildRepo;
 import com.fmning.tools.repository.DiscordUserLogRepo;
@@ -26,6 +27,7 @@ public class MessageReceivedEventListener extends BaseEventListener {
     private final DiscordMusicService discordMusicService;
     private final DiscordMiscService discordMiscService;
     private final DiscordChannelService discordChannelService;
+    private final ToolsProperties toolsProperties;
 
     @Override
     public void onMessageReceived(@NotNull MessageReceivedEvent event) {
@@ -113,12 +115,13 @@ public class MessageReceivedEventListener extends BaseEventListener {
                     invalidCommand(channel, member, content);
                 }
             } else if (command.equals(1, "channel", "c")) {
-//                if (command.length() == 3 && command.equals(2, "delete", "d")) {
-//                    discordChannelService.deleteChannel(channel, member);
-//                } else if (command.length() == 3) {
-//                    discordChannelService.createChannel(channel, member, command.get(2));
-//                }
-                System.out.println(1);
+                if (!toolsProperties.isProduction()) {
+                    if (command.length() == 3 && command.equals(2, "delete", "d")) {
+                        discordChannelService.deleteChannel(channel, member);
+                    } else if (command.length() == 3) {
+                        discordChannelService.createChannel(channel, member, command.get(2));
+                    }
+                }
             } else if (command.equals(1, "ping", null)) {
                 channel.sendMessage("Bot operational. Latency " + event.getJDA().getGatewayPing() + " ms").queue();
             } else if (command.equals(1, "mm", null)) {
