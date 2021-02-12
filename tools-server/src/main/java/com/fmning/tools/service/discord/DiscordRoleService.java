@@ -361,8 +361,7 @@ public class DiscordRoleService {
                     sharedRoleToOthers += "\n";
                 } else{
                     if (sharedRoleToOthers.length() == 0) sharedRoleToOthers = "**你把等级Tag" + discordRoleRepo.getNameById(levelRoleId) + "分享给了：**\n";
-                    DiscordRoleMapping mapping = discordRoleMappingRepo.findByTypeAndRoleId(DiscordRoleType.LEVEL, rm.getRoleId());
-                    sharedRoleToOthers += mapping == null ? "无法读取" : discordUserRepo.getNicknameById(mapping.getOwnerId());
+                    sharedRoleToOthers += discordUserRepo.getNicknameById(rm.getOwnerId());
                     if (!rm.isEnabled()) sharedRoleToOthers += " (未接受)";
                     sharedRoleToOthers += "\n";
                 }
