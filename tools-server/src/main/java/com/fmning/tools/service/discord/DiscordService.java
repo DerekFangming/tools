@@ -162,8 +162,8 @@ public class DiscordService extends BaseEventListener {
             Role role = guild.getRoleById(roleId);
             if (role != null) {
                 guild.addRoleToMember(member, role).complete();
-            } else {throw new IllegalStateException("Null role " + roleId);}
-        } else {throw new IllegalStateException("Null member " + memberId);}
+            } else {throw new IllegalArgumentException("Null role " + roleId);}
+        } else {throw new IllegalArgumentException("Null member " + memberId);}
     }
 
     public void removeRole(String memberId, String roleId) {
@@ -173,8 +173,17 @@ public class DiscordService extends BaseEventListener {
             Role role = guild.getRoleById(roleId);
             if (role != null) {
                 guild.removeRoleFromMember(member, role).queue();
-            } else {throw new IllegalStateException("Null role " + roleId);}
-        } else {throw new IllegalStateException("Null member " + memberId);}
+            } else {throw new IllegalArgumentException("Null role " + roleId);}
+        } else {throw new IllegalArgumentException("Null member " + memberId);}
+    }
+
+    public void moveRole(String roleId, int position) {
+        if (position == 0) throw new IllegalArgumentException("Invalid position " + position);
+        Guild guild = jda.getGuildById(toolsProperties.getDcDefaultGuildId());
+        Role role = guild.getRoleById(roleId);
+        if (role != null) {
+            guild.modifyRolePositions().selectPosition(role).moveTo(position).complete();
+        } else {throw new IllegalArgumentException("Null role " + roleId);}
     }
 
 }

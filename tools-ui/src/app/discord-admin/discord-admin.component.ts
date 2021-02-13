@@ -15,6 +15,8 @@ export class DiscordAdminComponent implements OnInit {
   addRoleId = '';
   removeMemberId = '';
   removeRoleId = '';
+  moveRoleId = '';
+  moveRolePosition = 0;
 
   constructor(private http: HttpClient, private title: Title) {
     this.title.setTitle('Discord Roles');
@@ -28,8 +30,7 @@ export class DiscordAdminComponent implements OnInit {
     this.http.post(environment.urlPrefix + 'api/discord/admin/add-role', admin).subscribe(res => {
       alert("ok");
     }, error => {
-      alert(error.error);
-      console.log(error.error);
+      alert(error.message);
     });
   }
 
@@ -38,8 +39,16 @@ export class DiscordAdminComponent implements OnInit {
     this.http.post(environment.urlPrefix + 'api/discord/admin/remove-role', admin).subscribe(res => {
       alert("ok");
     }, error => {
-      alert(error.error);
-      console.log(error.error);
+      alert(error.message);
+    });
+  }
+
+  moveRole() {
+    let admin = new DiscordAdmin({memberId: this.moveRoleId, position: this.moveRolePosition});
+    this.http.post(environment.urlPrefix + 'api/discord/admin/move-role', admin).subscribe(res => {
+      alert("ok");
+    }, error => {
+      alert(error.message);
     });
   }
 

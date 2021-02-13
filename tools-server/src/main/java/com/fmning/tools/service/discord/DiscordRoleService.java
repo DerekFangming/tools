@@ -2,6 +2,7 @@ package com.fmning.tools.service.discord;
 
 import com.fmning.tools.ToolsProperties;
 import com.fmning.tools.domain.*;
+import com.fmning.tools.dto.DiscordRolePositionDto;
 import com.fmning.tools.repository.*;
 import com.fmning.tools.type.DiscordRoleType;
 import lombok.RequiredArgsConstructor;
@@ -140,9 +141,27 @@ public class DiscordRoleService {
 
                 //Add role to member and then move rank
                 guild.addRoleToMember(member.getId(), role).queue();
-                Role targetRole = guild.getRoleById(discordGuild.getRoleBoostRankRoleId());
-                guild.modifyRolePositions().selectPosition(role).moveTo(targetRole.getPosition()).queue();
-                channel.sendMessage("<@" + member.getId() + "> Booster 专属tag **" + name + "**已创建成功。").queue();
+                String targetRoleId = discordGuild.getRoleBoostRankRoleId();
+                List<DiscordRolePositionDto> positionDtos = discordRoleMappingRepo.findAllBoostRoleByPosition();
+                for (DiscordRolePositionDto positionDto : positionDtos) {
+                    if (!positionDto.getRoleId().equals(role.getId())) {
+                        if (positionDto.getOwnerBoostTime() == null || user.getBoostedDate() == null) {
+                            continue;
+                        } else if (positionDto.getOwnerBoostTime().isBefore(user.getBoostedDate())) {
+                            break;
+                        } else {
+                            targetRoleId = positionDto.getRoleId();
+                        }
+                    }
+                }
+
+                Role targetRole = guild.getRoleById(targetRoleId);
+                if (targetRole == null) {
+                    channel.sendMessage("<@" + member.getId() + "> Booster 专属tag **" + name + "**已创建成功。移位失败。").queue();
+                } else {
+                    guild.modifyRolePositions().selectPosition(role).moveTo(targetRole.getPosition()).queue();
+                    channel.sendMessage("<@" + member.getId() + "> Booster 专属tag **" + name + "**已创建成功。").queue();
+                }
             } else {
                 Role role = guild.getRoleById(boostRole.getRoleId());
                 if (role == null) channel.sendMessage("<@" + member.getId() + "> 系统错误，请联系管理员。").queue();

@@ -3,6 +3,7 @@ package com.fmning.tools.controller;
 import com.fmning.tools.domain.*;
 import com.fmning.tools.dto.DiscordAdminDto;
 import com.fmning.tools.dto.DiscordRoleDto;
+import com.fmning.tools.dto.DiscordRolePositionDto;
 import com.fmning.tools.repository.*;
 import com.fmning.tools.ToolsProperties;
 import com.fmning.tools.dto.DiscordObjectDto;
@@ -44,6 +45,7 @@ public class DiscordController {
     private final DiscordGuildRepo discordGuildRepo;
     private final DiscordUserRepo discordUserRepo;
     private final DiscordRoleRepo discordRoleRepo;
+    private final DiscordRoleMappingRepo discordRoleMappingRepo;
     private final DiscordUserLogRepo discordUserLogRepo;
 
     @GetMapping("/{guildId}/channels")
@@ -236,6 +238,30 @@ public class DiscordController {
     @PreAuthorize("hasRole('ADMIN')")
     public void removeRole(@RequestBody DiscordAdminDto discordAdminDto) {
         discordService.removeRole(discordAdminDto.getMemberId(), discordAdminDto.getRoleId());
+    }
+
+    @PostMapping("/admin/move-role")
+    @PreAuthorize("hasRole('ADMIN')")
+    public void moveRole(@RequestBody DiscordAdminDto discordAdminDto) {
+        discordService.moveRole(discordAdminDto.getMemberId(), discordAdminDto.getPosition());
+    }
+
+    @GetMapping("/admin/role-position")
+    @PreAuthorize("hasRole('ADMIN')")
+    public String position() {
+        StringBuilder sb = new StringBuilder();
+        List<DiscordRolePositionDto> positionDtos = discordRoleMappingRepo.findAllBoostRoleByPosition();
+        for (DiscordRolePositionDto p : positionDtos) {
+            DiscordRole role = discordRoleRepo.findById(p.getRoleId()).orElse(null);
+            if (role != null) {
+                sb.append(role.getPosition()).append(" = ").append(role.getName()).append(" = ").append(p.getRoleId())
+                        .append(" = ").append(p.getOwnerName()).append(" = ").append(p.getOwnerBoostTime()).append("<br />");
+            } else {
+                sb.append("FAILED").append(" = ").append(p.getOwnerName()).append("<br />");
+            }
+        }
+
+        return sb.toString();
     }
 
 

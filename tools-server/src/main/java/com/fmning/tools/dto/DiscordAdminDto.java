@@ -8,4 +8,5 @@ import lombok.Data;
 public class DiscordAdminDto {
     private String memberId;
     private String roleId;
+    private int position;
 }

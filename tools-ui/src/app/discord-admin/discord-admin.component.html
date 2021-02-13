@@ -27,4 +27,18 @@
       </div>
     </div>
   </div>
+  <div class="row mt-5">
+    <div class="col">
+      <label>Move Role</label>
+      <div class="form-inline">
+        <input type="text" class="form-control mb-2 mr-sm-2" [(ngModel)]="moveRoleId" placeholder="Role ID">
+      
+        <div class="input-group mb-2 mr-sm-2">
+          <input type="number" class="form-control" [(ngModel)]="moveRolePosition" placeholder="Role Position">
+        </div>
+      
+        <button type="submit" class="btn btn-primary mb-2" (click)="moveRole()">Move</button>
+      </div>
+    </div>
+  </div>
 </div>
