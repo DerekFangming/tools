@@ -218,7 +218,7 @@ public class DiscordController {
     @GetMapping("/admin/sync")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<DiscordRoleDto>> sync() {
-        discordService.seedRoles(toolsProperties.getDcDefaultGuildId());
+//        discordService.seedRoles(toolsProperties.getDcDefaultGuildId());
 //        discordService.seedMembers(toolsProperties.getDcDefaultGuildId());
 
 //        DiscordRole a;
@@ -314,6 +314,12 @@ public class DiscordController {
             }
         }
         return sb.toString();
+    }
+
+    @GetMapping("/admin/test")
+    @PreAuthorize("hasRole('ADMIN')")
+    public void roleFix() {
+        discordRoleMappingRepo.deleteByCreated(Instant.now());
     }
 
 

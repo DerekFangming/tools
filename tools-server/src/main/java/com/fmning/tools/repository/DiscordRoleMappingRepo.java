@@ -30,7 +30,7 @@ public interface DiscordRoleMappingRepo extends CrudRepository<DiscordRoleMappin
 
     @Modifying
     @Transactional
-    @Query(value="delete from DiscordRoleMapping d where d.created < ?1 and enabled = false")
+    @Query(value="delete from DiscordRoleMapping d where d.created < ?1 and enabled = false and type = 'SHARE'")
     void deleteByCreated(Instant created);
 
     List<DiscordRoleMapping> findByOwnerId(String ownerId);
