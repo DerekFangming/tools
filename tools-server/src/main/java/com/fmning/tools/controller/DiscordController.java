@@ -12,6 +12,7 @@ import com.fmning.tools.type.DiscordRoleType;
 import com.fmning.tools.type.DiscordUserLogActionType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.apachecommons.CommonsLog;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -217,7 +218,7 @@ public class DiscordController {
     @GetMapping("/admin/sync")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<DiscordRoleDto>> sync() {
-//        discordService.seedRoles(toolsProperties.getDcDefaultGuildId());
+        discordService.seedRoles(toolsProperties.getDcDefaultGuildId());
 //        discordService.seedMembers(toolsProperties.getDcDefaultGuildId());
 
 //        DiscordRole a;
@@ -262,7 +263,60 @@ public class DiscordController {
         }
 
         return sb.toString();
+
+//        return RandomStringUtils.randomAlphanumeric(6);
     }
+
+    @GetMapping("/admin/role-fix-preview")
+    @PreAuthorize("hasRole('ADMIN')")
+    public String rolePreview(@RequestParam("roleId") String roleId) {
+        List<DiscordUser> users = discordUserRepo.findByRolesContaining(roleId);
+
+        StringBuilder existedSb = new StringBuilder();
+        StringBuilder missingSb = new StringBuilder();
+        DiscordRoleMapping owner = discordRoleMappingRepo.findByTypeAndRoleId(DiscordRoleType.LEVEL, roleId);
+        for (DiscordUser u : users) {
+            if (!u.getId().equals(owner.getOwnerId())) {
+                DiscordRoleMapping mapping = discordRoleMappingRepo.findByOwnerIdAndTypeAndRoleId(u.getId(), DiscordRoleType.SHARE, roleId);
+                if (mapping == null) {
+                    missingSb.append("Missing share to ").append(u.getNickname()).append("<br />");
+                } else {
+                    existedSb.append("Already have share to ").append(u.getNickname()).append("<br />");
+                }
+            }
+        }
+
+        return "Already existed mappings: <br /><br />" + existedSb.toString() + "<br /><br />" + "Missing mappings:<br />" + missingSb.toString();
+    }
+
+    @GetMapping("/admin/role-fix")
+    @PreAuthorize("hasRole('ADMIN')")
+    public String roleFix(@RequestParam("roleId") String roleId) {
+        List<DiscordUser> users = discordUserRepo.findByRolesContaining(roleId);
+        StringBuilder sb = new StringBuilder();
+        DiscordRoleMapping owner = discordRoleMappingRepo.findByTypeAndRoleId(DiscordRoleType.LEVEL, roleId);
+        for (DiscordUser u : users) {
+            if (!u.getId().equals(owner.getOwnerId())) {
+                DiscordRoleMapping mapping = discordRoleMappingRepo.findByOwnerIdAndTypeAndRoleId(u.getId(), DiscordRoleType.SHARE, roleId);
+                if (mapping == null) {
+                    sb.append("Added share to ").append(u.getNickname()).append("<br />");
+                    discordRoleMappingRepo.save(DiscordRoleMapping.builder()
+                            .guildId(toolsProperties.getDcDefaultGuildId())
+                            .roleId(roleId)
+                            .enabled(true)
+                            .code(RandomStringUtils.randomAlphanumeric(6))
+                            .type(DiscordRoleType.SHARE)
+                            .ownerId(u.getId())
+                            .approverId(null)
+                            .created(Instant.now())
+                            .build());
+                }
+            }
+        }
+        return sb.toString();
+    }
+
+
 
 
 }
