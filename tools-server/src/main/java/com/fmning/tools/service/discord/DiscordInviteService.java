@@ -82,7 +82,8 @@ public class DiscordInviteService {
                     .setAuthor(member.getEffectiveName() + " 请求Apex组队", null, member.getUser().getAvatarUrl())
                     .setTitle(processComment(apexDto.getComments()))
                     .setDescription(apexDto.getInviteUrl() == null ? apexDto.getInviteUrl() : "[:race_car: 点此上车 :race_car:](" + apexDto.getInviteUrl() + ")")
-                    .setFooter("绑定apex账号之后才能显示战绩。使用yf help查看如何绑定。")
+                    .setFooter("绑定apex账号之后才能显示战绩。使用yf help查看如何绑定。" + (apexDto.getInviteUrl() == null ?
+							"在妖风电竞的任何语音频道使用本命令就可以自动生成上车链接" : ""))
                     .build()).queue();
             return;
         }
@@ -127,6 +128,7 @@ public class DiscordInviteService {
                             .addField("Origin ID", discordUser.getApexId(), true)
                             .addField("段位", apexDto.getRankName(), true)
                             .addField("击杀", apexDto.getKills(), true)
+							.setFooter(apexDto.getInviteUrl() == null ? "在妖风电竞的任何语音频道使用本命令就可以自动生成上车链接" : "")
                             .build()).queue();
                 } catch (IOException e) {
                     onFailure(call, e);
@@ -141,6 +143,7 @@ public class DiscordInviteService {
                         .addField("Origin ID", discordUser.getApexId(), true)
                         .addField("段位", "无法读取", true)
                         .addField("击杀", "无法读取", true)
+						.setFooter(apexDto.getInviteUrl() == null ? "在妖风电竞的任何语音频道使用本命令就可以自动生成上车链接" : "")
                         .build()).queue();
             }
         });
@@ -163,6 +166,7 @@ public class DiscordInviteService {
                 .setTitle(processComment(comments))
                 .setDescription(inviteUrl == null ? inviteUrl : "[:race_car: 点此上车 :race_car:](" + inviteUrl + ")")
                 .setThumbnail("https://i.imgur.com/JCIxnvM.jpg")
+				.setFooter(inviteUrl == null ? "在妖风电竞的任何语音频道使用本命令就可以自动生成上车链接" : "")
                 .build()).queue();
     }
 

@@ -79,7 +79,7 @@ public class BeanConfig {
         return JDABuilder.createDefault(toolsProperties.getDcBotToken())
                 .enableIntents(GatewayIntent.GUILD_MEMBERS)
                 //.setChunkingFilter(ChunkingFilter.ALL) // enable member chunking for all guilds
-                .setMemberCachePolicy(MemberCachePolicy.ALL.and(MemberCachePolicy.ONLINE)) // ignored if chunking enabled
+//                .setMemberCachePolicy(MemberCachePolicy.ALL.and(MemberCachePolicy.ONLINE)) // ignored if chunking enabled
                 .addEventListeners(messageReceivedEventListener, memberJoinedEventListener, memberRemoveEventListener, memberUpdateEventListener, roleEventListener)
                 .build().awaitReady();
     }
