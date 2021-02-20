@@ -87,7 +87,7 @@ public class PostService {
 
     @Scheduled(cron = "0 0 14 * * ?")// Every 2 seconds 0/2 * * * * ?
     public void autoLoad() {
-        //if (toolsProperties.isProduction()) loadPosts();
+        if (toolsProperties.isProduction()) loadPosts();
     }
 
     @Scheduled(cron = "0 0 16 * * ?")

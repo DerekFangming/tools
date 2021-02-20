@@ -32,6 +32,11 @@ public class DiscordMiscService {
         add("有点东西");
         add("对面就这？就这？");
         add("美汁汁儿啊！");
+        add("woc牛逼！");
+        add("芜湖 起飞");
+        add("这么恐怖的吗 兄弟");
+        add("这就是大腿吗");
+        add("打得好啊");
     }};
 
     private Random random = new Random();
