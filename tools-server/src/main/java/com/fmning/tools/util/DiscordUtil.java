@@ -1,7 +1,11 @@
 package com.fmning.tools.util;
 
+import com.fmning.tools.domain.DiscordCategory;
+import com.fmning.tools.domain.DiscordChannel;
 import com.fmning.tools.domain.DiscordRole;
 import com.fmning.tools.domain.DiscordUser;
+import net.dv8tion.jda.api.entities.Category;
+import net.dv8tion.jda.api.entities.GuildChannel;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Role;
 
@@ -30,6 +34,29 @@ public class DiscordUtil {
                 .color(toHexString(role.getColor()))
                 .position(role.getPositionRaw())
                 .created(Instant.from(role.getTimeCreated()))
+                .build();
+    }
+
+    public static DiscordCategory fromCategory(Category category) {
+        return DiscordCategory.builder()
+                .id(category.getId())
+                .guildId(category.getGuild().getId())
+                .name(category.getName())
+                .position(category.getPositionRaw())
+                .created(Instant.from(category.getTimeCreated()))
+                .build();
+    }
+
+    public static DiscordChannel fromChannel(GuildChannel channel) {
+        Category category = channel.getParent();
+        return DiscordChannel.builder()
+                .id(channel.getId())
+                .guildId(channel.getGuild().getId())
+                .categoryId(category == null ? null : category.getId())
+                .name(channel.getName())
+                .type(channel.getType())
+                .position(channel.getPositionRaw())
+                .created(Instant.from(channel.getTimeCreated()))
                 .build();
     }
 

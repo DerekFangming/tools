@@ -38,23 +38,30 @@ public class DiscordInviteService {
         Call call = client.newCall(request);
         call.enqueue(new Callback() {
             public void onResponse(@NotNull Call call, @NotNull Response response) {
-                if (response.code() != 200) {
-                    onFailure(call, new IOException());
-                    return;
+                if (response.code() == 200) {
+                    DiscordUser discordUser = discordUserRepo.findById(member.getId()).orElse(fromMember(member));
+                    discordUser.setApexId(apexId);
+                    discordUserRepo.save(discordUser);
+
+                    channel.sendMessage("<@" + discordUser.getId() + "> 你已绑定Origin ID: **" + discordUser.getApexId() + "**").queue();
+                } else if (response.code() == 500) {
+                    DiscordUser discordUser = discordUserRepo.findById(member.getId()).orElse(fromMember(member));
+                    discordUser.setApexId(apexId);
+                    discordUserRepo.save(discordUser);
+
+                    channel.sendMessage("<@" + discordUser.getId() + "> 你已绑定Origin ID: **" + discordUser.getApexId() +
+                            "**。但是apex tracker发生了系统问题，暂时无法读取你的战绩。你现在可以正常使用组队命令，但是只有待apex tracker解决他们的问题之后，你的组队命令才能显示战绩。").queue();
+                } else {
+                    channel.sendMessage("<@" + member.getId() + "> 你绑定的Origin ID **" + apexId +
+                            "** 不存在，请重新绑定。我们的数据来自apex tracker。 你可以尝试在 https://apex.tracker.gg 上搜索你的ID。" +
+                            "你的Origin ID是加好友时输入的ID。如果还是无法找到你的ID，可以给apex tracker提交表格来让他们找到你的账号。" +
+                            "https://thetrackernetwork.com/contact?site=apex.tracker.gg&reason=support").queue();
                 }
-
-                DiscordUser discordUser = discordUserRepo.findById(member.getId()).orElse(fromMember(member));
-                discordUser.setApexId(apexId);
-                discordUserRepo.save(discordUser);
-
-                channel.sendMessage("<@" + discordUser.getId() + "> 你已绑定Origin ID: **" + discordUser.getApexId() + "**").queue();
             }
 
             public void onFailure(@NotNull Call call, @NotNull IOException e) {
-                channel.sendMessage("<@" + member.getId() + "> 你绑定的Origin ID **" + apexId +
-                        "** 不存在，请重新绑定。我们的数据来自apex tracker。 你可以尝试在 https://apex.tracker.gg 上搜索你的ID。" +
-                        "你的Origin ID是加好友时输入的ID。如果还是无法找到你的ID，可以给apex tracker提交表格来让他们找到你的账号。" +
-                        "https://thetrackernetwork.com/contact?site=apex.tracker.gg&reason=support").queue();
+                channel.sendMessage("<@" + member.getId() + "> 系统错误，请联系管理员。").queue();
+                e.printStackTrace();
             }
         });
     }
@@ -83,7 +90,7 @@ public class DiscordInviteService {
                     .setTitle(processComment(apexDto.getComments()))
                     .setDescription(apexDto.getInviteUrl() == null ? apexDto.getInviteUrl() : "[:race_car: 点此上车 :race_car:](" + apexDto.getInviteUrl() + ")")
                     .setFooter("绑定apex账号之后才能显示战绩。使用yf help查看如何绑定。" + (apexDto.getInviteUrl() == null ?
-							"在妖风电竞的任何语音频道使用本命令就可以自动生成上车链接" : ""))
+							"在妖风电竞的任何语音频道使用本命令就可以自动生成上车链接。" : ""))
                     .build()).queue();
             return;
         }
@@ -96,55 +103,65 @@ public class DiscordInviteService {
         Call call = client.newCall(request);
         call.enqueue(new Callback() {
             public void onResponse(@NotNull Call call, @NotNull Response response) {
-                if (response.code() != 200) {
-                    onFailure(call, new IOException());
-                    return;
-                }
-                try {
-                    JSONObject json = new JSONObject(Objects.requireNonNull(response.body()).string());
+                if (response.code() == 200) {
+                    try {
+                        JSONObject json = new JSONObject(Objects.requireNonNull(response.body()).string());
 
-                    JSONArray segments = json.getJSONObject("data").getJSONArray("segments");
-                    for (int i = 0; i < segments.length(); i++) {
-                        JSONObject segment = segments.getJSONObject(i);
-                        if (segment.getString("type").equals("overview")) {
-                            JSONObject stats = segment.getJSONObject("stats");
-                            if (stats.has("kills")) {
-                                apexDto.setKills(stats.getJSONObject("kills").getString("displayValue"));
-                            } else {
-                                apexDto.setKills("无法读取");
+                        JSONArray segments = json.getJSONObject("data").getJSONArray("segments");
+                        for (int i = 0; i < segments.length(); i++) {
+                            JSONObject segment = segments.getJSONObject(i);
+                            if (segment.getString("type").equals("overview")) {
+                                JSONObject stats = segment.getJSONObject("stats");
+                                if (stats.has("kills")) {
+                                    apexDto.setKills(stats.getJSONObject("kills").getString("displayValue"));
+                                } else {
+                                    apexDto.setKills("无法读取");
+                                }
+
+                                JSONObject rankScore = stats.getJSONObject("rankScore");
+                                apexDto.setRankName(rankScore.getJSONObject("metadata").getString("rankName"));
+                                apexDto.setRankAvatar(rankScore.getJSONObject("metadata").getString("iconUrl"));
+                                break;
                             }
-
-                            JSONObject rankScore = stats.getJSONObject("rankScore");
-                            apexDto.setRankName(rankScore.getJSONObject("metadata").getString("rankName"));
-                            apexDto.setRankAvatar(rankScore.getJSONObject("metadata").getString("iconUrl"));
-                            break;
                         }
+                        channel.sendMessage(new EmbedBuilder()
+                                .setAuthor(member.getEffectiveName() + " 请求Apex组队", null, member.getUser().getAvatarUrl())
+                                .setThumbnail(apexDto.getRankAvatar())
+                                .setTitle(processComment(apexDto.getComments()))
+                                .setDescription(apexDto.getInviteUrl() == null ? apexDto.getInviteUrl() : "[:race_car: 点此上车 :race_car:](" + apexDto.getInviteUrl() + ")")
+                                .addField("Origin ID", discordUser.getApexId(), true)
+                                .addField("段位", apexDto.getRankName(), true)
+                                .addField("击杀", apexDto.getKills(), true)
+                                .setFooter(apexDto.getInviteUrl() == null ? "在妖风电竞的任何语音频道使用本命令就可以自动生成上车链接。" : "")
+                                .build()).queue();
+                    } catch (IOException e) {
+                        onFailure(call, e);
                     }
+                } else if (response.code() == 500) {
                     channel.sendMessage(new EmbedBuilder()
                             .setAuthor(member.getEffectiveName() + " 请求Apex组队", null, member.getUser().getAvatarUrl())
-                            .setThumbnail(apexDto.getRankAvatar())
                             .setTitle(processComment(apexDto.getComments()))
                             .setDescription(apexDto.getInviteUrl() == null ? apexDto.getInviteUrl() : "[:race_car: 点此上车 :race_car:](" + apexDto.getInviteUrl() + ")")
-                            .addField("Origin ID", discordUser.getApexId(), true)
-                            .addField("段位", apexDto.getRankName(), true)
-                            .addField("击杀", apexDto.getKills(), true)
-							.setFooter(apexDto.getInviteUrl() == null ? "在妖风电竞的任何语音频道使用本命令就可以自动生成上车链接" : "")
+                            .addField("Origin ID", discordUser.getApexId(), false)
+                            .addField("Apex tracker出错", "Apex tracker发生了系统问题，暂时无法读取你的战绩。待apex tracker解决他们的问题之后，你的组队命令才能显示战绩。", false)
+                            .setFooter(apexDto.getInviteUrl() == null ? "在妖风电竞的任何语音频道使用本命令就可以自动生成上车链接。" : "")
                             .build()).queue();
-                } catch (IOException e) {
-                    onFailure(call, e);
+                } else {
+                    channel.sendMessage(new EmbedBuilder()
+                            .setAuthor(member.getEffectiveName() + " 请求Apex组队", null, member.getUser().getAvatarUrl())
+                            .setTitle(processComment(apexDto.getComments()))
+                            .setDescription(apexDto.getInviteUrl() == null ? apexDto.getInviteUrl() : "[:race_car: 点此上车 :race_car:](" + apexDto.getInviteUrl() + ")")
+                            .addField("Origin ID", discordUser.getApexId(), false)
+                            .addField("无法找到Origin账号", "Apex tracker无法搜索到你的Origin ID。如果你修改了Origin ID，请重新绑定。", false)
+                            .setFooter(apexDto.getInviteUrl() == null ? "在妖风电竞的任何语音频道使用本命令就可以自动生成上车链接。" : "")
+                            .build()).queue();
                 }
+
             }
 
             public void onFailure(@NotNull Call call, @NotNull IOException e) {
-                channel.sendMessage(new EmbedBuilder()
-                        .setAuthor(member.getEffectiveName() + " 请求Apex组队", null, member.getUser().getAvatarUrl())
-                        .setTitle(processComment(apexDto.getComments()))
-                        .setDescription(apexDto.getInviteUrl() == null ? apexDto.getInviteUrl() : "[:race_car: 点此上车 :race_car:](" + apexDto.getInviteUrl() + ")")
-                        .addField("Origin ID", discordUser.getApexId(), true)
-                        .addField("段位", "无法读取", true)
-                        .addField("击杀", "无法读取", true)
-						.setFooter(apexDto.getInviteUrl() == null ? "在妖风电竞的任何语音频道使用本命令就可以自动生成上车链接" : "")
-                        .build()).queue();
+                channel.sendMessage("<@" + member.getId() + "> 系统错误，请联系管理员。").queue();
+                e.printStackTrace();
             }
         });
     }
@@ -166,7 +183,7 @@ public class DiscordInviteService {
                 .setTitle(processComment(comments))
                 .setDescription(inviteUrl == null ? inviteUrl : "[:race_car: 点此上车 :race_car:](" + inviteUrl + ")")
                 .setThumbnail("https://i.imgur.com/JCIxnvM.jpg")
-				.setFooter(inviteUrl == null ? "在妖风电竞的任何语音频道使用本命令就可以自动生成上车链接" : "")
+				.setFooter(inviteUrl == null ? "在妖风电竞的任何语音频道使用本命令就可以自动生成上车链接。" : "")
                 .build()).queue();
     }
 
