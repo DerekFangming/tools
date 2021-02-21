@@ -1,9 +1,7 @@
 package com.fmning.tools.controller;
 
 import com.fmning.tools.domain.*;
-import com.fmning.tools.dto.DiscordAdminDto;
 import com.fmning.tools.dto.DiscordRoleDto;
-import com.fmning.tools.dto.DiscordRolePositionDto;
 import com.fmning.tools.repository.*;
 import com.fmning.tools.ToolsProperties;
 import com.fmning.tools.dto.DiscordObjectDto;
@@ -12,7 +10,6 @@ import com.fmning.tools.type.DiscordRoleType;
 import com.fmning.tools.type.DiscordUserLogActionType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.apachecommons.CommonsLog;
-import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -23,8 +20,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import javax.persistence.criteria.Join;
-import javax.persistence.criteria.JoinType;
 import javax.persistence.criteria.Predicate;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -46,7 +41,6 @@ public class DiscordController {
     private final DiscordGuildRepo discordGuildRepo;
     private final DiscordUserRepo discordUserRepo;
     private final DiscordRoleRepo discordRoleRepo;
-    private final DiscordRoleMappingRepo discordRoleMappingRepo;
     private final DiscordUserLogRepo discordUserLogRepo;
 
     @GetMapping("/{guildId}/channels")
@@ -208,121 +202,5 @@ public class DiscordController {
             throw new IllegalArgumentException("Id is required for configuration update.");
         }
     }
-
-    @GetMapping("/admin/birthday")
-    @PreAuthorize("hasRole('ADMIN')")
-    public void runBirthday() {
-        discordService.announceBirthDay();
-    }
-
-    @GetMapping("/admin/sync")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<List<DiscordRoleDto>> sync() {
-//        discordService.seedRoles(toolsProperties.getDcDefaultGuildId());
-//        discordService.seedMembers(toolsProperties.getDcDefaultGuildId());
-
-//        DiscordRole a;
-//        DiscordRoleDto d = new DiscordRoleDto(a.Id, a.);
-
-        Page<DiscordRoleDto> roles = discordRoleRepo.findAll(PageRequest.of(0, 15, Sort.by(Sort.Direction.DESC, "position")));
-        System.out.println(1);
-        return ResponseEntity.ok(roles.getContent());
-    }
-
-    @PostMapping("/admin/add-role")
-    @PreAuthorize("hasRole('ADMIN')")
-    public void addRole(@RequestBody DiscordAdminDto discordAdminDto) {
-        discordService.addRole(discordAdminDto.getMemberId(), discordAdminDto.getRoleId());
-    }
-
-    @PostMapping("/admin/remove-role")
-    @PreAuthorize("hasRole('ADMIN')")
-    public void removeRole(@RequestBody DiscordAdminDto discordAdminDto) {
-        discordService.removeRole(discordAdminDto.getMemberId(), discordAdminDto.getRoleId());
-    }
-
-    @PostMapping("/admin/move-role")
-    @PreAuthorize("hasRole('ADMIN')")
-    public void moveRole(@RequestBody DiscordAdminDto discordAdminDto) {
-        discordService.moveRole(discordAdminDto.getMemberId(), discordAdminDto.getPosition());
-    }
-
-    @GetMapping("/admin/role-position")
-    @PreAuthorize("hasRole('ADMIN')")
-    public String position() {
-        StringBuilder sb = new StringBuilder();
-        List<DiscordRolePositionDto> positionDtos = discordRoleMappingRepo.findAllBoostRoleByPosition();
-        for (DiscordRolePositionDto p : positionDtos) {
-            DiscordRole role = discordRoleRepo.findById(p.getRoleId()).orElse(null);
-            if (role != null) {
-                sb.append(role.getPosition()).append(" = ").append(role.getName()).append(" = ").append(p.getRoleId())
-                        .append(" = ").append(p.getOwnerName()).append(" = ").append(p.getOwnerBoostTime()).append("<br />");
-            } else {
-                sb.append("FAILED").append(" = ").append(p.getOwnerName()).append("<br />");
-            }
-        }
-
-        return sb.toString();
-
-//        return RandomStringUtils.randomAlphanumeric(6);
-    }
-
-    @GetMapping("/admin/role-fix-preview")
-    @PreAuthorize("hasRole('ADMIN')")
-    public String rolePreview(@RequestParam("roleId") String roleId) {
-        List<DiscordUser> users = discordUserRepo.findByRolesContaining(roleId);
-
-        StringBuilder existedSb = new StringBuilder();
-        StringBuilder missingSb = new StringBuilder();
-        DiscordRoleMapping owner = discordRoleMappingRepo.findByTypeAndRoleId(DiscordRoleType.LEVEL, roleId);
-        for (DiscordUser u : users) {
-            if (!u.getId().equals(owner.getOwnerId())) {
-                DiscordRoleMapping mapping = discordRoleMappingRepo.findByOwnerIdAndTypeAndRoleId(u.getId(), DiscordRoleType.SHARE, roleId);
-                if (mapping == null) {
-                    missingSb.append("Missing share to ").append(u.getNickname()).append("<br />");
-                } else {
-                    existedSb.append("Already have share to ").append(u.getNickname()).append("<br />");
-                }
-            }
-        }
-
-        return "Already existed mappings: <br /><br />" + existedSb.toString() + "<br /><br />" + "Missing mappings:<br />" + missingSb.toString();
-    }
-
-    @GetMapping("/admin/role-fix")
-    @PreAuthorize("hasRole('ADMIN')")
-    public String roleFix(@RequestParam("roleId") String roleId) {
-        List<DiscordUser> users = discordUserRepo.findByRolesContaining(roleId);
-        StringBuilder sb = new StringBuilder();
-        DiscordRoleMapping owner = discordRoleMappingRepo.findByTypeAndRoleId(DiscordRoleType.LEVEL, roleId);
-        for (DiscordUser u : users) {
-            if (!u.getId().equals(owner.getOwnerId())) {
-                DiscordRoleMapping mapping = discordRoleMappingRepo.findByOwnerIdAndTypeAndRoleId(u.getId(), DiscordRoleType.SHARE, roleId);
-                if (mapping == null) {
-                    sb.append("Added share to ").append(u.getNickname()).append("<br />");
-                    discordRoleMappingRepo.save(DiscordRoleMapping.builder()
-                            .guildId(toolsProperties.getDcDefaultGuildId())
-                            .roleId(roleId)
-                            .enabled(true)
-                            .code(RandomStringUtils.randomAlphanumeric(6))
-                            .type(DiscordRoleType.SHARE)
-                            .ownerId(u.getId())
-                            .approverId(null)
-                            .created(Instant.now())
-                            .build());
-                }
-            }
-        }
-        return sb.toString();
-    }
-
-    @GetMapping("/admin/test")
-    @PreAuthorize("hasRole('ADMIN')")
-    public void roleFix() {
-        discordRoleMappingRepo.deleteByCreated(Instant.now());
-    }
-
-
-
 
 }

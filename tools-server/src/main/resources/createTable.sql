@@ -104,6 +104,25 @@ create table tl_discord_roles (
 	created timestamp without time zone
 );
 
+create table tl_discord_categories (
+	id text primary key,
+	guild_id text,
+	name text,
+	position integer,
+	created timestamp without time zone
+);
+
+create table tl_discord_channels (
+	id text primary key,
+	guild_id text,
+	category_id text,
+	name text,
+	type text,
+	position integer,
+	owner_id text,
+	created timestamp without time zone
+);
+
 create table tl_discord_user_logs (
     id serial primary key,
 	guild_id text,

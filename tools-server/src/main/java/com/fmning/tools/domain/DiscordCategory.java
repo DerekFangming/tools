@@ -1,6 +1,5 @@
 package com.fmning.tools.domain;
 
-import com.fmning.tools.type.DiscordRoleType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -11,13 +10,13 @@ import javax.persistence.*;
 import java.time.Instant;
 
 @Entity
-@Table(name="tl_discord_roles")
+@Table(name="tl_discord_categories")
 @DynamicUpdate
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class DiscordRole {
+public class DiscordCategory {
     @Id
     @Column(name="id")
     private String id;
@@ -27,9 +26,6 @@ public class DiscordRole {
 
     @Column(name="name")
     private String name;
-
-    @Column(name="color")
-    private String color;
 
     @Column(name="position")
     private int position;

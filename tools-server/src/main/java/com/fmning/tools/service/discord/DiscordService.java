@@ -3,6 +3,8 @@ package com.fmning.tools.service.discord;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fmning.tools.ToolsProperties;
+import com.fmning.tools.domain.DiscordCategory;
+import com.fmning.tools.domain.DiscordChannel;
 import com.fmning.tools.domain.DiscordRole;
 import com.fmning.tools.domain.DiscordUser;
 import com.fmning.tools.dto.DiscordObjectDto;
@@ -37,6 +39,8 @@ public class DiscordService extends BaseEventListener {
     private final ToolsProperties toolsProperties;
     private final ObjectMapper objectMapper;
     private final DiscordRoleRepo discordRoleRepo;
+    private final DiscordCategoryRepo discordCategoryRepo;
+    private final DiscordChannelRepo discordChannelRepo;
 
     @Scheduled(cron = "0 0 4 * * *")
     public void announceBirthDay() {
@@ -123,6 +127,40 @@ public class DiscordService extends BaseEventListener {
                             .position(r.getPositionRaw())
                             .created(Instant.from(r.getTimeCreated())).build());
                 }
+            });
+        }
+    }
+
+    public void seedChannels(String guildId) {
+        Guild guild = jda.getGuildById(guildId);
+        if (guild != null) {
+            guild.getCategories().forEach(cat -> {
+                DiscordCategory discordCategory = discordCategoryRepo.findById(cat.getId()).orElse(null);
+                if (discordCategory == null) {
+                    discordCategoryRepo.save(DiscordCategory.builder()
+                            .id(cat.getId())
+                            .guildId(guildId)
+                            .name(cat.getName())
+                            .position(cat.getPositionRaw())
+                            .created(Instant.from(cat.getTimeCreated()))
+                            .build());
+                }
+
+                cat.getChannels().forEach(channel -> {
+                    DiscordChannel discordChannel = discordChannelRepo.findById(channel.getId()).orElse(null);
+                    if (discordChannel == null) {
+                        discordChannelRepo.save(DiscordChannel.builder()
+                                .id(channel.getId())
+                                .guildId(guildId)
+                                .categoryId(cat.getId())
+                                .name(channel.getName())
+                                .type(channel.getType())
+                                .position(channel.getPositionRaw())
+                                .created(Instant.from(channel.getTimeCreated()))
+                                .build());
+                    }
+
+                });
             });
         }
     }
