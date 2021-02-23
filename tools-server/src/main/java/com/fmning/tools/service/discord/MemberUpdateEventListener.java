@@ -13,10 +13,7 @@ import com.fmning.tools.repository.DiscordUserRepo;
 import com.fmning.tools.type.DiscordRoleType;
 import com.fmning.tools.type.DiscordUserLogActionType;
 import lombok.RequiredArgsConstructor;
-import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.Role;
-import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberUpdateEvent;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -70,7 +67,14 @@ public class MemberUpdateEventListener extends BaseEventListener {
                         role.delete().queue();
                     }
                 }
-                //TODO delete room
+
+                if (discordUser.getBoostChannelId() != null) {
+                    Guild guild = member.getGuild();
+                    VoiceChannel vc = guild.getVoiceChannelById(discordUser.getBoostChannelId());
+                    if (vc != null) {
+                        vc.delete().queue();
+                    }
+                }
 
             } else if (discordUser.getBoostedDate() != null && member.getTimeBoosted() != null) {
                 Instant boostedTime = Instant.from(member.getTimeBoosted());

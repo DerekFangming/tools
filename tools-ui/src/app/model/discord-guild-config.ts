@@ -19,4 +19,5 @@ export class DiscordGuildConfig {
   roleBoostRankRoleId: string;
   channelEnabled: boolean;
   channelBoostCatId: string;
+  channelTempCatId: string;
 }

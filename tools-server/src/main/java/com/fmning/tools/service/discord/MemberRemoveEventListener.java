@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.entities.VoiceChannel;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberRemoveEvent;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,7 +56,21 @@ public class MemberRemoveEventListener extends BaseEventListener {
                 discordRoleMappingRepo.delete(rm);
             });
 
-            // TODO: delete roome
+            // Delete channels
+            if (discordUser != null) {
+                if (discordUser.getBoostChannelId() != null) {
+                    VoiceChannel vc = guild.getVoiceChannelById(discordUser.getBoostChannelId());
+                    if (vc != null) {
+                        vc.delete().queue();
+                    }
+                }
+                if (discordUser.getTempChannelId() != null) {
+                    VoiceChannel vc = guild.getVoiceChannelById(discordUser.getTempChannelId());
+                    if (vc != null) {
+                        vc.delete().queue();
+                    }
+                }
+            }
 
             // Delete user
             if (discordUser != null) {

@@ -161,6 +161,38 @@
         <div class="card-header">
           <div class="row">
             <div class="col-9">
+              <h5 class="header-text pt-2">Channels</h5>
+            </div>
+            <div class="col-3">
+              <label class="switch pull-right">
+                <input type="checkbox" [(ngModel)]="guildConfig.channelEnabled">
+                <span class="slider round"></span>
+              </label>
+            </div>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="form-row">
+            <div class="form-group col-md-6 mt-2">
+              <label>Temporary channel location</label>
+              <p>{{ guildConfig.channelTempCatId }}</p>
+            </div>
+            <div class="form-group col-md-6 mt-2">
+              <label>Boost channel location</label>
+              <p>{{ guildConfig.channelBoostCatId }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row mb-5">
+    <div class="col mt-4">
+      <div class="card">
+        <div class="card-header">
+          <div class="row">
+            <div class="col-9">
               <h5 class="header-text pt-2">Birthday blessing</h5>
             </div>
             <div class="col-3">

@@ -11,10 +11,7 @@ import com.fmning.tools.dto.DiscordObjectDto;
 import com.fmning.tools.repository.*;
 import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.JDA;
-import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.MessageChannel;
-import net.dv8tion.jda.api.entities.Role;
+import net.dv8tion.jda.api.entities.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -81,6 +78,24 @@ public class DiscordService extends BaseEventListener {
     @Scheduled(cron = "0 0 18 * * *")
     public void cleanUpRoleRequests() {
         discordRoleMappingRepo.deleteByCreated(Instant.now().minus(1, ChronoUnit.DAYS));
+    }
+
+    @Scheduled(cron= "0 0/30 * * * ?")
+    public void cleanupTempChannel() {
+        Guild guild = jda.getGuildById(toolsProperties.getDcDefaultGuildId());
+        if (guild != null) {
+            discordUserRepo.findByTempChannelIdNotNull().forEach(u -> {
+                VoiceChannel vc = guild.getVoiceChannelById(u.getTempChannelId());
+                if (vc == null) {
+                    u.setTempChannelId(null);
+                    discordUserRepo.save(u);
+                } else if (vc.getMembers().size() == 0){
+                    vc.delete().complete();
+                    u.setTempChannelId(null);
+                    discordUserRepo.save(u);
+                }
+            });
+        }
     }
 
     public List<DiscordObjectDto> getTextChannels(String guildId) {

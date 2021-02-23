@@ -1,5 +1,6 @@
 package com.fmning.tools.repository;
 
+import com.fmning.tools.domain.DiscordChannel;
 import com.fmning.tools.domain.DiscordUser;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -17,6 +18,9 @@ public interface DiscordUserRepo extends CrudRepository<DiscordUser, String> {
     Page<DiscordUser> findAll(Specification<DiscordUser> spec, Pageable pageable);
 
     List<DiscordUser> findByRolesContaining(String role);
+
+
+    List<DiscordUser> findByTempChannelIdNotNull();
 
     default String getNicknameById(String id) {
         DiscordUser user = findById(id).orElse(null);
