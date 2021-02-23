@@ -55,6 +55,7 @@ public class MemberRemoveEventListener extends BaseEventListener {
                 discordRoleMappingRepo.delete(rm);
             });
 
+            // TODO: delete roome
 
             // Delete user
             if (discordUser != null) {

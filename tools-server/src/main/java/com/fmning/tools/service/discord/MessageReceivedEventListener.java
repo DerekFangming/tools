@@ -115,12 +115,18 @@ public class MessageReceivedEventListener extends BaseEventListener {
                     invalidCommand(channel, member, content);
                 }
             } else if (command.equals(1, "channel", "c")) {
-                if (!toolsProperties.isProduction()) {
-                    if (command.length() == 3 && command.equals(2, "delete", "d")) {
-                        discordChannelService.deleteChannel(channel, member);
-                    } else if (command.length() == 3) {
-                        discordChannelService.createChannel(channel, member, command.get(2));
-                    }
+                if (command.length() == 2) {
+                    discordChannelService.getChannelStatus(channel, member);
+                } else if (command.length() == 3 && command.equals(2, "delete", "d")) {
+                    discordChannelService.deleteChannel(channel, member, false);
+                } else if (command.length() == 3) {
+                    discordChannelService.createChannel(channel, member, command.get(2), false);
+                } else if (command.length() == 4 && command.equals(2, "boost", "b") && command.equals(3, "delete", "d")) {
+                    discordChannelService.deleteChannel(channel, member, true);
+                } else if (command.length() == 4 && command.equals(2, "boost", "b")) {
+                    discordChannelService.createChannel(channel, member, command.get(3), true);
+                } else {
+                    invalidCommand(channel, member, content);
                 }
             } else if (command.equals(1, "ping", null)) {
                 channel.sendMessage("Bot operational. Latency " + event.getJDA().getGatewayPing() + " ms").queue();

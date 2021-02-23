@@ -49,7 +49,7 @@ public class MemberUpdateEventListener extends BaseEventListener {
                             .joinedDate(Instant.from(member.getTimeJoined()))
                             .build());
 
-            // Capture unboost situation
+            // Capture un boost situation
             if (discordUser.getBoostedDate() != null && member.getTimeBoosted() == null) {
                 discordUserLogRepo.save(DiscordUserLog.builder()
                         .guildId(discordUser.getGuildId())
@@ -70,6 +70,7 @@ public class MemberUpdateEventListener extends BaseEventListener {
                         role.delete().queue();
                     }
                 }
+                //TODO delete room
 
             } else if (discordUser.getBoostedDate() != null && member.getTimeBoosted() != null) {
                 Instant boostedTime = Instant.from(member.getTimeBoosted());

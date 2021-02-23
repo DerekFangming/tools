@@ -17,4 +17,6 @@ export class DiscordGuildConfig {
   roleColorBlacklist: string;
   roleLevelRankRoleId: string;
   roleBoostRankRoleId: string;
+  channelEnabled: boolean;
+  channelBoostCatId: string;
 }

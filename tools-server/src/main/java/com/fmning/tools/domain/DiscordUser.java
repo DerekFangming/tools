@@ -54,4 +54,10 @@ public class DiscordUser {
 
     @Column(name="birthday")
     private String birthday;
+
+    @Column(name="boost_channel_id")
+    private String boostChannelId;
+
+    @Column(name="temp_channel_id")
+    private String tempChannelId;
 }

@@ -107,6 +107,7 @@ public class ChannelEventListener extends BaseEventListener {
 
     private void deleteChannel(GuildChannel channel) {
         discordChannelRepo.findById(channel.getId()).ifPresent(discordChannelRepo::delete);
+        // TODO delete MAPPING
     }
 
     private void updateChannel(GuildChannel channel) {

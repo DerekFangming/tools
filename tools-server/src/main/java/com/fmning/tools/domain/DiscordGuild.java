@@ -80,4 +80,14 @@ public class DiscordGuild {
 
     @Column(name="role_boost_rank_role_id")
     private String roleBoostRankRoleId;
+
+    @Column(name="channel_enabled")
+    private boolean channelEnabled;
+
+    @Column(name="channel_boost_cat_id")
+    private String channelBoostCatId;
+
+    @Column(name="channel_temp_cat_id")
+    private String channelTempCatId;
+
 }

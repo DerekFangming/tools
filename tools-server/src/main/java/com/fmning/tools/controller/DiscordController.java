@@ -42,10 +42,12 @@ public class DiscordController {
     private final DiscordUserRepo discordUserRepo;
     private final DiscordRoleRepo discordRoleRepo;
     private final DiscordUserLogRepo discordUserLogRepo;
+    private final DiscordCategoryRepo discordCategoryRepo;
+    private final DiscordChannelRepo discordChannelRepo;
 
-    @GetMapping("/{guildId}/channels")
+    @GetMapping("/{guildId}/text-channels")
     @PreAuthorize("hasRole('DC')")
-    public List<DiscordObjectDto> getChannels(@PathVariable("guildId") String guildId) {
+    public List<DiscordObjectDto> getTextChannels(@PathVariable("guildId") String guildId) {
         if ("default".equalsIgnoreCase(guildId)) {
             return discordService.getTextChannels(toolsProperties.getDcDefaultGuildId());
         } else {
@@ -136,6 +138,19 @@ public class DiscordController {
                     if (user != null) return r.withOwnerName(user.getNickname());
                     return r;
                 }).collect(Collectors.toList()));
+    }
+
+    @GetMapping("/{guildId}/channels")
+    @PreAuthorize("hasRole('DC')")
+    public  ResponseEntity<List<DiscordCategory>> getChannels(@PathVariable("guildId") String guildId) {
+        if (!"default".equalsIgnoreCase(guildId)) return ResponseEntity.ok(Collections.emptyList());
+
+        List<DiscordCategory> categories = discordCategoryRepo.findAll();
+        categories.forEach(c -> {
+            c.setChannels(discordChannelRepo.findByCategoryId(c.getId()));
+        });
+
+        return ResponseEntity.ok(categories);
     }
 
     @GetMapping("/{guildId}/config")

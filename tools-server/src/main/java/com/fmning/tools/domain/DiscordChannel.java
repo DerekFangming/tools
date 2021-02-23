@@ -38,9 +38,6 @@ public class DiscordChannel {
     @Column(name="position")
     private int position;
 
-    @Column(name="owner_id")
-    private String ownerId;
-
     @Column(name="created")
     private Instant created;
 }

@@ -64,7 +64,7 @@ export class DiscordConfigComponent implements OnInit {
       console.log(error.error);
     });
 
-    this.http.get<DiscordObject[]>(environment.urlPrefix + 'api/discord/default/channels').subscribe(guildChannelList => {
+    this.http.get<DiscordObject[]>(environment.urlPrefix + 'api/discord/default/text-channels').subscribe(guildChannelList => {
       this.guildChannelList = guildChannelList;
       this.processSelectedDropdowns();
       this.loadingChannels = false;

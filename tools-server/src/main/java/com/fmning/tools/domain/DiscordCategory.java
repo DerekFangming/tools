@@ -8,6 +8,7 @@ import org.hibernate.annotations.DynamicUpdate;
 
 import javax.persistence.*;
 import java.time.Instant;
+import java.util.List;
 
 @Entity
 @Table(name="tl_discord_categories")
@@ -32,4 +33,7 @@ public class DiscordCategory {
 
     @Column(name="created")
     private Instant created;
+
+    @Transient
+    private List<DiscordChannel> channels;
 }
