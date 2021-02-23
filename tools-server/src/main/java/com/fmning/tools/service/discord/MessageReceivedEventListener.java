@@ -57,7 +57,15 @@ public class MessageReceivedEventListener extends BaseEventListener {
             if (member == null || member.getUser().isBot()) return;
 
             if (command.length() == 1 || command.equals(1, "help", "h")) {
-                discordMiscService.health(channel);
+                if (command.equals(2, "invite", "i")) {
+                    discordMiscService.helpInvite(channel);
+                } else if (command.equals(2, "tag", "t")) {
+                    discordMiscService.helpTag(channel);
+                } else if (command.equals(2, "channel", "c")) {
+                    discordMiscService.helpChannel(channel);
+                } else {
+                    discordMiscService.help(channel);
+                }
             } else if (command.equals(1, "apex", "a")) {
                 if (command.length() > 3 && command.equals(2, "link", "l")) {
                     discordInviteService.linkAccount(channel, member, command.from(3));
