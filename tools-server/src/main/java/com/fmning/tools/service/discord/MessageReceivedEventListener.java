@@ -127,12 +127,12 @@ public class MessageReceivedEventListener extends BaseEventListener {
                     discordChannelService.getChannelStatus(channel, member);
                 } else if (command.length() == 3 && command.equals(2, "delete", "d")) {
                     discordChannelService.deleteChannel(channel, member, false);
-                } else if (command.length() == 3) {
-                    discordChannelService.createChannel(channel, member, command.get(2), false);
                 } else if (command.length() == 4 && command.equals(2, "boost", "b") && command.equals(3, "delete", "d")) {
                     discordChannelService.deleteChannel(channel, member, true);
-                } else if (command.length() == 4 && command.equals(2, "boost", "b")) {
-                    discordChannelService.createChannel(channel, member, command.get(3), true);
+                } else if (command.length() >= 4 && command.equals(2, "boost", "b")) {
+                    discordChannelService.createChannel(channel, member, command.from(3), true);
+                } else if (command.length() >= 3) {
+                    discordChannelService.createChannel(channel, member, command.from(2), false);
                 } else {
                     invalidCommand(channel, member, content);
                 }

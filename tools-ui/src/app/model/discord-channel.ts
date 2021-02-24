@@ -4,6 +4,7 @@ export class DiscordChannel {
   categoryId: string;
   type: string;
   position: number;
+  ownerName: string;
 
   public constructor(init?:Partial<DiscordChannel>) {
     Object.assign(this, init);

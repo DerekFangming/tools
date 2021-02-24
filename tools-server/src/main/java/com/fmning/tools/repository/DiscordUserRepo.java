@@ -19,6 +19,7 @@ public interface DiscordUserRepo extends CrudRepository<DiscordUser, String> {
 
     List<DiscordUser> findByRolesContaining(String role);
 
+    DiscordUser findByBoostChannelIdOrTempChannelId(String boostChannelId, String tempChannelId);
 
     List<DiscordUser> findByTempChannelIdNotNull();
 

@@ -10,6 +10,7 @@ import com.fmning.tools.type.DiscordRoleType;
 import com.fmning.tools.type.DiscordUserLogActionType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.apachecommons.CommonsLog;
+import net.dv8tion.jda.api.entities.ChannelType;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -149,10 +150,34 @@ public class DiscordController {
 
     @GetMapping("/{guildId}/channels")
     @PreAuthorize("hasRole('DC')")
-    public  ResponseEntity<List<DiscordChannel>> getChannels(@PathVariable("guildId") String guildId) {
+    public  ResponseEntity<List<DiscordChannel>> getChannels(@PathVariable("guildId") String guildId, @RequestParam(value = "limit", defaultValue = "15") int limit,
+    @RequestParam(value = "offset", defaultValue = "0") int offset, @RequestParam(value = "keyword", required = false) String keyword,
+                                 @RequestParam(value = "type", required = false) ChannelType type) {
         if (!"default".equalsIgnoreCase(guildId)) return ResponseEntity.ok(Collections.emptyList());
 
-        return ResponseEntity.ok(discordChannelRepo.findAll());
+        Specification<DiscordChannel> spec = (Specification<DiscordChannel>) (root, query, criteriaBuilder) -> {
+            List<Predicate> predicates = new ArrayList<>();
+            if (keyword != null) predicates.add(criteriaBuilder.like(criteriaBuilder.upper(root.get("name")), "%" + keyword.trim().toUpperCase() + "%"));
+            if (type != null) predicates.add(criteriaBuilder.equal(root.get("type"), type));
+
+            return predicates.size() == 0 ? criteriaBuilder.and(predicates.toArray(new Predicate[0])) : criteriaBuilder.or(predicates.toArray(new Predicate[0]));
+        };
+
+        Page<DiscordChannel> page = discordChannelRepo.findAll(spec, PageRequest.of(offset/limit, limit, Sort.by(Sort.Direction.ASC, "created")));
+        long total = page.getTotalElements();
+        List<DiscordChannel> result = page.getContent().stream().map(c -> {
+            if (c.getType() == ChannelType.VOICE) {
+                DiscordUser owner = discordUserRepo.findByBoostChannelIdOrTempChannelId(c.getId(), c.getId());
+                if (owner != null) {
+                    return c.withOwnerName(owner.getNickname());
+                }
+            }
+            return c;
+        }).collect(Collectors.toList());
+
+        return ResponseEntity.ok()
+                .header(TOTAL_COUNT, String.valueOf(total))
+                .body(result);
     }
 
     @GetMapping("/{guildId}/config")

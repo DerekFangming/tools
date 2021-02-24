@@ -20,6 +20,7 @@ import { DiscordConfigComponent } from './discord-config/discord-config.componen
 import { DiscordUserComponent } from './discord-user/discord-user.component';
 import { DiscordRoleComponent } from './discord-role/discord-role.component';
 import { DiscordAdminComponent } from './discord-admin/discord-admin.component';
+import { DiscordChannelComponent } from './discord-channel/discord-channel.component';
 
 @NgModule({
   declarations: [
@@ -35,7 +36,8 @@ import { DiscordAdminComponent } from './discord-admin/discord-admin.component';
     DiscordConfigComponent,
     DiscordUserComponent,
     DiscordRoleComponent,
-    DiscordAdminComponent
+    DiscordAdminComponent,
+    DiscordChannelComponent
   ],
   imports: [
     BrowserModule,

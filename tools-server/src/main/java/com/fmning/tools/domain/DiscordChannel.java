@@ -40,4 +40,12 @@ public class DiscordChannel {
 
     @Column(name="created")
     private Instant created;
+
+    @Transient
+    private String ownerName;
+
+    public DiscordChannel withOwnerName(String ownerName) {
+        this.ownerName = ownerName;
+        return this;
+    }
 }
