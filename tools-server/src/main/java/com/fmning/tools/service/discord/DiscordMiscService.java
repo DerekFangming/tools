@@ -60,13 +60,13 @@ public class DiscordMiscService {
                         "**查看自己的Tag：**`yf tag` or `yf t`\n" +
                         "**查看可删除的Tag：**`yf tag delete` or `yf t d`\n" +
                         "**删除指定Tag：**`yf tag delete 代码` or `yf t d 代码`\n" +
-                        "**----------------------------------------------频道----------------------------------------------**\n" +
-                        "**频道命令详细说明：**`yf help channel` or `yf h c`\n" +
-                        "**创建或更新临时频道：**`yf channel 名字` or `yf c 名字`\n" +
-                        "**创建或更新Booster私人频道：**`yf channel boost 名字` or `yf c b 名字`\n" +
-                        "**查看你的频道：**`yf channel` or `yf c`\n" +
-                        "**删除你的临时频道：**`yf channel delete` or `yf c d`\n" +
-                        "**删除你的私人频道：**`yf channel boost delete` or `yf c b d`\n"+
+//                        "**----------------------------------------------频道----------------------------------------------**\n" +
+//                        "**频道命令详细说明：**`yf help channel` or `yf h c`\n" +
+//                        "**创建或更新临时频道：**`yf channel 名字` or `yf c 名字`\n" +
+//                        "**创建或更新Booster私人频道：**`yf channel boost 名字` or `yf c b 名字`\n" +
+//                        "**查看你的频道：**`yf channel` or `yf c`\n" +
+//                        "**删除你的临时频道：**`yf channel delete` or `yf c d`\n" +
+//                        "**删除你的私人频道：**`yf channel boost delete` or `yf c b d`\n"+
                         "**----------------------------------------------生日----------------------------------------------**\n" +
                         "**注册生日并得到专属Tag及生日祝福：**`yf birthday MM-DD` or `yf b MM-DD`\n" +
                         "**查看自己注册的生日：**`yf birthday` or `yf b`\n" +

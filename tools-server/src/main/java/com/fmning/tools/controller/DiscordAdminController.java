@@ -5,7 +5,6 @@ import com.fmning.tools.domain.DiscordRole;
 import com.fmning.tools.domain.DiscordRoleMapping;
 import com.fmning.tools.domain.DiscordUser;
 import com.fmning.tools.dto.DiscordAdminDto;
-import com.fmning.tools.dto.DiscordRoleDto;
 import com.fmning.tools.dto.DiscordRolePositionDto;
 import com.fmning.tools.repository.*;
 import com.fmning.tools.service.discord.DiscordService;
@@ -58,25 +57,25 @@ public class DiscordAdminController {
         discordService.seedChannels(toolsProperties.getDcDefaultGuildId());
     }
 
-    @PostMapping("/admin/add-role")
+    @PostMapping("/add-role")
     @PreAuthorize("hasRole('ADMIN')")
     public void addRole(@RequestBody DiscordAdminDto discordAdminDto) {
         discordService.addRole(discordAdminDto.getMemberId(), discordAdminDto.getRoleId());
     }
 
-    @PostMapping("/admin/remove-role")
+    @PostMapping("/remove-role")
     @PreAuthorize("hasRole('ADMIN')")
     public void removeRole(@RequestBody DiscordAdminDto discordAdminDto) {
         discordService.removeRole(discordAdminDto.getMemberId(), discordAdminDto.getRoleId());
     }
 
-    @PostMapping("/admin/move-role")
+    @PostMapping("/move-role")
     @PreAuthorize("hasRole('ADMIN')")
     public void moveRole(@RequestBody DiscordAdminDto discordAdminDto) {
         discordService.moveRole(discordAdminDto.getMemberId(), discordAdminDto.getPosition());
     }
 
-    @GetMapping("/admin/role-position")
+    @GetMapping("/role-position")
     @PreAuthorize("hasRole('ADMIN')")
     public String position() {
         StringBuilder sb = new StringBuilder();
@@ -96,7 +95,7 @@ public class DiscordAdminController {
 //        return RandomStringUtils.randomAlphanumeric(6);
     }
 
-    @GetMapping("/admin/role-fix-preview")
+    @GetMapping("/role-fix-preview")
     @PreAuthorize("hasRole('ADMIN')")
     public String rolePreview(@RequestParam("roleId") String roleId) {
         List<DiscordUser> users = discordUserRepo.findByRolesContaining(roleId);
@@ -118,7 +117,7 @@ public class DiscordAdminController {
         return "Already existed mappings: <br /><br />" + existedSb.toString() + "<br /><br />" + "Missing mappings:<br />" + missingSb.toString();
     }
 
-    @GetMapping("/admin/role-fix")
+    @GetMapping("/role-fix")
     @PreAuthorize("hasRole('ADMIN')")
     public String roleFix(@RequestParam("roleId") String roleId) {
         List<DiscordUser> users = discordUserRepo.findByRolesContaining(roleId);
@@ -145,7 +144,7 @@ public class DiscordAdminController {
         return sb.toString();
     }
 
-    @GetMapping("/admin/test")
+    @GetMapping("/test")
     @PreAuthorize("hasRole('ADMIN')")
     public void roleFix() {
         discordRoleMappingRepo.deleteByCreated(Instant.now());

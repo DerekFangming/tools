@@ -140,17 +140,19 @@ public class DiscordController {
                 }).collect(Collectors.toList()));
     }
 
+    @GetMapping("/{guildId}/categories")
+    @PreAuthorize("hasRole('DC')")
+    public  ResponseEntity<List<DiscordCategory>> getCategories(@PathVariable("guildId") String guildId) {
+        if (!"default".equalsIgnoreCase(guildId)) return ResponseEntity.ok(Collections.emptyList());
+        return ResponseEntity.ok(discordCategoryRepo.findAll());
+    }
+
     @GetMapping("/{guildId}/channels")
     @PreAuthorize("hasRole('DC')")
-    public  ResponseEntity<List<DiscordCategory>> getChannels(@PathVariable("guildId") String guildId) {
+    public  ResponseEntity<List<DiscordChannel>> getChannels(@PathVariable("guildId") String guildId) {
         if (!"default".equalsIgnoreCase(guildId)) return ResponseEntity.ok(Collections.emptyList());
 
-        List<DiscordCategory> categories = discordCategoryRepo.findAll();
-        categories.forEach(c -> {
-            c.setChannels(discordChannelRepo.findByCategoryId(c.getId()));
-        });
-
-        return ResponseEntity.ok(categories);
+        return ResponseEntity.ok(discordChannelRepo.findAll());
     }
 
     @GetMapping("/{guildId}/config")

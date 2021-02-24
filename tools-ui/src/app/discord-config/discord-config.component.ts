@@ -3,6 +3,8 @@ import { Component, OnInit } from '@angular/core';
 import { Title } from '@angular/platform-browser';
 import { NotifierService } from 'angular-notifier';
 import { environment } from 'src/environments/environment';
+import { DiscordCategory } from '../model/discord-category';
+import { DiscordChannel } from '../model/discord-channel';
 import { DiscordGuildConfig } from '../model/discord-guild-config';
 import { DiscordObject } from '../model/discord-object';
 import { UtilsService } from '../utils.service';
@@ -15,15 +17,20 @@ import { UtilsService } from '../utils.service';
 export class DiscordConfigComponent implements OnInit {
 
   loadingBotConfig = false;
+  loadingCategories = false;
   loadingChannels = false;
   loadingRoles = false;
   updatingConfig = false;
 
   guildConfig: DiscordGuildConfig;
   guildRoleList: DiscordObject[];
-  guildChannelList: DiscordObject[];
+  guildCategoryList: DiscordCategory[];
+  guildChannelList: DiscordChannel[];
   roleNameBlacklist: String[];
   roleColorBlacklist: String[];
+
+  selectedTempCategoryName = '';
+  selectedBoostCategoryName = '';
 
   selectedWelcomeChannelName = '';
   selectedBirthdayChannelName = '';
@@ -46,9 +53,11 @@ export class DiscordConfigComponent implements OnInit {
 
   loadBotConfig() {
     this.loadingBotConfig = true;
+    this.loadingCategories = true;
     this.loadingChannels = true;
     this.loadingRoles = true;
     this.guildConfig = null;
+    this.guildCategoryList = null;
     this.guildChannelList = null;
     this.guildRoleList = null;
 
@@ -64,8 +73,17 @@ export class DiscordConfigComponent implements OnInit {
       console.log(error.error);
     });
 
-    this.http.get<DiscordObject[]>(environment.urlPrefix + 'api/discord/default/text-channels').subscribe(guildChannelList => {
-      this.guildChannelList = guildChannelList;
+    this.http.get<DiscordCategory[]>(environment.urlPrefix + 'api/discord/default/categories').subscribe(guildCategoryList => {
+      this.guildCategoryList = guildCategoryList;
+      this.processSelectedDropdowns();
+      this.loadingCategories = false;
+    }, error => {
+      this.loadingCategories = false;
+      console.log(error.error);
+    });
+
+    this.http.get<DiscordChannel[]>(environment.urlPrefix + 'api/discord/default/channels').subscribe(guildChannelList => {
+      this.guildChannelList = guildChannelList.filter(c => c.type == 'TEXT');
       this.processSelectedDropdowns();
       this.loadingChannels = false;
     }, error => {
@@ -84,10 +102,9 @@ export class DiscordConfigComponent implements OnInit {
   }
 
   processSelectedDropdowns() {
-    if (this.guildConfig != null && this.guildChannelList != null && this.guildRoleList != null) {
-      this.guildChannelList.unshift(new DiscordObject({id: null, name: 'Disable channel message'}))
-      this.guildRoleList.unshift(new DiscordObject({id: null, name: 'Disable role assignment'}))
-
+    if (this.guildConfig != null && this.guildCategoryList != null && this.guildChannelList != null && this.guildRoleList != null) {
+      this.selectedTempCategoryName = this.getCategoryNameFromList(this.guildConfig.channelTempCatId);
+      this.selectedBoostCategoryName = this.getCategoryNameFromList(this.guildConfig.channelBoostCatId);
       this.selectedWelcomeChannelName = this.getChannelNameFromList(this.guildConfig.welcomeChannelId);
       this.selectedBirthdayChannelName = this.getChannelNameFromList(this.guildConfig.birthdayChannelId);
       this.selectedWelcomeRoleName = this.getRoleNameFromList(this.guildConfig.welcomeRoleId);
@@ -100,28 +117,47 @@ export class DiscordConfigComponent implements OnInit {
 
   getRoleNameFromList(roleId: string) {
     if (roleId == null) {
-      return this.guildRoleList[0].name;
+      return "No role selected";
     } else {
       let role = this.guildRoleList.find(r => r.id == roleId);
-      return role == null ? this.guildRoleList[0].name : role.name;
+      return role == null ? "No role selected" : role.name;
+    }
+  }
+
+  getCategoryNameFromList(categoryId: string) {
+    if (categoryId == null) {
+      return "No category selected";
+    } else {
+      let category = this.guildCategoryList.find(r => r.id == categoryId);
+      return category == null ? "No category selected" : category.name;
     }
   }
 
   getChannelNameFromList(channelId: string) {
     if (channelId == null) {
-      return this.guildChannelList[0].name;
+      return "No channel selected";
     } else {
       let channel = this.guildChannelList.find(r => r.id == channelId);
-      return channel == null ? this.guildChannelList[0].name : channel.name;
+      return channel == null ? "No channel selected" : channel.name;
     }
   }
 
-  onWelcomeChannelSelected(option: DiscordObject) {
+  onTempCategorySelected(option: DiscordCategory) {
+    this.selectedTempCategoryName = option.name;
+    this.guildConfig.channelTempCatId = option.id;
+  }
+
+  onBoostCategorySelected(option: DiscordCategory) {
+    this.selectedBoostCategoryName = option.name;
+    this.guildConfig.channelBoostCatId = option.id;
+  }
+
+  onWelcomeChannelSelected(option: DiscordChannel) {
     this.selectedWelcomeChannelName = option.name;
     this.guildConfig.welcomeChannelId = option.id;
   }
 
-  onBirthdayChannelSelected(option: DiscordObject) {
+  onBirthdayChannelSelected(option: DiscordChannel) {
     this.selectedBirthdayChannelName = option.name;
     this.guildConfig.birthdayChannelId = option.id;
   }

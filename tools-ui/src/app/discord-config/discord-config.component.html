@@ -18,7 +18,7 @@
   </div>
 </nav>
 
-<div *ngIf="loadingBotConfig || loadingChannels || loadingRoles" class="container">
+<div *ngIf="loadingBotConfig || loadingCategories || loadingChannels || loadingRoles" class="container">
   <div class="row my-5">
     <div class="col text-center my-5">
       <i class="fa fa-refresh fa-spin fa-3x" aria-hidden="true"></i>
@@ -26,7 +26,7 @@
   </div>
 </div>
 
-<div *ngIf="!loadingBotConfig && !loadingChannels && !loadingRoles" class="container">
+<div *ngIf="!loadingBotConfig && !loadingCategories && !loadingChannels && !loadingRoles" class="container">
   <div class="row">
     <div class="col mt-4">
       <div class="card">
@@ -175,13 +175,24 @@
           <div class="form-row">
             <div class="form-group col-md-6 mt-2">
               <label>Temporary channel location</label>
-              <p>{{ guildConfig.channelTempCatId }}</p>
+              <div class="dropdown">
+                <a class="btn btn-secondary dropdown-toggle" href="#" role="button" data-toggle="dropdown">{{selectedTempCategoryName}}</a>
+                <div class="dropdown-menu">
+                  <a class="dropdown-item pointer" *ngFor="let category of guildCategoryList;" (click)="onTempCategorySelected(category)">{{category.name}}</a>
+                </div>
+              </div>
             </div>
             <div class="form-group col-md-6 mt-2">
               <label>Boost channel location</label>
-              <p>{{ guildConfig.channelBoostCatId }}</p>
+              <div class="dropdown">
+                <a class="btn btn-secondary dropdown-toggle" href="#" role="button" data-toggle="dropdown">{{selectedBoostCategoryName}}</a>
+                <div class="dropdown-menu">
+                  <a class="dropdown-item pointer" *ngFor="let category of guildCategoryList;" (click)="onBoostCategorySelected(category)">{{category.name}}</a>
+                </div>
+              </div>
             </div>
           </div>
+
         </div>
       </div>
     </div>

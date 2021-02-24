@@ -8,5 +8,5 @@ import java.util.List;
 
 @Repository
 public interface DiscordChannelRepo extends CrudRepository<DiscordChannel, String> {
-    List<DiscordChannel> findByCategoryId(String categoryId);
+    List<DiscordChannel> findAll();
 }
