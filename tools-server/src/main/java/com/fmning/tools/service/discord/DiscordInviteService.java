@@ -65,6 +65,16 @@ public class DiscordInviteService {
             }
         });
     }
+
+    public void showApexId(MessageChannel channel, Member member, Member mentionedMember) {
+        DiscordUser user = discordUserRepo.findById(mentionedMember.getId()).orElse(null);
+
+        if (user == null || user.getApexId() == null) {
+            channel.sendMessage("<@" + member.getId() + "> " + mentionedMember.getEffectiveName() + "尚未绑定Apex Id。").queue();
+        } else {
+            channel.sendMessage("<@" + member.getId() + "> " + mentionedMember.getEffectiveName() + "绑定的Apex Id为 **" + user.getApexId() + "**").queue();
+        }
+    }
     
     public void apexInvite(MessageChannel channel, Member member, String comments) {
         ApexDto apexDto = new ApexDto();

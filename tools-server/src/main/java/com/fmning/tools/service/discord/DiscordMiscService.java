@@ -48,6 +48,7 @@ public class DiscordMiscService {
                         "**----------------------------------------------组队----------------------------------------------**\n" +
                         "**组队命令详细说明：**`yf help invite` or `yf h i`\n" +
                         "**绑定或更新Origin ID：**`yf apex link 你的ID` or `yf a l 你的ID`\n" +
+                        "**查看别人绑定的Origin ID：**`yf apex id @某人` or `yf a i @某人`\n" +
                         "**发送Apex组队邀请：**`yf apex 你想说的` or `yf a 你想说的`\n" +
                         "**发送组队邀请：**`yf invite 你想说的` or `yf i 你想说的`\n" +
                         "**----------------------------------------------Tag----------------------------------------------**\n" +
@@ -91,6 +92,8 @@ public class DiscordMiscService {
                         "**绑定或更新Origin ID：**`yf apex link 你的ID` or `yf a l 你的ID`\n绑定或更新Origin ID。" +
                         "绑定你的Apex账号。绑定之后，每次使用yf组队，bot都会在Apex tacker上查询你当前的战绩并将他们放在组队邀请里，便于" +
                         "找到水平相当的玩家。重复使用该命令就会更新的绑定的Origin ID。\n\n" +
+                        "**查看别人绑定的Origin ID：**`yf apex id @某人` or `yf a i @某人`\n" +
+                        "查看被@的人所绑定的Apex Id。 Credit to KingJz1997。\n\n" +
                         "**发送Apex组队邀请：**`yf apex 你想说的` or `yf a 你想说的`\n" +
                         "发送组队邀请。 如果在发送之前你已经通过bot绑定了你的Origin ID， 组队邀请上就会带有你当前的战绩。 如果你在妖风电竞的某个语音频道中" +
                         "使用这条指令，组队邀请会带有上车链接，方便其他玩家点击加入你当前所在的语音频道。\n\n" +

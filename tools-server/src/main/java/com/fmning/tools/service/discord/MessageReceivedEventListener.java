@@ -1,12 +1,10 @@
 package com.fmning.tools.service.discord;
 
-import com.fmning.tools.ToolsProperties;
 import com.fmning.tools.domain.DiscordUserLog;
 import com.fmning.tools.repository.DiscordGuildRepo;
 import com.fmning.tools.repository.DiscordUserLogRepo;
 import com.fmning.tools.type.DiscordUserLogActionType;
 import lombok.RequiredArgsConstructor;
-import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.jetbrains.annotations.NotNull;
@@ -27,7 +25,6 @@ public class MessageReceivedEventListener extends BaseEventListener {
     private final DiscordMusicService discordMusicService;
     private final DiscordMiscService discordMiscService;
     private final DiscordChannelService discordChannelService;
-    private final ToolsProperties toolsProperties;
 
     @Override
     public void onMessageReceived(@NotNull MessageReceivedEvent event) {
@@ -69,6 +66,8 @@ public class MessageReceivedEventListener extends BaseEventListener {
             } else if (command.equals(1, "apex", "a")) {
                 if (command.length() > 3 && command.equals(2, "link", "l")) {
                     discordInviteService.linkAccount(channel, member, command.from(3));
+                } else if (command.length() == 4 && command.equals(2, "id", "i") && event.getMessage().getMentionedMembers().size() > 0) {
+                    discordInviteService.showApexId(channel, member, event.getMessage().getMentionedMembers().get(0));
                 } else {
                     discordInviteService.apexInvite(channel, member, command.from(2));
                 }
