@@ -87,6 +87,7 @@ public class DiscordInviteService {
             if (voiceChannel != null) {
                 Invite invite = voiceChannel.createInvite().complete();
                 apexDto.setInviteUrl(invite.getUrl());
+                apexDto.setChannelName(voiceChannel.getName());
             }
         }
 
