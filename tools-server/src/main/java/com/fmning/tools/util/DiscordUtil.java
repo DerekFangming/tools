@@ -4,13 +4,13 @@ import com.fmning.tools.domain.DiscordCategory;
 import com.fmning.tools.domain.DiscordChannel;
 import com.fmning.tools.domain.DiscordRole;
 import com.fmning.tools.domain.DiscordUser;
-import net.dv8tion.jda.api.entities.Category;
-import net.dv8tion.jda.api.entities.GuildChannel;
-import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.Role;
+import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.*;
 
-import java.awt.*;
+import java.awt.Color;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 
 public class DiscordUtil {
     public static DiscordUser fromMember(Member member) {
@@ -67,4 +67,49 @@ public class DiscordUtil {
             return String.format("#%02x%02x%02x", color.getRed(), color.getGreen(), color.getBlue());
         }
     }
+
+    public static void sendLongEmbed(MessageChannel channel, Member member, String title, String body) {
+        List<String> splitMessage = splitMessage(body);
+        if (splitMessage.size() == 1) {
+            channel.sendMessage(new EmbedBuilder()
+                    .setAuthor(member.getEffectiveName(), null, member.getUser().getAvatarUrl())
+                    .setTitle(title)
+                    .setDescription(splitMessage.get(0))
+                    .build()).queue();
+        } else if (splitMessage.size() > 1) {
+            for (int i = 0; i < splitMessage.size(); i ++) {
+                if (i == 0) {
+                    channel.sendMessage(new EmbedBuilder()
+                            .setAuthor(member.getEffectiveName(), null, member.getUser().getAvatarUrl())
+                            .setTitle(title)
+                            .setDescription(splitMessage.get(i))
+                            .setFooter("Page " + (i + 1) + " of " + splitMessage.size())
+                            .build()).complete();
+                } else {
+                    channel.sendMessage(new EmbedBuilder()
+                            .setDescription(splitMessage.get(i))
+                            .setFooter("Page " + (i + 1) + " of " + splitMessage.size())
+                            .build()).complete();
+                }
+            }
+        }
+    }
+
+    private static List<String> splitMessage(String body) {
+        List<String> res  = new ArrayList<>();
+        String[] lines = body.split("\n");
+        StringBuilder sb = new StringBuilder();
+
+        for (String line : lines) {
+            if (sb.length() + line.length() > 2000) {
+                res.add(sb.toString());
+                sb = new StringBuilder();
+            }
+            sb.append(line).append("\n");
+        }
+
+        if (sb.length() > 0) res.add(sb.toString());
+        return res;
+    }
+
 }

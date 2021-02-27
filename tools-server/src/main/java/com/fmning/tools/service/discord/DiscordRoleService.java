@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Objects;
 
 import static com.fmning.tools.util.DiscordUtil.fromMember;
+import static com.fmning.tools.util.DiscordUtil.sendLongEmbed;
 
 @Service
 @RequiredArgsConstructor(onConstructor_={@Autowired})
@@ -41,10 +42,7 @@ public class DiscordRoleService {
         if (message.length() == 0) {
             channel.sendMessage("<@" + member.getId() + "> 你当前没有Tag。使用yf help查看如何创建或分享Tag。").queue();
         } else {
-            channel.sendMessage(new EmbedBuilder()
-                    .setAuthor(member.getEffectiveName(), null, member.getUser().getAvatarUrl())
-                    .setDescription(message)
-                    .build()).queue();
+            sendLongEmbed(channel, member, null, message);
         }
     }
 
@@ -317,11 +315,7 @@ public class DiscordRoleService {
         if (message.length() == 0) {
             channel.sendMessage("<@" + member.getId() + "> 你没有tag可以删除。").queue();
         } else {
-            channel.sendMessage(new EmbedBuilder()
-                    .setAuthor(member.getEffectiveName(), null, member.getUser().getAvatarUrl())
-                    .setTitle("删除Tag请求")
-                    .setDescription(message)
-                    .build()).queue();
+            sendLongEmbed(channel, member, "删除Tag请求", message);
         }
     }
 
@@ -387,7 +381,6 @@ public class DiscordRoleService {
             }
 
         }
-
         return levelRole + boostRole + sharedRoleFromOthers + sharedRoleToOthers;
     }
 
