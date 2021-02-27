@@ -132,24 +132,6 @@
               </div>
             </div>
           </div>
-          <div class="form-row">
-            <div class="form-group col-md-6 mt-2">
-              <label>Role name blacklist(Cannot include any of these keywords)</label>
-              <input type="text" class="form-control mb-2" [(ngModel)]="forbiddenRoleName" (keydown.enter)="addForbiddenRoleName()">
-              <span *ngFor="let roleName of roleNameBlacklist;"  class="badge badge-pill badge-primary mr-2 mt-2">
-                <span class="h6 ml-2 mr-1">{{ roleName }}</span>
-                <i class="fa fa-lg fa-times-circle-o pointer ml-1 my-2" (click)="removeForbiddenRoleName(roleName)"></i>
-              </span>
-            </div>
-            <div class="form-group col-md-6 mt-2">
-              <label>Role color blacklist(Cannot be exactly the same)</label>
-              <input type="text" class="form-control mb-2" [(ngModel)]="forbiddenRoleColor" (keydown.enter)="addForbiddenRoleColor()">
-              <span *ngFor="let roleColor of roleColorBlacklist;"  class="badge badge-pill badge-primary mr-2 mt-2">
-                <span class="h6 ml-2 mr-1">{{ roleColor }}</span>
-                <i class="fa fa-lg fa-times-circle-o pointer ml-1 my-2" (click)="removeForbiddenRoleColor(roleColor)"></i>
-              </span>
-            </div>
-          </div>
 
         </div>
       </div>
@@ -174,7 +156,7 @@
         </div>
         <div class="card-body">
           <div class="form-row">
-            <div class="form-group col-md-6 mt-2">
+            <div class="form-group col-md-4 mt-2">
               <label>Temporary channel location</label>
               <div class="dropdown">
                 <a class="btn btn-secondary dropdown-toggle" href="#" role="button" data-toggle="dropdown">{{selectedTempCategoryName}}</a>
@@ -183,7 +165,7 @@
                 </div>
               </div>
             </div>
-            <div class="form-group col-md-6 mt-2">
+            <div class="form-group col-md-4 mt-2">
               <label>Boost channel location</label>
               <div class="dropdown">
                 <a class="btn btn-secondary dropdown-toggle" href="#" role="button" data-toggle="dropdown">{{selectedBoostCategoryName}}</a>
@@ -191,6 +173,50 @@
                   <a class="dropdown-item pointer" *ngFor="let category of guildCategoryList;" (click)="onBoostCategorySelected(category)">{{category.name}}</a>
                 </div>
               </div>
+            </div>
+            <div class="form-group col-md-4 mt-2">
+              <label>Error log channel</label>
+              <div class="dropdown">
+                <a class="btn btn-secondary dropdown-toggle" href="#" role="button" data-toggle="dropdown">{{selectedDebugChannelName}}</a>
+                <div class="dropdown-menu">
+                  <a class="dropdown-item pointer" *ngFor="let category of guildCategoryList;" (click)="onDebugChannelSelected(category)">{{category.name}}</a>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row mb-5">
+    <div class="col mt-4">
+      <div class="card">
+        <div class="card-header">
+          <div class="row">
+            <div class="col">
+              <h5 class="header-text pt-2">Role and channel black list</h5>
+            </div>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="form-row">
+            <div class="form-group col-md-6 mt-2">
+              <label>Name blacklist(Cannot include any of these keywords)</label>
+              <input type="text" class="form-control mb-2" [(ngModel)]="forbiddenRoleName" (keydown.enter)="addForbiddenRoleName()">
+              <span *ngFor="let roleName of roleNameBlacklist;"  class="badge badge-pill badge-primary mr-2 mt-2">
+                <span class="h6 ml-2 mr-1">{{ roleName }}</span>
+                <i class="fa fa-lg fa-times-circle-o pointer ml-1 my-2" (click)="removeForbiddenRoleName(roleName)"></i>
+              </span>
+            </div>
+            <div class="form-group col-md-6 mt-2">
+              <label>Color blacklist(Cannot be exactly the same)</label>
+              <input type="text" class="form-control mb-2" [(ngModel)]="forbiddenRoleColor" (keydown.enter)="addForbiddenRoleColor()">
+              <span *ngFor="let roleColor of roleColorBlacklist;"  class="badge badge-pill badge-primary mr-2 mt-2">
+                <span class="h6 ml-2 mr-1">{{ roleColor }}</span>
+                <i class="fa fa-lg fa-times-circle-o pointer ml-1 my-2" (click)="removeForbiddenRoleColor(roleColor)"></i>
+              </span>
             </div>
           </div>
 

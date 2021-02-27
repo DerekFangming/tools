@@ -34,6 +34,7 @@ export class DiscordConfigComponent implements OnInit {
 
   selectedWelcomeChannelName = '';
   selectedBirthdayChannelName = '';
+  selectedDebugChannelName = '';
   
   selectedWelcomeRoleName = '';
   selectedBirthdayRoleName = '';
@@ -106,6 +107,7 @@ export class DiscordConfigComponent implements OnInit {
       this.selectedTempCategoryName = this.getCategoryNameFromList(this.guildConfig.channelTempCatId);
       this.selectedBoostCategoryName = this.getCategoryNameFromList(this.guildConfig.channelBoostCatId);
       this.selectedWelcomeChannelName = this.getChannelNameFromList(this.guildConfig.welcomeChannelId);
+      this.selectedDebugChannelName = this.getChannelNameFromList(this.guildConfig.debugChannelId);
       this.selectedBirthdayChannelName = this.getChannelNameFromList(this.guildConfig.birthdayChannelId);
       this.selectedWelcomeRoleName = this.getRoleNameFromList(this.guildConfig.welcomeRoleId);
       this.selectedBirthdayRoleName = this.getRoleNameFromList(this.guildConfig.birthdayRoleId);
@@ -155,6 +157,11 @@ export class DiscordConfigComponent implements OnInit {
   onWelcomeChannelSelected(option: DiscordChannel) {
     this.selectedWelcomeChannelName = option.name;
     this.guildConfig.welcomeChannelId = option.id;
+  }
+
+  onDebugChannelSelected(option: DiscordChannel) {
+    this.selectedDebugChannelName = option.name;
+    this.guildConfig.debugChannelId = option.id;
   }
 
   onBirthdayChannelSelected(option: DiscordChannel) {

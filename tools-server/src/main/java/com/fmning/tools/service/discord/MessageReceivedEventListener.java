@@ -140,6 +140,7 @@ public class MessageReceivedEventListener extends BaseEventListener {
             } else if (command.equals(1, "ping", null)) {
                 channel.sendMessage("Bot operational. Latency " + event.getJDA().getGatewayPing() + " ms").queue();
             } else if (command.equals(1, "debug", null)) {
+                throw new IllegalStateException("wtf");
             } else {
                 invalidCommand(channel, member, content);
             }

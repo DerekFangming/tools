@@ -1,6 +1,5 @@
 package com.fmning.tools.service.discord;
 
-import com.fmning.tools.domain.DiscordRole;
 import com.fmning.tools.domain.DiscordUser;
 import com.fmning.tools.domain.DiscordUserLog;
 import com.fmning.tools.repository.*;
@@ -17,7 +16,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.time.Instant;
-import java.util.List;
 
 @Component
 @RequiredArgsConstructor(onConstructor_={@Autowired})
@@ -26,7 +24,6 @@ public class MemberRemoveEventListener extends BaseEventListener {
     private final DiscordGuildRepo discordGuildRepo;
     private final DiscordUserRepo discordUserRepo;
     private final DiscordUserLogRepo discordUserLogRepo;
-    private final DiscordRoleRepo discordRoleRepo;
     private final DiscordRoleMappingRepo discordRoleMappingRepo;
 
     @Override
