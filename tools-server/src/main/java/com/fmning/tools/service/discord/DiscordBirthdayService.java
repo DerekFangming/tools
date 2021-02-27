@@ -16,6 +16,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static com.fmning.tools.util.DiscordUtil.fromMember;
+import static com.fmning.tools.util.DiscordUtil.sendLongMessage;
 
 @Service
 @RequiredArgsConstructor(onConstructor_={@Autowired})
@@ -25,13 +26,13 @@ public class DiscordBirthdayService {
 
     private Pattern birthdayPattern = Pattern.compile("([0-9][0-9])-([0-3][0-9])");
 
-    public void listSelf(MessageChannel channel, Member member) {
-        DiscordUser user = discordUserRepo.findById(member.getId()).orElse(null);
-        if (user != null && !StringUtils.isBlank(user.getBirthday())) {
-            String[] birthday = user.getBirthday().split("-");
-            channel.sendMessage("<@" + member.getId() + "> 你注册的生日是" + birthday[0] + "月" + birthday[1] + "日。").queue();
+    public void listAll(MessageChannel channel) {
+        List<DiscordUser> users = discordUserRepo.findByBirthdayNotNullOrderByBirthdayAsc();
+        if (users.size() == 0) {
+            channel.sendMessage("**尚未有人注册生日**").queue();
         } else {
-            channel.sendMessage("<@" + member.getId() + "> 你尚未注册生日。").queue();
+            sendLongMessage(channel, "**全部已注册的生日**\n\n" + users.stream().map(u -> "**" + u.getBirthday() + ":** " + u.getNickname())
+                    .collect(Collectors.joining("\n")));
         }
     }
 

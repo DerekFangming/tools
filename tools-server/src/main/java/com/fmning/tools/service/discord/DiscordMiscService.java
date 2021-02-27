@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor(onConstructor_={@Autowired})
@@ -70,8 +71,8 @@ public class DiscordMiscService {
                         "**删除你的私人频道：**`yf channel boost delete` or `yf c b d`\n"+
                         "**----------------------------------------------生日----------------------------------------------**\n" +
                         "**注册生日并得到专属Tag及生日祝福：**`yf birthday MM-DD` or `yf b MM-DD`\n" +
-                        "**查看自己注册的生日：**`yf birthday` or `yf b`\n" +
-                        "**取消生日提醒：**`yf birthday disable` or `yf b d`\n" +
+                        "**查看全部注册的生日：**`yf birthday` or `yf b`\n" +
+                        "**取消生日提醒：**`yf birthday delete` or `yf b d`\n" +
                         "**查看本月过生日的成员：**`yf birthday month` or `yf b m`\n" +
                         "**查看某人注册的生日：**`yf birthday @某人` or `yf b @某人`\n" +
                         "**----------------------------------------------唱歌----------------------------------------------**\n" +
@@ -142,7 +143,12 @@ public class DiscordMiscService {
     }
 
     public void nb(MessageChannel channel, Member member, List<Member> mentions) {
-        String userId = mentions.size() > 0 ? mentions.get(0).getId() : member.getId();
-        channel.sendMessage("<@" + userId + "> " + nbList.get(random.nextInt(nbList.size()))).queue();
+        if (mentions.size() == 0) {
+            channel.sendMessage("<@" + member.getId() + "> " + nbList.get(random.nextInt(nbList.size()))).queue();
+        } else {
+            String allMentions = mentions.stream().map(m -> "<@" + m.getId() + ">")
+                    .collect(Collectors.joining(" "));
+            channel.sendMessage(allMentions + " " + nbList.get(random.nextInt(nbList.size()))).queue();
+        }
     }
 }

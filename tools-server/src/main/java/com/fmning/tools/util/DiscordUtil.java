@@ -95,6 +95,13 @@ public class DiscordUtil {
         }
     }
 
+    public static void sendLongMessage(MessageChannel channel, String message) {
+        List<String> splitMessage = splitMessage(message);
+        for (String msg : splitMessage) {
+            channel.sendMessage(msg).complete();
+        }
+    }
+
     private static List<String> splitMessage(String body) {
         List<String> res  = new ArrayList<>();
         String[] lines = body.split("\n");
