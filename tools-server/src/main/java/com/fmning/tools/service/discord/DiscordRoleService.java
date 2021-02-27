@@ -353,7 +353,7 @@ public class DiscordRoleService {
             } else {
                 if (delete) {
                     if (sharedRoleFromOthers.length() == 0) sharedRoleFromOthers = "**别人分享给你的Tag：** 删除后你自己将失去这个tag\n";
-                    sharedRoleFromOthers += "`yf t d " + rm.getCode() + "` 将删除 **" + discordRoleRepo.getNameById(rm.getRoleId()) + "**";
+                    sharedRoleFromOthers += "`yf tag delete " + rm.getCode() + "` 将删除 **" + discordRoleRepo.getNameById(rm.getRoleId()) + "**";
                     if (!rm.isEnabled()) sharedRoleFromOthers += " (未接受)";
                     sharedRoleFromOthers += "\n";
                 } else{
@@ -375,7 +375,7 @@ public class DiscordRoleService {
             for (DiscordRoleMapping rm : sharedRoles) {
                 if (delete) {
                     if (sharedRoleToOthers.length() == 0) sharedRoleToOthers = "**你分享给别人的Tag：** 删除后对方将失去**" + discordRoleRepo.getNameById(levelRoleId) + "**\n";
-                    sharedRoleToOthers += "`yf t d " + rm.getCode() + "` 将删除" + discordUserRepo.getNicknameById(rm.getOwnerId()) + "的";
+                    sharedRoleToOthers += "`yf tag delete " + rm.getCode() + "` 将删除你分享给" + discordUserRepo.getNicknameById(rm.getOwnerId()) + "的等级Tag。";
                     if (!rm.isEnabled()) sharedRoleToOthers += " (未接受)";
                     sharedRoleToOthers += "\n";
                 } else{
