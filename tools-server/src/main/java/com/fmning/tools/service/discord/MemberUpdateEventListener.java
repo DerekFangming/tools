@@ -76,11 +76,6 @@ public class MemberUpdateEventListener extends BaseEventListener {
                     }
                 }
 
-            } else if (discordUser.getBoostedDate() != null && member.getTimeBoosted() != null) {
-                Instant boostedTime = Instant.from(member.getTimeBoosted());
-
-                System.out.println("********" + user.getId() + ":" + member.getEffectiveName() +  ":" + boostedTime + " " + discordUser.getBoostedDate() +
-                        " ------ > " + (boostedTime.getNano() == discordUser.getBoostedDate().getNano()));
             }
 
             // Update fields that are updatable

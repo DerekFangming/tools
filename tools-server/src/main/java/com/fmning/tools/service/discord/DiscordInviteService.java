@@ -98,7 +98,7 @@ public class DiscordInviteService {
             channel.sendMessage(new EmbedBuilder()
                     .setAuthor(member.getEffectiveName() + " 请求Apex组队", null, member.getUser().getAvatarUrl())
                     .setTitle(processComment(apexDto.getComments()))
-                    .setDescription(apexDto.getInviteUrl() == null ? apexDto.getInviteUrl() : "[:race_car: 点此上车 :race_car:](" + apexDto.getInviteUrl() + ")")
+                    .setDescription(apexDto.getInviteUrl() == null ? apexDto.getInviteUrl() : "点击加入房间:\n[" + apexDto.getChannelName() + "](" + apexDto.getInviteUrl() + ")")
                     .setFooter("绑定apex账号之后才能显示战绩。使用yf help查看如何绑定。" + (apexDto.getInviteUrl() == null ?
 							"在妖风电竞的任何语音频道使用本命令就可以自动生成上车链接。" : ""))
                     .build()).queue();
@@ -138,7 +138,7 @@ public class DiscordInviteService {
                                 .setAuthor(member.getEffectiveName() + " 请求Apex组队", null, member.getUser().getAvatarUrl())
                                 .setThumbnail(apexDto.getRankAvatar())
                                 .setTitle(processComment(apexDto.getComments()))
-                                .setDescription(apexDto.getInviteUrl() == null ? apexDto.getInviteUrl() : "[:race_car: 点此上车 :race_car:](" + apexDto.getInviteUrl() + ")")
+                                .setDescription(apexDto.getInviteUrl() == null ? apexDto.getInviteUrl() : "点击加入房间:\n[" + apexDto.getChannelName() + "](" + apexDto.getInviteUrl() + ")")
                                 .addField("Origin ID", discordUser.getApexId(), true)
                                 .addField("段位", apexDto.getRankName(), true)
                                 .addField("击杀", apexDto.getKills(), true)
@@ -151,7 +151,7 @@ public class DiscordInviteService {
                     channel.sendMessage(new EmbedBuilder()
                             .setAuthor(member.getEffectiveName() + " 请求Apex组队", null, member.getUser().getAvatarUrl())
                             .setTitle(processComment(apexDto.getComments()))
-                            .setDescription(apexDto.getInviteUrl() == null ? apexDto.getInviteUrl() : "[:race_car: 点此上车 :race_car:](" + apexDto.getInviteUrl() + ")")
+                            .setDescription(apexDto.getInviteUrl() == null ? apexDto.getInviteUrl() : "点击加入房间:\n[" + apexDto.getChannelName() + "](" + apexDto.getInviteUrl() + ")")
                             .addField("Origin ID", discordUser.getApexId(), false)
                             .addField("Apex tracker出错", "Apex tracker发生了系统问题，暂时无法读取你的战绩。待apex tracker解决他们的问题之后，你的组队命令才能显示战绩。", false)
                             .setFooter(apexDto.getInviteUrl() == null ? "在妖风电竞的任何语音频道使用本命令就可以自动生成上车链接。" : "")
@@ -160,7 +160,7 @@ public class DiscordInviteService {
                     channel.sendMessage(new EmbedBuilder()
                             .setAuthor(member.getEffectiveName() + " 请求Apex组队", null, member.getUser().getAvatarUrl())
                             .setTitle(processComment(apexDto.getComments()))
-                            .setDescription(apexDto.getInviteUrl() == null ? apexDto.getInviteUrl() : "[:race_car: 点此上车 :race_car:](" + apexDto.getInviteUrl() + ")")
+                            .setDescription(apexDto.getInviteUrl() == null ? apexDto.getInviteUrl() : "点击加入房间:\n[" + apexDto.getChannelName() + "](" + apexDto.getInviteUrl() + ")")
                             .addField("Origin ID", discordUser.getApexId(), false)
                             .addField("无法找到Origin账号", "Apex tracker无法搜索到你的Origin ID。如果你修改了Origin ID，请重新绑定。", false)
                             .setFooter(apexDto.getInviteUrl() == null ? "在妖风电竞的任何语音频道使用本命令就可以自动生成上车链接。" : "")
@@ -178,6 +178,7 @@ public class DiscordInviteService {
 
     public void invite(MessageChannel channel, Member member, String comments) {
         String inviteUrl = null;
+        String channelName = null;
 
         GuildVoiceState voiceState = member.getVoiceState();
         if (voiceState != null) {
@@ -185,13 +186,14 @@ public class DiscordInviteService {
             if (voiceChannel != null) {
                 Invite invite = voiceChannel.createInvite().complete();
                 inviteUrl = invite.getUrl();
+                channelName = voiceChannel.getName();
             }
         }
 
         channel.sendMessage(new EmbedBuilder()
                 .setAuthor(member.getEffectiveName() + " 请求组队", null, member.getUser().getAvatarUrl())
                 .setTitle(processComment(comments))
-                .setDescription(inviteUrl == null ? inviteUrl : "[:race_car: 点此上车 :race_car:](" + inviteUrl + ")")
+                .setDescription(inviteUrl == null ? inviteUrl : "点击加入房间:\n[" + channelName + "](" + inviteUrl + ")")
                 .setThumbnail("https://i.imgur.com/JCIxnvM.jpg")
 				.setFooter(inviteUrl == null ? "在妖风电竞的任何语音频道使用本命令就可以自动生成上车链接。" : "")
                 .build()).queue();
@@ -217,5 +219,6 @@ public class DiscordInviteService {
         private String rankName = "";
         private String rankAvatar = "";
         private String inviteUrl = null;
+        private String channelName = null;
     }
 }
