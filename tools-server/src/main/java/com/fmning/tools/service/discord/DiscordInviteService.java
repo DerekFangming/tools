@@ -14,6 +14,7 @@ import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.awt.*;
 import java.io.IOException;
 import java.util.Objects;
 import java.util.regex.Matcher;
@@ -28,6 +29,8 @@ public class DiscordInviteService {
     private final DiscordUserRepo discordUserRepo;
     private final OkHttpClient client;
     private Pattern userPattern = Pattern.compile("<@!(.*?)>");
+    private String pinkRoleId = "765439046922272808";
+    private Color pink = Color.decode("#e48aa7");
 
     public void linkAccount(MessageChannel channel, Member member, String apexId) {
         Request request = new Request.Builder()
@@ -100,8 +103,9 @@ public class DiscordInviteService {
                     .setAuthor(member.getEffectiveName() + " 请求Apex组队", null, member.getUser().getAvatarUrl())
                     .setTitle(processComment(apexDto.getComments()))
                     .setDescription(apexDto.getInviteUrl() == null ? apexDto.getInviteUrl() : "点击加入房间: [" + apexDto.getChannelName() + "](" + apexDto.getInviteUrl() + ")")
-                    .setFooter("绑定apex账号之后才能显示战绩。使用yf help查看如何绑定。" + (apexDto.getInviteUrl() == null ?
+                    .setFooter("绑定apex账号之后才能显示战绩。使用yf help invite查看如何绑定。" + (apexDto.getInviteUrl() == null ?
 							"在妖风电竞的任何语音频道使用本命令就可以自动生成上车链接。" : ""))
+                    .setColor(shouldEmbedBePink(discordUser) ? pink : null)
                     .build()).queue();
             return;
         }
@@ -144,6 +148,7 @@ public class DiscordInviteService {
                                 .addField("段位", apexDto.getRankName(), true)
                                 .addField("击杀", apexDto.getKills(), true)
                                 .setFooter(apexDto.getInviteUrl() == null ? "在妖风电竞的任何语音频道使用本命令就可以自动生成上车链接。" : "")
+                                .setColor(shouldEmbedBePink(discordUser) ? pink : null)
                                 .build()).queue();
                     } catch (IOException e) {
                         onFailure(call, e);
@@ -156,6 +161,7 @@ public class DiscordInviteService {
                             .addField("Origin ID", discordUser.getApexId(), false)
                             .addField("Apex tracker出错", "Apex tracker发生了系统问题，暂时无法读取你的战绩。待apex tracker解决他们的问题之后，你的组队命令才能显示战绩。", false)
                             .setFooter(apexDto.getInviteUrl() == null ? "在妖风电竞的任何语音频道使用本命令就可以自动生成上车链接。" : "")
+                            .setColor(shouldEmbedBePink(discordUser) ? pink : null)
                             .build()).queue();
                 } else {
                     channel.sendMessage(new EmbedBuilder()
@@ -165,6 +171,7 @@ public class DiscordInviteService {
                             .addField("Origin ID", discordUser.getApexId(), false)
                             .addField("无法找到Origin账号", "Apex tracker无法搜索到你的Origin ID。如果你修改了Origin ID，请重新绑定。", false)
                             .setFooter(apexDto.getInviteUrl() == null ? "在妖风电竞的任何语音频道使用本命令就可以自动生成上车链接。" : "")
+                            .setColor(shouldEmbedBePink(discordUser) ? pink : null)
                             .build()).queue();
                 }
 
@@ -191,12 +198,14 @@ public class DiscordInviteService {
             }
         }
 
+        DiscordUser discordUser = discordUserRepo.findById(member.getId()).orElse(null);
         channel.sendMessage(new EmbedBuilder()
                 .setAuthor(member.getEffectiveName() + " 请求组队", null, member.getUser().getAvatarUrl())
                 .setTitle(processComment(comments))
                 .setDescription(inviteUrl == null ? inviteUrl : "点击加入房间: [" + channelName + "](" + inviteUrl + ")")
                 .setThumbnail("https://i.imgur.com/JCIxnvM.jpg")
-				.setFooter(inviteUrl == null ? "在妖风电竞的任何语音频道使用本命令就可以自动生成上车链接。" : "")
+                .setFooter(inviteUrl == null ? "在妖风电竞的任何语音频道使用本命令就可以自动生成上车链接。" : "")
+                .setColor(shouldEmbedBePink(discordUser) ? pink : null)
                 .build()).queue();
     }
 
@@ -210,6 +219,10 @@ public class DiscordInviteService {
         }
 
         return res;
+    }
+
+    private boolean shouldEmbedBePink(DiscordUser discordUser) {
+        return discordUser != null && discordUser.getRoles() != null && discordUser.getRoles().contains(pinkRoleId);
     }
 
     @Data
