@@ -58,7 +58,12 @@ export class ImgComponent implements OnInit {
     var idList = this.posts.map(p => p.id);
     this.posts = [];
     
-    this.http.put(environment.urlPrefix + 'api/posts/mark-read', idList).subscribe(() => {
+    let url = 'api/posts/mark-read'
+    if (this.mode == 'saved') {
+      url = 'api/posts/mark-unsaved'
+    }
+    
+    this.http.put(environment.urlPrefix + url, idList).subscribe(() => {
       this.loadPosts();
     }, error => {
       this.loadingNextPage = false;
@@ -69,6 +74,14 @@ export class ImgComponent implements OnInit {
   reloadBtnClicked() {
     this.http.get(environment.urlPrefix + 'api/posts/reload').subscribe(() => {
       this.reloadBtnText = 'Reloaded'
+    }, error => {
+      console.log(error.error);
+    });
+  }
+
+  saveBtnClicked(post: Post) {
+    this.http.put(environment.urlPrefix + 'api/posts/mark-saved', post.id).subscribe(() => {
+      post.saved = true;
     }, error => {
       console.log(error.error);
     });

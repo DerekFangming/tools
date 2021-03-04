@@ -9,6 +9,7 @@ export class Post {
     flagged: boolean;
     url: string;
     created: string;
+    saved: boolean;
 
 	constructor() {}
 }

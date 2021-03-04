@@ -18,7 +18,8 @@ public class PostDto {
     String attachment;
     int rank;
     int category;
-    boolean flagged;
+    Boolean flagged;
     String url;
     Instant created;
+    Boolean saved;
 }

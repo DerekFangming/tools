@@ -4,13 +4,13 @@ create table tl_posts (
 	img_urls text,
 	attachment text,
 	html_reader_type text,
-	html text,
 	exception text,
 	created timestamp without time zone not null,
 	viewed timestamp without time zone,
 	rank integer,
 	category integer,
-	flagged boolean
+	flagged boolean,
+	saved boolean
 );
 
 create table tl_clips (

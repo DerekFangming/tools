@@ -37,9 +37,6 @@ public class Post {
     @Enumerated(EnumType.STRING)
     private HtmlReaderType htmlType;
 
-    @Column(name="html")
-    private String html;
-
     @Column(name="exception")
     private String exception;
 
@@ -56,13 +53,19 @@ public class Post {
     private int category;
 
     @Column(name="flagged")
-    private boolean flagged;
+    private Boolean flagged;
+
+    @Column(name="saved")
+    private Boolean saved;
 
     @Transient
     private String url;
 
     @Transient
     private boolean firstPage;
+
+    @Transient
+    private String html;
 
     public void logException(Exception e) {
         StringWriter sw = new StringWriter();

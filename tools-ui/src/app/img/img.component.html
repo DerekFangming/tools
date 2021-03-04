@@ -23,6 +23,9 @@
           <li class="nav-item" [ngClass]="mode == 'ranked' ? 'active' : ''">
             <a class="nav-link pointer" (click)="modeChanged('ranked')">Ranked</a>
           </li>
+          <li class="nav-item" [ngClass]="mode == 'saved' ? 'active' : ''">
+            <a class="nav-link pointer" (click)="modeChanged('saved')">Saved</a>
+          </li>
           <li class="nav-item ml-4">
             <a class="nav-link disabled" href="#">Remaining: {{ remainingPosts }} </a>
           </li>
@@ -43,6 +46,7 @@
       <span class="badge ml-2" [ngClass]="post.flagged ? 'badge-danger' : 'badge-secondary'">{{ post.flagged ? 'Flagged' : 'No flag' }}</span>
       <a class="ml-3" target="_blank" href="{{ post.attachment }}">Torrent</a>
       <a class="ml-3" target="_blank" href="{{ post.url }}">View Original</a>
+      <button *ngIf="!post.saved" type="button" class="btn btn-link pt-1" (click)="saveBtnClicked(post)">Save</button>
     </div>
     <div class="card-body">
       <div *ngIf="post.imageNames.length > 0" class="row">
