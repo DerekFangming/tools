@@ -101,7 +101,7 @@ public class PostService {
 
     public void cleanupViewedPosts() {
 
-        List<Post> postList = postRepo.findByViewedLessThan(Instant.now().minus(DAYS_TO_KEEP_POST, ChronoUnit.DAYS));
+        List<Post> postList = postRepo.findByViewedLessThanOrViewedIsNull(Instant.now().minus(DAYS_TO_KEEP_POST, ChronoUnit.DAYS));
         for (Post p : postList) {
             postRepo.delete(p);
             try {

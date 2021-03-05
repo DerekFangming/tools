@@ -16,7 +16,7 @@ import java.util.List;
 @Repository
 public interface PostRepo extends CrudRepository<Post, Integer> {
 
-    List<Post> findByViewedLessThan(Instant viewed);
+    List<Post> findByViewedLessThanOrViewedIsNull(Instant viewed);
 
     @Transactional
     @Modifying(clearAutomatically = true)
