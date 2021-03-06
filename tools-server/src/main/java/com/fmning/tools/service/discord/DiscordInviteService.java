@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.*;
 import okhttp3.*;
+import org.apache.commons.collections4.map.PassiveExpiringMap;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -16,7 +17,9 @@ import org.springframework.stereotype.Service;
 
 import java.awt.*;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -31,6 +34,9 @@ public class DiscordInviteService {
     private Pattern userPattern = Pattern.compile("<@!(.*?)>");
     private String pinkRoleId = "765439046922272808";
     private Color pink = Color.decode("#e48aa7");
+
+    PassiveExpiringMap.ConstantTimeToLiveExpirationPolicy<String, String> expirationPolicy = new PassiveExpiringMap.ConstantTimeToLiveExpirationPolicy<>(1, TimeUnit.HOURS);
+    PassiveExpiringMap<String, String> messageOwnership = new PassiveExpiringMap<>(expirationPolicy, new HashMap<>());
 
     public void linkAccount(MessageChannel channel, Member member, String apexId) {
         Request request = new Request.Builder()
@@ -99,14 +105,14 @@ public class DiscordInviteService {
             channel.sendMessage("<@" + member.getId() + "> 系统错误，请联系管理员。").queue();
             return;
         } else if (discordUser.getApexId() == null) {
-            channel.sendMessage(new EmbedBuilder()
+            makeMessageCancelable(channel.sendMessage(new EmbedBuilder()
                     .setAuthor(member.getEffectiveName() + " 请求Apex组队", null, member.getUser().getAvatarUrl())
                     .setTitle(processComment(apexDto.getComments()))
                     .setDescription(apexDto.getInviteUrl() == null ? apexDto.getInviteUrl() : "点击加入房间: [" + apexDto.getChannelName() + "](" + apexDto.getInviteUrl() + ")")
                     .setFooter("绑定apex账号之后才能显示战绩。使用yf help invite查看如何绑定。" + (apexDto.getInviteUrl() == null ?
 							"在妖风电竞的任何语音频道使用本命令就可以自动生成上车链接。" : ""))
                     .setColor(shouldEmbedBePink(discordUser) ? pink : null)
-                    .build()).queue();
+                    .build()).complete(), member);
             return;
         }
 
@@ -139,7 +145,7 @@ public class DiscordInviteService {
                                 break;
                             }
                         }
-                        channel.sendMessage(new EmbedBuilder()
+                        makeMessageCancelable(channel.sendMessage(new EmbedBuilder()
                                 .setAuthor(member.getEffectiveName() + " 请求Apex组队", null, member.getUser().getAvatarUrl())
                                 .setThumbnail(apexDto.getRankAvatar())
                                 .setTitle(processComment(apexDto.getComments()))
@@ -149,12 +155,12 @@ public class DiscordInviteService {
                                 .addField("击杀", apexDto.getKills(), true)
                                 .setFooter(apexDto.getInviteUrl() == null ? "在妖风电竞的任何语音频道使用本命令就可以自动生成上车链接。" : "")
                                 .setColor(shouldEmbedBePink(discordUser) ? pink : null)
-                                .build()).queue();
+                                .build()).complete(), member);
                     } catch (IOException e) {
                         onFailure(call, e);
                     }
                 } else if (response.code() == 500) {
-                    channel.sendMessage(new EmbedBuilder()
+                    makeMessageCancelable(channel.sendMessage(new EmbedBuilder()
                             .setAuthor(member.getEffectiveName() + " 请求Apex组队", null, member.getUser().getAvatarUrl())
                             .setTitle(processComment(apexDto.getComments()))
                             .setDescription(apexDto.getInviteUrl() == null ? apexDto.getInviteUrl() : "点击加入房间: [" + apexDto.getChannelName() + "](" + apexDto.getInviteUrl() + ")")
@@ -162,9 +168,9 @@ public class DiscordInviteService {
                             .addField("Apex tracker出错", "Apex tracker发生了系统问题，暂时无法读取你的战绩。待apex tracker解决他们的问题之后，你的组队命令才能显示战绩。", false)
                             .setFooter(apexDto.getInviteUrl() == null ? "在妖风电竞的任何语音频道使用本命令就可以自动生成上车链接。" : "")
                             .setColor(shouldEmbedBePink(discordUser) ? pink : null)
-                            .build()).queue();
+                            .build()).complete(), member);
                 } else {
-                    channel.sendMessage(new EmbedBuilder()
+                    makeMessageCancelable(channel.sendMessage(new EmbedBuilder()
                             .setAuthor(member.getEffectiveName() + " 请求Apex组队", null, member.getUser().getAvatarUrl())
                             .setTitle(processComment(apexDto.getComments()))
                             .setDescription(apexDto.getInviteUrl() == null ? apexDto.getInviteUrl() : "点击加入房间: [" + apexDto.getChannelName() + "](" + apexDto.getInviteUrl() + ")")
@@ -172,7 +178,7 @@ public class DiscordInviteService {
                             .addField("无法找到Origin账号", "Apex tracker无法搜索到你的Origin ID。如果你修改了Origin ID，请重新绑定。", false)
                             .setFooter(apexDto.getInviteUrl() == null ? "在妖风电竞的任何语音频道使用本命令就可以自动生成上车链接。" : "")
                             .setColor(shouldEmbedBePink(discordUser) ? pink : null)
-                            .build()).queue();
+                            .build()).complete(), member);
                 }
 
             }
@@ -199,14 +205,27 @@ public class DiscordInviteService {
         }
 
         DiscordUser discordUser = discordUserRepo.findById(member.getId()).orElse(null);
-        channel.sendMessage(new EmbedBuilder()
+        makeMessageCancelable(channel.sendMessage(new EmbedBuilder()
                 .setAuthor(member.getEffectiveName() + " 请求组队", null, member.getUser().getAvatarUrl())
                 .setTitle(processComment(comments))
                 .setDescription(inviteUrl == null ? inviteUrl : "点击加入房间: [" + channelName + "](" + inviteUrl + ")")
                 .setThumbnail("https://i.imgur.com/JCIxnvM.jpg")
                 .setFooter(inviteUrl == null ? "在妖风电竞的任何语音频道使用本命令就可以自动生成上车链接。" : "")
                 .setColor(shouldEmbedBePink(discordUser) ? pink : null)
-                .build()).queue();
+                .build()).complete(), member);
+    }
+
+    public boolean isCancelable(String messageId, String userId) {
+        return userId.equals(messageOwnership.get(messageId));
+    }
+
+    public void removeMessageId(String messageId) {
+        messageOwnership.remove(messageId);
+    }
+
+    private void makeMessageCancelable(Message message, Member member) {
+        message.addReaction("❌").queue();
+        messageOwnership.put(message.getId(), member.getId());
     }
 
     private String processComment(String comment) {

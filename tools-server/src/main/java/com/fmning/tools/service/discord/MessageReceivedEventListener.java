@@ -7,10 +7,12 @@ import com.fmning.tools.type.DiscordUserLogActionType;
 import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.events.message.guild.react.GuildMessageReactionAddEvent;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.Nonnull;
 import java.time.Instant;
 
 import static com.fmning.tools.util.DiscordUtil.sendLongEmbed;
@@ -146,6 +148,14 @@ public class MessageReceivedEventListener extends BaseEventListener {
             }
         } catch (Exception e) {
             logError(event, discordGuildRepo, e);
+        }
+    }
+
+    @Override
+    public void onGuildMessageReactionAdd(@Nonnull GuildMessageReactionAddEvent event) {
+        if ("❌".equals(event.getReactionEmote().getName()) && discordInviteService.isCancelable(event.getMessageId(), event.getUserId())) {
+            discordInviteService.removeMessageId(event.getMessageId());
+            event.getChannel().deleteMessageById(event.getMessageId()).queue();
         }
     }
 
