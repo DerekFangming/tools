@@ -49,9 +49,10 @@ public class DiscordMiscService {
                         "**----------------------------------------------组队----------------------------------------------**\n" +
                         "**组队命令详细说明：**`yf help invite` or `yf h i`\n" +
                         "**绑定或更新Origin ID：**`yf apex link 你的ID` or `yf a l 你的ID`\n" +
-                        "**查看别人绑定的Origin ID：**`yf apex id @某人` or `yf a i @某人`\n" +
                         "**发送Apex组队邀请：**`yf apex 你想说的` or `yf a 你想说的`\n" +
                         "**发送组队邀请：**`yf invite 你想说的` or `yf i 你想说的`\n" +
+                        "**删除已发出的组队邀请：**`点击邀请下方的❌`\n" +
+                        "**查看别人绑定的Origin ID：**`yf apex id @某人` or `yf a i @某人`\n" +
                         "**----------------------------------------------Tag----------------------------------------------**\n" +
                         "**Tag命令详细说明：**`yf help tag` or `yf h t`\n" +
                         "**创建或更新等级Tag：**`yf tag 颜色 名字` or `yf t 颜色 名字`\n" +
