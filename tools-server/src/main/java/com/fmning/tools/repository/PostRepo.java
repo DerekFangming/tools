@@ -16,7 +16,8 @@ import java.util.List;
 @Repository
 public interface PostRepo extends CrudRepository<Post, Integer> {
 
-    List<Post> findByViewedLessThanOrViewedIsNull(Instant viewed);
+    @Query("select p from Post p where p.created < :created and (saved <> true or saved is null)")
+    List<Post> findByCreatedLessThanAndSavedIsNullOrSavedIsTrue(Instant created);
 
     @Transactional
     @Modifying(clearAutomatically = true)
