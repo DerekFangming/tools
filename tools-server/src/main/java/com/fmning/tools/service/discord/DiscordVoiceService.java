@@ -4,6 +4,7 @@ import com.fmning.tools.domain.DiscordUser;
 import com.fmning.tools.repository.DiscordUserRepo;
 import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.VoiceChannel;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -33,6 +34,23 @@ public class DiscordVoiceService {
 
     public void memberLeaveChannel(Member member) {
         discordUserRepo.findById(member.getId()).ifPresent(this::stopCounting);
+    }
+
+    public void getLotteryStatus(MessageChannel channel, Member member) {
+        DiscordUser user = discordUserRepo.findById(member.getId()).orElse(null);
+        if (user == null) {
+            channel.sendMessage("<@" + member.getId() + "> 系统错误，请联系管理员。").queue();
+        } else {
+            String status;
+            if (user.getVoiceLastJoin() != null) {
+                int minutes = (int) ChronoUnit.MINUTES.between(user.getVoiceLastJoin(), Instant.now());
+                status = "你当前积累时间" + minutes + "分钟，相当于" + minutes / LOTTERY_MINUTE + "张抽奖券。";
+            } else {
+                status = "你当前未加入语音频道，没有积攒抽奖券。";
+            }
+            status += "你当前一共拥有" + user.getLotteryChance() + "张抽奖券。";
+            channel.sendMessage("<@" + member.getId() + "> " + status).queue();
+        }
     }
 
     private void startCounting(DiscordUser user) {

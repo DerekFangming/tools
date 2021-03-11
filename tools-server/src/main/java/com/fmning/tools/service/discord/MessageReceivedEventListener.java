@@ -15,8 +15,6 @@ import org.springframework.stereotype.Component;
 import javax.annotation.Nonnull;
 import java.time.Instant;
 
-import static com.fmning.tools.util.DiscordUtil.sendLongEmbed;
-
 @Component
 @RequiredArgsConstructor(onConstructor_={@Autowired})
 public class MessageReceivedEventListener extends BaseEventListener {
@@ -29,6 +27,7 @@ public class MessageReceivedEventListener extends BaseEventListener {
     private final DiscordMusicService discordMusicService;
     private final DiscordMiscService discordMiscService;
     private final DiscordChannelService discordChannelService;
+    private final DiscordVoiceService discordVoiceService;
 
     @Override
     public void onMessageReceived(@NotNull MessageReceivedEvent event) {
@@ -139,6 +138,8 @@ public class MessageReceivedEventListener extends BaseEventListener {
                 } else {
                     invalidCommand(channel, member, content);
                 }
+            } else if (command.equals(1, "lottery", null)) {
+                discordVoiceService.getLotteryStatus(channel, member);
             } else if (command.equals(1, "ping", null)) {
                 channel.sendMessage("Bot operational. Latency " + event.getJDA().getGatewayPing() + " ms").queue();
             } else if (command.equals(1, "debug", null)) {
