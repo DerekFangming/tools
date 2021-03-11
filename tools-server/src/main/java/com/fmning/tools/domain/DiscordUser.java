@@ -60,4 +60,13 @@ public class DiscordUser {
 
     @Column(name="temp_channel_id")
     private String tempChannelId;
+
+    @Column(name="voice_minutes")
+    private int voiceMinutes;
+
+    @Column(name="voice_last_join")
+    private Instant voiceLastJoin;
+
+    @Column(name="lottery_chance")
+    private int lotteryChance;
 }

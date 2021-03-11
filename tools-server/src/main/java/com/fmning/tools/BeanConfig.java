@@ -76,12 +76,13 @@ public class BeanConfig {
     @Bean
     public JDA jda(MessageReceivedEventListener messageReceivedEventListener, MemberJoinedEventListener memberJoinedEventListener,
                    MemberRemoveEventListener memberRemoveEventListener, MemberUpdateEventListener memberUpdateEventListener, RoleEventListener roleEventListener,
-                   ChannelEventListener channelEventListener) throws Exception {
+                   ChannelEventListener channelEventListener, MemberVoiceEventListener memberVoiceEventListener) throws Exception {
         return JDABuilder.createDefault(toolsProperties.getDcBotToken())
                 .enableIntents(GatewayIntent.GUILD_MEMBERS)
                 .setChunkingFilter(ChunkingFilter.ALL) // enable member chunking for all guilds
                 .setMemberCachePolicy(MemberCachePolicy.ALL) // ignored if chunking enabled
-                .addEventListeners(messageReceivedEventListener, memberJoinedEventListener, memberRemoveEventListener, memberUpdateEventListener, roleEventListener, channelEventListener)
+                .addEventListeners(messageReceivedEventListener, memberJoinedEventListener, memberRemoveEventListener, memberUpdateEventListener,
+                        roleEventListener, channelEventListener, memberVoiceEventListener)
                 .build().awaitReady();
     }
 
