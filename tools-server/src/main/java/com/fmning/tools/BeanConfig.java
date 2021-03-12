@@ -7,6 +7,7 @@ import com.fmning.tools.service.discord.*;
 import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
+import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.utils.ChunkingFilter;
 import net.dv8tion.jda.api.utils.MemberCachePolicy;
@@ -83,6 +84,7 @@ public class BeanConfig {
                 .setMemberCachePolicy(MemberCachePolicy.ALL) // ignored if chunking enabled
                 .addEventListeners(messageReceivedEventListener, memberJoinedEventListener, memberRemoveEventListener, memberUpdateEventListener,
                         roleEventListener, channelEventListener, memberVoiceEventListener)
+                .setActivity(Activity.of(Activity.ActivityType.DEFAULT, "yf help"))
                 .build().awaitReady();
     }
 
