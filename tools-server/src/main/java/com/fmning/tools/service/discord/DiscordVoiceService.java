@@ -18,7 +18,7 @@ public class DiscordVoiceService {
 
     private final DiscordUserRepo discordUserRepo;
 
-    private static final int LOTTERY_MINUTE = 30;
+    private static final int LOTTERY_MINUTE = 60;
     private static final int MAX_LOTTERY_CHANCE_LIMIT = 12 * 60 / LOTTERY_MINUTE;
 
     public void memberJoinChannel(VoiceChannel joinedChannel, VoiceChannel afkChannel, Member member) {
@@ -44,7 +44,8 @@ public class DiscordVoiceService {
             String status;
             if (user.getVoiceLastJoin() != null) {
                 int minutes = (int) ChronoUnit.MINUTES.between(user.getVoiceLastJoin(), Instant.now());
-                status = "你当前积累时间" + minutes + "分钟，相当于" + minutes / LOTTERY_MINUTE + "张抽奖券。";
+                int chance = minutes / LOTTERY_MINUTE;
+                status = "你当前积累时间" + minutes + "分钟，相当于" + (Math.min(chance, MAX_LOTTERY_CHANCE_LIMIT)) + "张抽奖券。";
             } else {
                 status = "你当前未加入语音频道，没有积攒抽奖券。";
             }

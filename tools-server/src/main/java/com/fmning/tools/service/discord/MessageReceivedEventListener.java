@@ -100,7 +100,7 @@ public class MessageReceivedEventListener extends BaseEventListener {
                 discordMusicService.stop();
             } else if (command.equals(1, "queue", "q")) {
                 discordMusicService.showQueue(channel);
-            } else if (command.equals(1, "loop", "l")) {
+            } else if (command.equals(1, "loop", null)) {
                 discordMusicService.toggleLoop(channel, member);
             } else if (command.equals(1, "tag", "t")) {
                 if (command.length() == 2) {
@@ -138,7 +138,7 @@ public class MessageReceivedEventListener extends BaseEventListener {
                 } else {
                     invalidCommand(channel, member, content);
                 }
-            } else if (command.equals(1, "lottery", null)) {
+            } else if (command.equals(1, "lottery", "l")) {
                 discordVoiceService.getLotteryStatus(channel, member);
             } else if (command.equals(1, "ping", null)) {
                 channel.sendMessage("Bot operational. Latency " + event.getJDA().getGatewayPing() + " ms").queue();
