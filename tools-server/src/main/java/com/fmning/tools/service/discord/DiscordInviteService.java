@@ -69,7 +69,7 @@ public class DiscordInviteService {
             }
 
             public void onFailure(@NotNull Call call, @NotNull IOException e) {
-                channel.sendMessage("<@" + member.getId() + "> 系统错误，请联系管理员。").queue();
+                channel.sendMessage("<@" + member.getId() + "> 系统错误，请稍后再试。").queue();
                 e.printStackTrace();
             }
         });
@@ -102,7 +102,7 @@ public class DiscordInviteService {
 
         DiscordUser discordUser = discordUserRepo.findById(member.getId()).orElse(null);
         if (discordUser == null) {
-            channel.sendMessage("<@" + member.getId() + "> 系统错误，请联系管理员。").queue();
+            channel.sendMessage("<@" + member.getId() + "> 系统错误，请稍后再试。").queue();
             return;
         } else if (discordUser.getApexId() == null) {
             makeMessageCancelable(channel.sendMessage(new EmbedBuilder()
@@ -184,7 +184,7 @@ public class DiscordInviteService {
             }
 
             public void onFailure(@NotNull Call call, @NotNull IOException e) {
-                channel.sendMessage("<@" + member.getId() + "> 系统错误，请联系管理员。").queue();
+                channel.sendMessage("<@" + member.getId() + "> 系统错误，请稍后再试。").queue();
                 e.printStackTrace();
             }
         });

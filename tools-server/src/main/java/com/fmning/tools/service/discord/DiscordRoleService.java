@@ -103,7 +103,7 @@ public class DiscordRoleService {
                                 return;
                             }
                         }
-                        channel.sendMessage("<@" + member.getId() + "> 系统错误，请联系管理员。").queue();
+                        channel.sendMessage("<@" + member.getId() + "> 系统错误，请稍后再试。").queue();
                     } catch (IOException e) {
                         onFailure(call, e);
                     }
@@ -162,7 +162,7 @@ public class DiscordRoleService {
                 }
             } else {
                 Role role = guild.getRoleById(boostRole.getRoleId());
-                if (role == null) channel.sendMessage("<@" + member.getId() + "> 系统错误，请联系管理员。").queue();
+                if (role == null) channel.sendMessage("<@" + member.getId() + "> 系统错误，请稍后再试。").queue();
                 else {
                     role.getManager().setName(name).setColor(Color.decode(color)).queue();
                     channel.sendMessage("<@" + member.getId() + "> Booster 专属tag **" + name + "**已更新成功。").queue();
@@ -193,7 +193,7 @@ public class DiscordRoleService {
                 channel.sendMessage("<@" + member.getId() + "> 等级tag **" + name + "**已创建成功。").queue();
             } else {
                 Role role = guild.getRoleById(levelRole.getRoleId());
-                if (role == null) channel.sendMessage("<@" + member.getId() + "> 系统错误，请联系管理员。").queue();
+                if (role == null) channel.sendMessage("<@" + member.getId() + "> 系统错误，请稍后再试。").queue();
                 else {
                     role.getManager().setName(name).setColor(Color.decode(color)).queue();
                     channel.sendMessage("<@" + member.getId() + "> 等级tag **" + name + "**已更新成功。").queue();
@@ -222,7 +222,7 @@ public class DiscordRoleService {
             Guild guild = member.getGuild();
             Role role = guild.getRoleById(roleMapping.getRoleId());
             if (role == null) {
-                channel.sendMessage("<@" + member.getId() + "> 系统错误，请联系管理员。").queue();
+                channel.sendMessage("<@" + member.getId() + "> 系统错误，请稍后再试。").queue();
                 return;
             }
 
@@ -262,7 +262,7 @@ public class DiscordRoleService {
             Guild guild = member.getGuild();
             Role role = guild.getRoleById(roleMapping.getRoleId());
             if (role == null) {
-                channel.sendMessage("<@" + member.getId() + "> 系统错误，请联系管理员。").queue();
+                channel.sendMessage("<@" + member.getId() + "> 系统错误，请稍后再试。").queue();
                 return;
             }
 
@@ -303,7 +303,7 @@ public class DiscordRoleService {
             discordRoleMappingRepo.save(mapping);
             channel.sendMessage("<@" + member.getId() + "> tag分享成功。").queue();
         } else {
-            channel.sendMessage("<@" + member.getId() + "> tag分享失败，请联系管理员。").queue();
+            channel.sendMessage("<@" + member.getId() + "> tag分享失败，请稍后再试。").queue();
         }
     }
 
@@ -420,7 +420,7 @@ public class DiscordRoleService {
                 if (role != null) {
                     role.delete().queue();
                 } else if (discordRoleRepo.findById(roleMapping.getRoleId()).isPresent()) {
-                    channel.sendMessage("<@" + member.getId() + "> 删除失败，请联系管理员。").queue();
+                    channel.sendMessage("<@" + member.getId() + "> 删除失败，请稍后再试。").queue();
                     return;
                 }
                 discordRoleMappingRepo.deleteByRoleId(roleMapping.getRoleId());
@@ -430,13 +430,13 @@ public class DiscordRoleService {
                 if (role != null) {
                     role.delete().queue();
                 } else if (discordRoleRepo.findById(roleMapping.getRoleId()).isPresent()) {
-                    channel.sendMessage("<@" + member.getId() + "> 删除失败，请联系管理员。").queue();
+                    channel.sendMessage("<@" + member.getId() + "> 删除失败，请稍后再试。").queue();
                     return;
                 }
                 discordRoleMappingRepo.delete(roleMapping);
                 channel.sendMessage("<@" + member.getId() + "> tag删除成功。").queue();
             } else {
-                channel.sendMessage("<@" + member.getId() + "> 系统错误，请联系管理员。").queue();
+                channel.sendMessage("<@" + member.getId() + "> 系统错误，请稍后再试。").queue();
             }
         }
     }

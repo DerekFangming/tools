@@ -20,12 +20,6 @@ public class MemberVoiceEventListener extends BaseEventListener  {
         if (!event.getMember().getUser().isBot()) {
             discordVoiceService.memberJoinChannel(event.getChannelJoined(), event.getGuild().getAfkChannel(), event.getMember());
         }
-//        new Timer().schedule(new TimerTask() {
-//            @Override
-//            public void run() {
-//                System.out.println("user 9 " + Instant.now());
-//            }
-//        },  3000);
     }
 
     @Override
@@ -42,4 +36,4 @@ public class MemberVoiceEventListener extends BaseEventListener  {
         }
     }
 
-}//  https://discord.gg/eNTHx43J
+}

@@ -39,7 +39,7 @@ public class DiscordVoiceService {
     public void getLotteryStatus(MessageChannel channel, Member member) {
         DiscordUser user = discordUserRepo.findById(member.getId()).orElse(null);
         if (user == null) {
-            channel.sendMessage("<@" + member.getId() + "> 系统错误，请联系管理员。").queue();
+            channel.sendMessage("<@" + member.getId() + "> 系统错误，请稍后再试。").queue();
         } else {
             String status;
             if (user.getVoiceLastJoin() != null) {

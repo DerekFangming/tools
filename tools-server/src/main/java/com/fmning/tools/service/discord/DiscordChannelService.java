@@ -97,7 +97,7 @@ public class DiscordChannelService {
                             return;
                         }
                     }
-                    channel.sendMessage("<@" + member.getId() + "> 系统错误，请联系管理员。").queue();
+                    channel.sendMessage("<@" + member.getId() + "> 系统错误，请稍后再试。").queue();
                 } catch (IOException e) {
                     onFailure(call, e);
                 }
@@ -146,7 +146,7 @@ public class DiscordChannelService {
                 channel.sendMessage("<@" + member.getId() + "> 临时频道创建成功。" + invite.getUrl()).queue();
             }
         } else {
-            channel.sendMessage("<@" + member.getId() + "> 系统错误，请联系管理员。").queue();
+            channel.sendMessage("<@" + member.getId() + "> 系统错误，请稍后再试。").queue();
         }
     }
 
