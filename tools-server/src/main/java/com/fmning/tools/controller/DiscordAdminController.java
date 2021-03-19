@@ -91,8 +91,6 @@ public class DiscordAdminController {
         }
 
         return sb.toString();
-
-//        return RandomStringUtils.randomAlphanumeric(6);
     }
 
     @GetMapping("/role-fix-preview")
@@ -142,6 +140,18 @@ public class DiscordAdminController {
             }
         }
         return sb.toString();
+    }
+
+    @GetMapping("/speed-on")
+    @PreAuthorize("hasRole('ADMIN')")
+    public boolean startSpeed() {
+        return discordService.startSpeed();
+    }
+
+    @GetMapping("/speed-off")
+    @PreAuthorize("hasRole('ADMIN')")
+    public boolean stopSpeed() {
+        return discordService.stopSpeed();
     }
 
     @GetMapping("/test")

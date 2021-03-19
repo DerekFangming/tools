@@ -10,17 +10,17 @@ import com.fmning.tools.domain.DiscordUser;
 import com.fmning.tools.dto.DiscordObjectDto;
 import com.fmning.tools.repository.*;
 import lombok.RequiredArgsConstructor;
+import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.PostConstruct;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.Calendar;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.fmning.tools.util.DiscordUtil.toHexString;
@@ -38,6 +38,102 @@ public class DiscordService extends BaseEventListener {
     private final DiscordRoleRepo discordRoleRepo;
     private final DiscordCategoryRepo discordCategoryRepo;
     private final DiscordChannelRepo discordChannelRepo;
+
+    public static String speedMessageId = "";
+    public static String roleId = "";
+    public static String channelId = "";
+    private int showSeconds = 30;
+    private int baseDelaySeconds = 30;
+    private int randDelaySeconds = 5;
+    private Timer timer = new Timer();
+    private boolean started;
+
+    @PostConstruct
+    public void init() {
+        if (toolsProperties.isProduction()) {
+            roleId = "";
+            channelId = "";
+        } else {
+            roleId = "793670567940718622";
+            channelId = "792772167959314493";
+        }
+    }
+
+    public boolean startSpeed() {
+        if (!started) {
+            Role role = jda.getRoleById(roleId);
+            TextChannel channel = jda.getTextChannelById(channelId);
+            if (role != null && channel != null) {
+                int delay = (new Random().nextInt(randDelaySeconds) * 1000);
+                timer.schedule(new SpeedTask(), baseDelaySeconds * 1000 + delay);
+                started = true;
+                channel.sendMessage(new EmbedBuilder()
+                        .setTitle("拼手速小活动开始！")
+                        .setDescription("活动期间你将在这个频道看到类似这样的消息，随机出现，每次出现" + showSeconds +
+                                "秒。在此期间，点击消息下方 \uD83D\uDC4D 表情即可获得活动tag " + role.getName() + "\n")
+                        .build()).queue(r -> r.addReaction("\uD83D\uDC4D").queue());
+            }
+        }
+        return started;
+    }
+
+    public boolean stopSpeed() {
+        if (started) {
+            started = false;
+        }
+        return started;
+    }
+
+    class SpeedTask extends TimerTask {
+
+        @Override
+        public void run() {
+            int delay = (new Random().nextInt(randDelaySeconds) * 1000);
+            if (started) timer.schedule(new SpeedTask(), baseDelaySeconds * 1000 + delay);
+
+            TextChannel channel = jda.getTextChannelById(channelId);
+            if (channel != null) {
+                channel.sendMessage(new EmbedBuilder()
+                        .setTitle("点击下方大拇指表情获得手速Tag")
+                        .setDescription("▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒\n" +
+                                "▒▓███▓▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒\n" +
+                                "▒▓█▓▓██▓▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒\n" +
+                                "▒▓█▒▒███▓▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒\n" +
+                                "▒▓███▒▒█▓▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒\n" +
+                                "▒▓███▒▒█▓▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒\n" +
+                                "▒▓██▒░▒█▓▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒\n" +
+                                "▒▓█▓░▒▒█▓▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒\n" +
+                                "▒▓█▓▒▒▒█▓▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒\n" +
+                                "▒▓█▓▒▒▒██▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒\n" +
+                                "▒▓█▓▒▒▒▒██▓▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒\n" +
+                                "▒▓█▓▒▒▒▒▒██████████████████████▓▒▒▒\n" +
+                                "▒▓█▓▒▒▒▒▒▒▒▓█████████████████████▒▒\n" +
+                                "▒▓█▓▒▒▒▒▒▒▒▒▒▒▒▒▒░░░░░░░░░░░░░. ▓█▓▒\n" +
+                                "▒▓█▓▒▒▒▒▒▒▒▒▒▒▒▒▒▓▓▓▓▓▓▓▓▓▓▓▓▓███▒▒\n" +
+                                "▒▓█▓▒▒▒▒▒▒▒▒▒▒▒▓█████████████████▒▒\n" +
+                                "▒▓█▓▒▒▒▒▒▒▒▒▒▒▒██░░░░░░░░░░░░░░▓█▓▒\n" +
+                                "▒▓█▓▒▒▒▒▒▒▒▒▒▒▒▓█▓▓▓▓▓▓▓▓▓▓▓▓▓▓██▒▒\n" +
+                                "▒▓█▓▒▒▒▒▒▒▒▒▒▒▒▒█████████████████▒▒\n" +
+                                "▒▓█▓▒▒▒▒▒▒▒▒▒▒▒██░░░░░░░░░░░░░░▓█▓▒\n" +
+                                "▒▓█▓▒▒▒▒▒▒▒▒▒▒▒▓█▓▒▓▓▓▓▓▓▓▓▓▓▓▓██▒▒\n" +
+                                "▒▒██▒▒▒▒▒▒▒▒▒▒▒▒█████████████████▒▒\n" +
+                                "▒▒▓██▒▒▒▒▒▒▒▒▒▒██▒░▒▒▒▒▒▒▒▒▒▒░░▓█▓▒\n" +
+                                "▒▒▒▓███▓▓▓▓▓▓▓▒██▓▒▓▓▓▓▓▓▓▓▓▒▒▒██▓▒\n" +
+                                "▒▒▒▒▒▓██████████████████████████▒▒▒")
+                        .build()).queue(r -> {
+                    speedMessageId = r.getId();
+                    r.addReaction("\uD83D\uDC4D").queue(rr -> {
+                        new Timer().schedule(new TimerTask() {
+                            @Override
+                            public void run() {
+                                channel.deleteMessageById(r.getId()).queue();
+                            }
+                        }, showSeconds * 1000);
+                    });
+                });
+            }
+        }
+    }
 
     @Scheduled(cron = "0 0 4 * * *")
     public void announceBirthDay() {

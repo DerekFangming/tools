@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.guild.react.GuildMessageReactionAddEvent;
+import net.dv8tion.jda.internal.entities.PrivateChannelImpl;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -32,6 +33,14 @@ public class MessageReceivedEventListener extends BaseEventListener {
     @Override
     public void onMessageReceived(@NotNull MessageReceivedEvent event) {
         try {
+            MessageChannel channel = event.getChannel();
+            if (channel.getType() == ChannelType.PRIVATE) {
+                if (!event.getMessage().getAuthor().isBot()) {
+                    channel.sendMessage("请到妖风电竞的文字频道和我互动噢！").queue();
+                }
+                return;
+            }
+
             String content = event.getMessage().getContentRaw();
             if (!content.toLowerCase().startsWith("yf")) {
                 if (event.getMessage().getType() == MessageType.GUILD_MEMBER_BOOST) {
@@ -52,7 +61,6 @@ public class MessageReceivedEventListener extends BaseEventListener {
 
             Command command = new Command(content);
 
-            MessageChannel channel = event.getChannel();
             Member member = event.getMember();
             if (member == null || member.getUser().isBot()) return;
 
@@ -157,6 +165,15 @@ public class MessageReceivedEventListener extends BaseEventListener {
         if ("❌".equals(event.getReactionEmote().getName()) && discordInviteService.isCancelable(event.getMessageId(), event.getUserId())) {
             discordInviteService.removeMessageId(event.getMessageId());
             event.getChannel().deleteMessageById(event.getMessageId()).queue();
+        } else if ("\uD83D\uDC4D".equals(event.getReactionEmote().getName()) && !event.getUser().isBot()) {
+            // TODO: remove when speed is done
+            if (event.getMessageId().equals(DiscordService.speedMessageId)) {
+                Member member = event.getMember();
+                Role role = event.getGuild().getRoleById(DiscordService.roleId);
+                if (role != null) {
+                    event.getGuild().addRoleToMember(member, role).queue();
+                }
+            }
         }
     }
 

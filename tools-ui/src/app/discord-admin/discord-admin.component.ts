@@ -52,4 +52,20 @@ export class DiscordAdminComponent implements OnInit {
     });
   }
 
+  startSpeed() {
+    this.http.get<boolean>(environment.urlPrefix + 'api/discord/admin/speed-on').subscribe(res => {
+      alert(res ? 'Started!' : 'Stopped');
+    }, error => {
+      alert(error.message);
+    });
+  }
+
+  stopSpeed() {
+    this.http.get<boolean>(environment.urlPrefix + 'api/discord/admin/speed-off').subscribe(res => {
+      alert(res ? 'Started!' : 'Stopped');
+    }, error => {
+      alert(error.message);
+    });
+  }
+
 }
