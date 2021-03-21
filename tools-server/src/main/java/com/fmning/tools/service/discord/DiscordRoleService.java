@@ -159,6 +159,7 @@ public class DiscordRoleService {
                 } else {
                     guild.modifyRolePositions().selectPosition(role).moveTo(targetRole.getPosition()).queue();
                     channel.sendMessage("<@" + member.getId() + "> Booster 专属tag **" + name + "**已创建成功。").queue();
+                    guild.addRoleToMember(user.getId(), targetRole).queue();
                 }
             } else {
                 Role role = guild.getRoleById(boostRole.getRoleId());
@@ -189,8 +190,13 @@ public class DiscordRoleService {
                 //Add role to member and then move rank
                 guild.addRoleToMember(member.getId(), role).complete();
                 Role targetRole = guild.getRoleById(discordGuild.getRoleLevelRankRoleId());
-                guild.modifyRolePositions().selectPosition(role).moveTo(targetRole.getPosition()).complete();
-                channel.sendMessage("<@" + member.getId() + "> 等级tag **" + name + "**已创建成功。").queue();
+                if (targetRole == null) {
+                    channel.sendMessage("<@" + member.getId() + "> 等级tag **" + name + "**已创建成功。移位失败。").queue();
+                } else {
+                    guild.modifyRolePositions().selectPosition(role).moveTo(targetRole.getPosition()).complete();
+                    channel.sendMessage("<@" + member.getId() + "> 等级tag **" + name + "**已创建成功。").queue();
+                    guild.addRoleToMember(user.getId(), targetRole).queue();
+                }
             } else {
                 Role role = guild.getRoleById(levelRole.getRoleId());
                 if (role == null) channel.sendMessage("<@" + member.getId() + "> 系统错误，请稍后再试。").queue();
@@ -290,8 +296,12 @@ public class DiscordRoleService {
         if (mapping == null) {
             channel.sendMessage("<@" + member.getId() + "> 验证码 **" + code + "**不存在。").queue();
             return;
-        } else if (mapping.isEnabled() || !member.getId().equals(mapping.getApproverId())) {
+        } else if (mapping.isEnabled()) {
             channel.sendMessage("<@" + member.getId() + "> 你无法使用这个验证码。").queue();
+            return;
+        } else if (!member.getId().equals(mapping.getApproverId())) {
+            String name = discordUserRepo.getNicknameById(mapping.getApproverId());
+            channel.sendMessage("<@" + member.getId() + "> 你无法使用这个验证码。请让" + name + "使用这个验证码。").queue();
             return;
         }
         Guild guild = member.getGuild();
@@ -301,7 +311,16 @@ public class DiscordRoleService {
             mapping.setEnabled(true);
             mapping.setApproverId(null);
             discordRoleMappingRepo.save(mapping);
-            channel.sendMessage("<@" + member.getId() + "> tag分享成功。").queue();
+            if (member.getId().equals(mapping.getOwnerId())) {
+                channel.sendMessage("<@" + member.getId() + "> 你已成功获得tag **" + role.getName() + "**").queue();
+            } else {
+                channel.sendMessage("<@" + member.getId() + "> 你已成功分享tag **" + role.getName() + "**").queue();
+            }
+
+            Role deliminator = guild.getRoleById(discordGuild.getRoleLevelRankRoleId());
+            if (deliminator != null) {
+                guild.addRoleToMember(mapping.getOwnerId(), deliminator).queue();
+            }
         } else {
             channel.sendMessage("<@" + member.getId() + "> tag分享失败，请稍后再试。").queue();
         }
