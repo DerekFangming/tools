@@ -159,7 +159,10 @@ public class DiscordRoleService {
                 } else {
                     guild.modifyRolePositions().selectPosition(role).moveTo(targetRole.getPosition()).queue();
                     channel.sendMessage("<@" + member.getId() + "> Booster 专属tag **" + name + "**已创建成功。").queue();
-                    guild.addRoleToMember(user.getId(), targetRole).queue();
+                }
+                Role deliminator = guild.getRoleById(discordGuild.getRoleBoostRankRoleId());
+                if (deliminator != null) {
+                    guild.addRoleToMember(user.getId(), deliminator).queue();
                 }
             } else {
                 Role role = guild.getRoleById(boostRole.getRoleId());
