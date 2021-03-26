@@ -6,4 +6,5 @@ export class DiscordUser {
     birthday: string;
     joinedDate: string;
     boostedDate: string;
+    voiceMinutes: number;
   }
