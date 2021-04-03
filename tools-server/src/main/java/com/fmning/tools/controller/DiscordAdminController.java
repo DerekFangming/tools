@@ -27,11 +27,9 @@ public class DiscordAdminController {
 
     private final DiscordService discordService;
     private final ToolsProperties toolsProperties;
-    private final DiscordGuildRepo discordGuildRepo;
     private final DiscordUserRepo discordUserRepo;
     private final DiscordRoleRepo discordRoleRepo;
     private final DiscordRoleMappingRepo discordRoleMappingRepo;
-    private final DiscordUserLogRepo discordUserLogRepo;
 
     @GetMapping("/birthday")
     @PreAuthorize("hasRole('ADMIN')")
