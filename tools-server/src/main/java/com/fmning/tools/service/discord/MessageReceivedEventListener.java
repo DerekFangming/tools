@@ -5,14 +5,21 @@ import com.fmning.tools.repository.DiscordGuildRepo;
 import com.fmning.tools.repository.DiscordUserLogRepo;
 import com.fmning.tools.type.DiscordUserLogActionType;
 import lombok.RequiredArgsConstructor;
+import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.guild.react.GuildMessageReactionAddEvent;
+import org.apache.commons.io.FileUtils;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Nonnull;
+import javax.imageio.ImageIO;
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.time.Instant;
 
 @Component
@@ -150,7 +157,18 @@ public class MessageReceivedEventListener extends BaseEventListener {
             } else if (command.equals(1, "ping", null)) {
                 channel.sendMessage("Bot operational. Latency " + event.getJDA().getGatewayPing() + " ms").queue();
             } else if (command.equals(1, "debug", null)) {
-                throw new IllegalStateException("wtf");
+                BufferedImage image = ImageIO.read(new File("D:/share/456.png"));
+
+                Graphics g = image.getGraphics();
+                g.setFont(g.getFont().deriveFont(30f));
+                g.drawString("Hello World!", 100, 100);
+                g.dispose();
+
+                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                ImageIO.write(image, "png", baos);
+
+//                channel.sendMessage("Here is my image !").addFile(file).queue();
+                channel.sendMessage("Here is my image !").addFile(baos.toByteArray(), "Somefile.png").queue();
             } else {
                 invalidCommand(channel, member, content);
             }
@@ -178,6 +196,7 @@ public class MessageReceivedEventListener extends BaseEventListener {
 
     private void invalidCommand(MessageChannel channel, Member member, String content) {
         channel.sendMessage("<@" + member.getId() + "> 无法识别指令 **" + content + "**。请运行yf help查看指令说明。").queue();
+//        channel.sendMessage(Message)
     }
 
 

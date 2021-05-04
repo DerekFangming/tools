@@ -15,6 +15,7 @@ public interface DiscordUserRepo extends CrudRepository<DiscordUser, String> {
     List<DiscordUser> findByBirthday(String birthday);
     List<DiscordUser> findByBirthdayNotNullOrderByBirthdayAsc();
     List<DiscordUser> findByBirthdayStartingWithOrderByBirthdayAsc(String birthday);
+    List<DiscordUser> findByLotteryChanceGreaterThan(int lo);
     Page<DiscordUser> findAll(Specification<DiscordUser> spec, Pageable pageable);
 
     List<DiscordUser> findByRolesContaining(String role);

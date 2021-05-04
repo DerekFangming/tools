@@ -17,6 +17,8 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 @RestController
@@ -154,7 +156,15 @@ public class DiscordAdminController {
 
     @GetMapping("/test")
     @PreAuthorize("hasRole('ADMIN')")
-    public void roleFix() {
-        discordRoleMappingRepo.deleteByCreated(Instant.now());
+    public String roleFix() {
+        List<String> list = new ArrayList<>();
+        discordUserRepo.findByLotteryChanceGreaterThan(0).forEach(u -> {
+            for (int i = 0; i < u.getLotteryChance(); i ++) {
+                list.add(u.getNickname() + "(***" + u.getId().substring(u.getId().length() - 5) + ")");
+            }
+        });
+        Collections.shuffle(list);
+        return String.join("<br>", list);
+
     }
 }
