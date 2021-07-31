@@ -57,6 +57,21 @@ public class DiscordService extends BaseEventListener {
             roleId = "793670567940718622";
             channelId = "792772167959314493";
         }
+
+//        jda.upsertCommand("ping", "Calculate ping of the bot").queue();
+
+//        Guild g = jda.getGuildById(toolsProperties.getDcDefaultGuildId());
+//        g.retrieveCommands().complete().forEach(c -> {
+//            g.deleteCommandById(c.getId()).complete();
+//        });
+
+//        g.upsertCommand("ar1-2", "Apex rank 1等2").queue();
+//        g.upsertCommand("ar2-1", "Apex rank 2等1").queue();
+//        g.upsertCommand("an1-2", "Apex normal 1等2").queue();
+//        g.upsertCommand("an2-1", "Apex normal 2等1").queue();
+//        g.upsertCommand("a1", "Apex normal 2等1").queue();
+
+//        jda.getGuildById(toolsProperties.getDcDefaultGuildId()).up
     }
 
     public boolean startSpeed() {
