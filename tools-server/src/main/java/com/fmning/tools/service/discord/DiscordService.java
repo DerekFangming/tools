@@ -160,16 +160,28 @@ public class DiscordService extends BaseEventListener {
 
                     Calendar today = Calendar.getInstance();
                     String birthday = String.format("%02d-%02d", today.get(Calendar.MONTH) + 1, today.get(Calendar.DAY_OF_MONTH));
-                    discordUserRepo.findByBirthday(birthday).forEach(d -> {
-                        String message = replacePlaceHolder(g.getBirthdayMessage(), d.getName(), d.getId());
-                        channel.sendMessage("@here " + message).queue();
 
-                        try {
-                            guild.addRoleToMember(d.getId(), jda.getRoleById(g.getBirthdayRoleId())).queue();
-                        } catch (Exception ignored){
-                            ignored.printStackTrace();
+                    String names = null;
+                    String ids = null;
+                    List<DiscordUser> birthdayUsers = discordUserRepo.findByBirthday(birthday);
+                    for (DiscordUser u : birthdayUsers) {
+                        if (names == null) {
+                            names = u.getName();
+                            ids = u.getId();
+                        } else {
+                            names += ", " + u.getName();
+                            ids += "> <@" + u.getId();
                         }
-                    });
+                        try {
+                            guild.addRoleToMember(u.getId(), jda.getRoleById(g.getBirthdayRoleId())).queue();
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    if (names != null && channel != null) {
+                        String message = replacePlaceHolder(g.getBirthdayMessage(), names, ids);
+                        channel.sendMessage("@here " + message).queue();
+                    }
 
                     Calendar yesterday = Calendar.getInstance();
                     yesterday.add(Calendar.DAY_OF_MONTH, -1);
