@@ -1,15 +1,21 @@
 package com.fmning.tools.service.discord;
 
+import com.fmning.tools.ToolsProperties;
 import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.Invite;
 import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @Service
@@ -40,7 +46,11 @@ public class DiscordMiscService {
         add("打得好啊");
     }};
 
+    private Pattern fobiddenPattern = Pattern.compile("nm|rank|\\d\\s*=\\s*\\d|私|等\\s*\\d|缺\\s*\\d");
+
     private Random random = new Random();
+
+    private final ToolsProperties toolsProperties;
 
     public void help(MessageChannel channel) {
         channel.sendMessage(new EmbedBuilder()
@@ -154,6 +164,48 @@ public class DiscordMiscService {
             String allMentions = mentions.stream().map(m -> "<@" + m.getId() + ">")
                     .collect(Collectors.joining(" "));
             channel.sendMessage(allMentions + " " + nbList.get(random.nextInt(nbList.size()))).queue();
+        }
+    }
+
+    public void checkViolations(MessageChannel channel, Member member, Message message, String content) {
+
+        // Check for apex channel invite wording
+        if (channel.getId().equals(toolsProperties.getApexChannelId()) && member != null) {
+            Matcher m = fobiddenPattern.matcher(content);
+            if (m.find()) {
+                if (member.getRoles().stream().anyMatch(r -> toolsProperties.getYaofengNewbieRoleId().contains(r.getId()))) {
+                    if (message.getInvites().size() == 0) {
+                        message.reply(new EmbedBuilder()
+                                .setAuthor(member.getEffectiveName(), null, member.getUser().getAvatarUrl())
+                                .setThumbnail("https://i.giphy.com/media/daDPy7kxfE1TfxLzNg/giphy.gif")
+                                .setTitle("警告: 违反组队规则")
+                                .setDescription("违规词语: **" + m.group(0) + "**\n\n" + "如果还未进入频道，请标注好即将要进入的房间。\n")
+                                .setFooter("多次警告无效可能导致临时禁言甚至永久封禁。如果你认为这条警告不合理，请联系管理。")
+                                .setColor(Color.red)
+                                .build()).queue();
+                        return;
+                    }
+                }
+            }
+        }
+        // Check for invite URLs
+        if (message.getInvites().size() > 0 && member != null) {
+            if (member.getRoles().stream().anyMatch(r -> toolsProperties.getYaofengNewbieRoleId().contains(r.getId()))) {
+                for (String i : message.getInvites()) {
+                    Invite.resolve(message.getJDA(), i).queue(v-> {
+                        if (!toolsProperties.getDcDefaultGuildId().equals(v.getGuild().getId())) {
+                            message.reply(new EmbedBuilder()
+                                    .setAuthor(member.getEffectiveName(), null, member.getUser().getAvatarUrl())
+                                    .setThumbnail("https://i.giphy.com/media/daDPy7kxfE1TfxLzNg/giphy.gif")
+                                    .setTitle("警告: 邀请链接")
+                                    .setDescription("请勿发送其他DC的邀请链接")
+                                    .setFooter("多次警告无效可能导致临时禁言甚至永久封禁。如果你认为这条警告不合理，请联系管理。")
+                                    .setColor(Color.red)
+                                    .build()).queue();
+                        }
+                    });
+                }
+            }
         }
     }
 }
