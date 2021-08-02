@@ -180,11 +180,11 @@ public class DiscordMiscService {
                         }
 
                         String reason = null;
-                        if (inChannel) {
-                            if (message.getInvites().size() == 0) {
-                                reason = "请在组队时附带当前频道链接或使用yf组队命令自动创建链接。在 #\uD83D\uDCAB自助bot 频道发送yf help invite查看如何使用妖风组队机器人。";
-                            }
-                        } else {
+                        if (!inChannel) {
+//                            if (message.getInvites().size() == 0) {
+//                                reason = "请在组队时附带当前频道链接或使用yf组队命令自动创建链接。在 #\uD83D\uDCAB自助bot 频道发送yf help invite查看如何使用妖风组队机器人。";
+//                            }
+//                        } else {
                             reason = " 发送组队邀请时未在语音频道内。请先进入任意语音频道然后使用yf组队命令自动发送组队链接。在 #\uD83D\uDCAB自助bot 频道发送yf help invite查看如何使用妖风组队机器人。";
                         }
 
