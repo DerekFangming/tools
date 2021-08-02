@@ -3,10 +3,7 @@ package com.fmning.tools.service.discord;
 import com.fmning.tools.ToolsProperties;
 import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.entities.Invite;
-import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.MessageChannel;
+import net.dv8tion.jda.api.entities.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -175,14 +172,32 @@ public class DiscordMiscService {
             if (m.find()) {
                 if (member.getRoles().stream().anyMatch(r -> toolsProperties.getYaofengNewbieRoleId().contains(r.getId()))) {
                     if (message.getInvites().size() == 0) {
-                        message.reply(new EmbedBuilder()
-                                .setAuthor(member.getEffectiveName(), null, member.getUser().getAvatarUrl())
-                                .setThumbnail("https://i.giphy.com/media/daDPy7kxfE1TfxLzNg/giphy.gif")
-                                .setTitle("警告: 违反组队规则")
-                                .setDescription("违规词语: **" + m.group(0) + "**\n\n" + "如果还未进入频道，请标注好即将要进入的房间。\n")
-                                .setFooter("多次警告无效可能导致临时禁言甚至永久封禁。如果你认为这条警告不合理，请联系管理。")
-                                .setColor(Color.red)
-                                .build()).queue();
+                        boolean inChannel = false;
+
+                        GuildVoiceState voiceState = member.getVoiceState();
+                        if (voiceState != null && voiceState.getChannel() != null) {
+                            inChannel = true;
+                        }
+
+                        String reason = null;
+                        if (inChannel) {
+                            if (message.getInvites().size() == 0) {
+                                reason = "请在组队时附带当前频道链接或使用yf组队命令自动创建链接。在 #\uD83D\uDCAB自助bot 频道发送yf help invite查看如何使用妖风组队机器人。";
+                            }
+                        } else {
+                            reason = " 发送组队邀请时未在语音频道内。请先进入任意语音频道然后使用yf组队命令自动发送组队链接。在 #\uD83D\uDCAB自助bot 频道发送yf help invite查看如何使用妖风组队机器人。";
+                        }
+
+                        if (reason != null) {
+                            message.reply(new EmbedBuilder()
+                                    .setAuthor(member.getEffectiveName(), null, member.getUser().getAvatarUrl())
+                                    .setThumbnail("https://i.giphy.com/media/daDPy7kxfE1TfxLzNg/giphy.gif")
+                                    .setTitle("警告: 违反组队规则")
+                                    .setDescription("违规语句: " + content + "\n违规关键词: **" + m.group(0) + "**\n\n" + reason)
+                                    .setFooter("多次警告无效可能导致临时禁言甚至永久封禁。如果你认为这条警告不合理，请联系管理。")
+                                    .setColor(Color.red)
+                                    .build()).queue();
+                        }
                         return;
                     }
                 }
@@ -198,7 +213,7 @@ public class DiscordMiscService {
                                     .setAuthor(member.getEffectiveName(), null, member.getUser().getAvatarUrl())
                                     .setThumbnail("https://i.giphy.com/media/daDPy7kxfE1TfxLzNg/giphy.gif")
                                     .setTitle("警告: 邀请链接")
-                                    .setDescription("请勿发送其他DC的邀请链接")
+                                    .setDescription("禁止发送其他DC的邀请链接")
                                     .setFooter("多次警告无效可能导致临时禁言甚至永久封禁。如果你认为这条警告不合理，请联系管理。")
                                     .setColor(Color.red)
                                     .build()).queue();
