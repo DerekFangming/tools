@@ -172,21 +172,19 @@ public class DiscordMiscService {
             if (m.find()) {
                 if (member.getRoles().stream().anyMatch(r -> toolsProperties.getYaofengNewbieRoleId().contains(r.getId()))) {
                     if (message.getInvites().size() == 0) {
-                        boolean inChannel = false;
+                        boolean sendAlert = true;
+                        String reason = null;
 
+                        // In channel, don't sent
                         GuildVoiceState voiceState = member.getVoiceState();
                         if (voiceState != null && voiceState.getChannel() != null) {
-                            inChannel = true;
+                            sendAlert = false;
                         }
 
-                        String reason = null;
-                        if (!inChannel) {
-//                            if (message.getInvites().size() == 0) {
-//                                reason = "请在组队时附带当前频道链接或使用yf组队命令自动创建链接。在 #\uD83D\uDCAB自助bot 频道发送yf help invite查看如何使用妖风组队机器人。";
-//                            }
-//                        } else {
+                        if (sendAlert) {
                             reason = " 发送组队邀请时未在语音频道内。请先进入任意语音频道然后使用yf组队命令自动发送组队链接。在 #\uD83D\uDCAB自助bot 频道发送yf help invite查看如何使用妖风组队机器人。";
                         }
+
 
                         if (reason != null) {
                             message.reply(new EmbedBuilder()
@@ -209,14 +207,21 @@ public class DiscordMiscService {
                 for (String i : message.getInvites()) {
                     Invite.resolve(message.getJDA(), i).queue(v-> {
                         if (!toolsProperties.getDcDefaultGuildId().equals(v.getGuild().getId())) {
-                            message.reply(new EmbedBuilder()
-                                    .setAuthor(member.getEffectiveName(), null, member.getUser().getAvatarUrl())
-                                    .setThumbnail("https://i.giphy.com/media/daDPy7kxfE1TfxLzNg/giphy.gif")
-                                    .setTitle("警告: 邀请链接")
-                                    .setDescription("禁止发送其他DC的邀请链接")
-                                    .setFooter("多次警告无效可能导致临时禁言甚至永久封禁。如果你认为这条警告不合理，请联系管理。")
-                                    .setColor(Color.red)
-                                    .build()).queue();
+
+                            if (channel instanceof TextChannel) {
+                                TextChannel textChannel = (TextChannel) channel;
+                                // Don't send for ad channel
+                                if (textChannel.getParent() != null && !textChannel.getParent().getId().equals("849026954509287475")) {
+                                    message.reply(new EmbedBuilder()
+                                            .setAuthor(member.getEffectiveName(), null, member.getUser().getAvatarUrl())
+                                            .setThumbnail("https://i.giphy.com/media/daDPy7kxfE1TfxLzNg/giphy.gif")
+                                            .setTitle("警告: 邀请链接")
+                                            .setDescription("禁止发送其他DC的邀请链接")
+                                            .setFooter("多次警告无效可能导致临时禁言甚至永久封禁。如果你认为这条警告不合理，请联系管理。")
+                                            .setColor(Color.red)
+                                            .build()).queue();
+                                }
+                            }
                         }
                     });
                 }
