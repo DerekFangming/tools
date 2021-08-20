@@ -69,8 +69,7 @@ public class DiscordInviteService {
             }
 
             public void onFailure(@NotNull Call call, @NotNull IOException e) {
-                channel.sendMessage("<@" + member.getId() + "> 系统错误，请稍后再试。").queue();
-                e.printStackTrace();
+                channel.sendMessage("<@" + member.getId() + "> apex tracker发生了系统问题，暂时无法读取你的战绩。你现在可以正常使用组队命令。请稍后再尝试重新绑定。").queue();
             }
         });
     }
@@ -184,8 +183,15 @@ public class DiscordInviteService {
             }
 
             public void onFailure(@NotNull Call call, @NotNull IOException e) {
-                channel.sendMessage("<@" + member.getId() + "> 系统错误，请稍后再试。").queue();
-                e.printStackTrace();
+                makeMessageCancelable(channel.sendMessage(new EmbedBuilder()
+                        .setAuthor(member.getEffectiveName() + " 请求Apex组队", null, member.getUser().getAvatarUrl())
+                        .setTitle(processComment(apexDto.getComments()))
+                        .setDescription(apexDto.getInviteUrl() == null ? apexDto.getInviteUrl() : "点击加入房间: [" + apexDto.getChannelName() + "](" + apexDto.getInviteUrl() + ")")
+                        .addField("Origin ID", discordUser.getApexId(), false)
+                        .addField("Apex tracker出错", "Apex tracker发生了系统问题，暂时无法读取你的战绩。待apex tracker解决他们的问题之后，你的组队命令才能显示战绩。", false)
+                        .setFooter(apexDto.getInviteUrl() == null ? "在妖风电竞的任何语音频道使用本命令就可以自动生成上车链接。" : "")
+                        .setColor(shouldEmbedBePink(discordUser) ? pink : null)
+                        .build()).complete(), member);
             }
         });
     }
