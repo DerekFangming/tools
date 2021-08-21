@@ -137,10 +137,26 @@ public class DiscordInviteService {
                                 } else {
                                     apexDto.setKills("无法读取");
                                 }
+                                if (stats.has("damage")) {
+                                    apexDto.setDamage(stats.getJSONObject("damage").getString("displayValue"));
+                                } else {
+                                    apexDto.setDamage("无法读取");
+                                }
+
+                                if (stats.has("arenaRankScore")) {
+                                    apexDto.setArenaRank(stats.getJSONObject("arenaRankScore").getJSONObject("metadata").getString("rankName"));
+                                } else {
+                                    apexDto.setArenaRank("无法读取");
+                                }
 
                                 JSONObject rankScore = stats.getJSONObject("rankScore");
                                 apexDto.setRankName(rankScore.getJSONObject("metadata").getString("rankName"));
                                 apexDto.setRankAvatar(rankScore.getJSONObject("metadata").getString("iconUrl"));
+                                try {
+                                    apexDto.setRankPlacement(Integer.toString(rankScore.getInt("rank")));
+                                } catch (Exception ignored){
+                                    apexDto.setRankPlacement("无法读取");
+                                }
                                 break;
                             }
                         }
@@ -150,8 +166,11 @@ public class DiscordInviteService {
                                 .setTitle(processComment(apexDto.getComments()))
                                 .setDescription(apexDto.getInviteUrl() == null ? apexDto.getInviteUrl() : "点击加入房间: [" + apexDto.getChannelName() + "](" + apexDto.getInviteUrl() + ")")
                                 .addField("Origin ID", discordUser.getApexId(), true)
+                                .addField("总击杀", apexDto.getKills(), true)
+                                .addField("总伤害", apexDto.getDamage(), true)
                                 .addField("段位", apexDto.getRankName(), true)
-                                .addField("击杀", apexDto.getKills(), true)
+                                .addField("段位排名", apexDto.getRankPlacement(), true)
+                                .addField("Arena 段位", apexDto.getArenaRank(), true)
                                 .setFooter(apexDto.getInviteUrl() == null ? "在妖风电竞的任何语音频道使用本命令就可以自动生成上车链接。" : "")
                                 .setColor(shouldEmbedBePink(discordUser) ? pink : null)
                                 .build()).complete(), member);
@@ -256,7 +275,10 @@ public class DiscordInviteService {
         private String comments = null;
         private String kills = "";
         private String rankName = "";
+        private String rankPlacement = "";
         private String rankAvatar = "";
+        private String arenaRank = "";
+        private String damage = "";
         private String inviteUrl = null;
         private String channelName = null;
     }
