@@ -160,16 +160,17 @@ public class DiscordInviteService {
                                 break;
                             }
                         }
+
                         makeMessageCancelable(channel.sendMessage(new EmbedBuilder()
                                 .setAuthor(member.getEffectiveName() + " 请求Apex组队", null, member.getUser().getAvatarUrl())
                                 .setThumbnail(apexDto.getRankAvatar())
                                 .setTitle(processComment(apexDto.getComments()))
                                 .setDescription(apexDto.getInviteUrl() == null ? apexDto.getInviteUrl() : "点击加入房间: [" + apexDto.getChannelName() + "](" + apexDto.getInviteUrl() + ")")
                                 .addField("Origin ID", discordUser.getApexId(), true)
-                                .addField("总击杀", apexDto.getKills(), true)
-                                .addField("总伤害", apexDto.getDamage(), true)
+//                                .addField("总击杀", apexDto.getKills(), true)
+//                                .addField("总伤害", apexDto.getDamage(), true)
                                 .addField("段位", apexDto.getRankName(), true)
-                                .addField("段位排名", apexDto.getRankPlacement(), true)
+//                                .addField("段位排名", apexDto.getRankPlacement(), true)
                                 .addField("Arena 段位", apexDto.getArenaRank(), true)
                                 .setFooter(apexDto.getInviteUrl() == null ? "在妖风电竞的任何语音频道使用本命令就可以自动生成上车链接。" : "")
                                 .setColor(shouldEmbedBePink(discordUser) ? pink : null)
