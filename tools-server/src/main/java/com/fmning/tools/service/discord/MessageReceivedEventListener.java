@@ -36,6 +36,7 @@ public class MessageReceivedEventListener extends BaseEventListener {
     private final DiscordMiscService discordMiscService;
     private final DiscordChannelService discordChannelService;
     private final DiscordVoiceService discordVoiceService;
+    private final ToolsProperties toolsProperties;
 
     @Override
     public void onMessageReceived(@NotNull MessageReceivedEvent event) {
@@ -70,6 +71,14 @@ public class MessageReceivedEventListener extends BaseEventListener {
             Command command = new Command(content);
 
             if (member == null || member.getUser().isBot()) return;
+
+            if (channel.getId().equals(toolsProperties.getApexChannelId())) {
+                if (!command.equals(1, "apex", "a") || command.equals(2, "link", "l")) {
+                    channel.sendMessage("<@" + member.getId() + "> 本频道只能使用yf组队命令。请到<#" + toolsProperties.getSelfServiceBotChannelId()
+                            + "> 频道使用其他bot命令。").queue();
+                    return;
+                }
+            }
 
             if (command.length() == 1 || command.equals(1, "help", "h")) {
                 if (command.equals(2, "invite", "i")) {

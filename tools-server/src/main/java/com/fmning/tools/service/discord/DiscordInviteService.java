@@ -62,9 +62,9 @@ public class DiscordInviteService {
                             "**。但是apex tracker发生了系统问题，暂时无法读取你的战绩。你现在可以正常使用组队命令，但是只有待apex tracker解决他们的问题之后，你的组队命令才能显示战绩。").queue();
                 } else {
                     channel.sendMessage("<@" + member.getId() + "> 你绑定的Origin ID **" + apexId +
-                            "** 不存在，请重新绑定。我们的数据来自apex tracker。 你可以尝试在 https://apex.tracker.gg 上搜索你的ID。" +
-                            "你的Origin ID是加好友时输入的ID。如果还是无法找到你的ID，可以给apex tracker提交表格来让他们找到你的账号。" +
-                            "https://thetrackernetwork.com/contact?site=apex.tracker.gg&reason=support").queue();
+                            "** 不存在，请重新绑定。我们的数据来自apex tracker网站，该网站目前不支持steam账号数据。 你可以尝试在 https://apex.tracker.gg 上搜索你的Origin ID。" +
+                            "你的Origin ID是加好友时输入的ID。如果你是用steam玩apex，请使用你的steam账号绑定的Origin ID。如果还是无法找到你的ID，可以联系apex tracker客服，" +
+                            "通过提交表格来让他们找到你的账号。https://thetrackernetwork.com/contact?site=apex.tracker.gg&reason=support").queue();
                 }
             }
 
@@ -155,7 +155,7 @@ public class DiscordInviteService {
                                 try {
                                     apexDto.setRankPlacement(Integer.toString(rankScore.getInt("rank")));
                                 } catch (Exception ignored){
-                                    apexDto.setRankPlacement("无法读取");
+                                    apexDto.setRankPlacement("未上榜");
                                 }
                                 break;
                             }
@@ -170,7 +170,7 @@ public class DiscordInviteService {
                                 .addField("总击杀", apexDto.getKills(), true)
                                 .addField("总伤害", apexDto.getDamage(), true)
                                 .addField("段位", apexDto.getRankName(), true)
-                                .addField("段位排名", apexDto.getRankPlacement(), true)
+                                .addField("段位名次", apexDto.getRankPlacement(), true)
                                 .addField("Arena 段位", apexDto.getArenaRank(), true)
                                 .setFooter(apexDto.getInviteUrl() == null ? "在妖风电竞的任何语音频道使用本命令就可以自动生成上车链接。" : "")
                                 .setColor(shouldEmbedBePink(discordUser) ? pink : null)

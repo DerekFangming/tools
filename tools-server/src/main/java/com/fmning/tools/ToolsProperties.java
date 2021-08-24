@@ -18,7 +18,10 @@ public class ToolsProperties {
     }
 
     public String getApexChannelId() {
-        return isProduction() ? "782427034327711765" : "791892899494363148";
+        return isProduction() ? "782427034327711765" : "879561792194494524";
+    }
+    public String getSelfServiceBotChannelId() {
+        return isProduction() ? "788900934805225542" : "879561759776722945";
     }
 
     public String getYaofengNewbieRoleId() {
