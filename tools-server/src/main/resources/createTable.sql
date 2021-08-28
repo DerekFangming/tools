@@ -100,7 +100,8 @@ create table tl_discord_users (
 	temp_channel_id text,
 	voice_minutes integer not null default 0,
 	voice_last_join timestamp without time zone,
-	lottery_chance integer not null default 0
+	lottery_chance integer not null default 0,
+	warning_count integer not null default 0
 );
 
 create table tl_discord_roles (

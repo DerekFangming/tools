@@ -69,4 +69,7 @@ public class DiscordUser {
 
     @Column(name="lottery_chance")
     private int lotteryChance;
+
+    @Column(name="warning_count")
+    private int warningCount;
 }

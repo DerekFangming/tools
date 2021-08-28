@@ -1,6 +1,8 @@
 package com.fmning.tools.service.discord;
 
 import com.fmning.tools.ToolsProperties;
+import com.fmning.tools.domain.DiscordUser;
+import com.fmning.tools.repository.DiscordUserRepo;
 import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.*;
@@ -8,8 +10,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.awt.*;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Random;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -18,6 +23,8 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor(onConstructor_={@Autowired})
 public class DiscordMiscService {
+
+    private final DiscordUserRepo discordUserRepo;
 
     private List<String> nbList = new ArrayList<String>() {{
         add("可太牛逼了");
@@ -43,7 +50,8 @@ public class DiscordMiscService {
         add("打得好啊");
     }};
 
-    private Pattern fobiddenPattern = Pattern.compile("nm|rank|\\d\\s*=\\s*\\d|私|等\\s*\\d|缺\\s*\\d");
+    private Pattern forbiddenPattern = Pattern.compile("nm|rank|\\d\\s*=\\s*\\d|私|等\\s*\\d|缺\\s*\\d");
+    private DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").withZone(ZoneId.systemDefault());
 
     private Random random = new Random();
 
@@ -168,7 +176,7 @@ public class DiscordMiscService {
 
         // Check for apex channel invite wording
         if (channel.getId().equals(toolsProperties.getApexChannelId()) && member != null) {
-            Matcher m = fobiddenPattern.matcher(content);
+            Matcher m = forbiddenPattern.matcher(content);
             if (m.find()) {
                 if (member.getRoles().stream().anyMatch(r -> toolsProperties.getYaofengNewbieRoleId().contains(r.getId()))) {
                     if (message.getInvites().size() == 0) {
@@ -187,14 +195,8 @@ public class DiscordMiscService {
 
 
                         if (reason != null) {
-                            message.reply(new EmbedBuilder()
-                                    .setAuthor(member.getEffectiveName(), null, member.getUser().getAvatarUrl())
-                                    .setThumbnail("https://i.giphy.com/media/daDPy7kxfE1TfxLzNg/giphy.gif")
-                                    .setTitle("警告: 违反组队规则")
-                                    .setDescription("违规语句: " + content + "\n违规关键词: **" + m.group(0) + "**\n\n" + reason)
-                                    .setFooter("多次警告无效可能导致临时禁言甚至永久封禁。如果你认为这条警告不合理，请联系管理。")
-                                    .setColor(Color.red)
-                                    .build()).queue();
+                            warnUser(message, member, "警告: 违反组队规则", "违规语句: " +
+                                    content + "\n违规关键词: **" + m.group(0) + "**\n\n" + reason);
                         }
                         return;
                     }
@@ -212,14 +214,7 @@ public class DiscordMiscService {
                                 TextChannel textChannel = (TextChannel) channel;
                                 // Don't send for ad channel
                                 if (textChannel.getParent() != null && !textChannel.getParent().getId().equals("849026954509287475")) {
-                                    message.reply(new EmbedBuilder()
-                                            .setAuthor(member.getEffectiveName(), null, member.getUser().getAvatarUrl())
-                                            .setThumbnail("https://i.giphy.com/media/daDPy7kxfE1TfxLzNg/giphy.gif")
-                                            .setTitle("警告: 邀请链接")
-                                            .setDescription("禁止发送其他DC的邀请链接")
-                                            .setFooter("多次警告无效可能导致临时禁言甚至永久封禁。如果你认为这条警告不合理，请联系管理。")
-                                            .setColor(Color.red)
-                                            .build()).queue();
+                                    warnUser(message, member, "警告: 邀请链接", "禁止发送其他DC的邀请链接");
                                 }
                             }
                         }
@@ -227,5 +222,25 @@ public class DiscordMiscService {
                 }
             }
         }
+    }
+
+    private void warnUser(Message message, Member member, String title, String desc) {
+        EmbedBuilder builder = new EmbedBuilder()
+                .setAuthor(member.getEffectiveName(), null, member.getUser().getAvatarUrl())
+                .setThumbnail("https://i.giphy.com/media/daDPy7kxfE1TfxLzNg/giphy.gif")
+                .setTitle(title)
+                .setDescription(desc)
+                .setFooter("多次警告无效可能导致临时禁言甚至永久封禁。如果你认为这条警告不合理，请联系管理。")
+                .setColor(Color.red);
+
+        discordUserRepo.findById(member.getId()).ifPresent(user -> {
+            user.setWarningCount(user.getWarningCount() + 1);
+            builder.addField("加入时间", dateTimeFormatter.format(user.getJoinedDate()), true);
+            builder.addField("语音频道总时长(分钟)", Integer.toString(user.getVoiceMinutes()), true);
+            builder.addField("历史警告次数", Integer.toString(user.getWarningCount()), true);
+            discordUserRepo.save(user);
+        });
+
+        message.reply(builder.build()).queue();
     }
 }
