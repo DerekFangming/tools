@@ -23,7 +23,7 @@ public class SlashCommandEventListener extends BaseEventListener {
                 .setFooter("绑定apex账号之后才能显示战绩。使用yf help invite查看如何绑定。")
                 .build()).queue();
 
-//        channel.sendMessage(new EmbedBuilder()
+//        channel.sendMessageEmbeds(new EmbedBuilder()
 //                .setAuthor(member.getEffectiveName() + " 请求Apex组队", null, member.getUser().getAvatarUrl())
 //                .setTitle(processComment(apexDto.getComments()))
 //                .setDescription(apexDto.getInviteUrl() == null ? apexDto.getInviteUrl() : "点击加入房间: [" + apexDto.getChannelName() + "](" + apexDto.getInviteUrl() + ")")

@@ -43,7 +43,7 @@ public class MemberJoinedEventListener extends BaseEventListener {
                     // Welcome message
                     TextChannel channel = event.getJDA().getTextChannelById(g.getWelcomeChannelId());
                     if (channel != null) {
-                        channel.sendMessage(new EmbedBuilder()
+                        channel.sendMessageEmbeds(new EmbedBuilder()
                                 .setTitle(replacePlaceHolder(g.getWelcomeTitle(), member.getUser().getName(), member.getId()))
                                 .setDescription(replacePlaceHolder(g.getWelcomeDescription(), member.getUser().getName(), member.getId()))
                                 .setThumbnail(g.getWelcomeThumbnail())

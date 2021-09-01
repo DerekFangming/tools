@@ -126,7 +126,7 @@ public class AudioPlayerSendHandler implements AudioSendHandler {
     public void showQueue(MessageChannel channel) {
         List<AudioTrack> audioTracks = scheduler.getQueue();
         if (audioTracks.size() == 0) {
-            channel.sendMessage(new EmbedBuilder()
+            channel.sendMessageEmbeds(new EmbedBuilder()
                     .setTitle("当前播放队列")
                     .setDescription("当前播放队列中没有歌曲。使用以下指令添加歌曲到播放列表。\n`yf play 关键词或者Youtube网址`")
                     .build()).queue();
@@ -155,7 +155,7 @@ public class AudioPlayerSendHandler implements AudioSendHandler {
                 }
             }
 
-            channel.sendMessage(new EmbedBuilder()
+            channel.sendMessageEmbeds(new EmbedBuilder()
                     .setTitle("当前播放队列")
                     .setDescription(description)
                     .build()).queue();

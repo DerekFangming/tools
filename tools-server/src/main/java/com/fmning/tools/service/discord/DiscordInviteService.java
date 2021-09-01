@@ -24,8 +24,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static com.fmning.tools.service.discord.DiscordMiscService.APEX_WARNING_BODY;
-import static com.fmning.tools.service.discord.DiscordMiscService.APEX_WARNING_TITLE;
+import static com.fmning.tools.service.discord.DiscordMiscService.*;
 import static com.fmning.tools.util.DiscordUtil.fromMember;
 
 @Service
@@ -108,12 +107,16 @@ public class DiscordInviteService {
         if (discordUser == null) {
             channel.sendMessage("<@" + member.getId() + "> 系统错误，请稍后再试。").queue();
             return;
-        } else if (apexDto.getInviteUrl() == null || apexDto.getComments().contains("私")) {
+        } else if (apexDto.getInviteUrl() == null) {
+            discordMiscService.warnUser(message, member, discordUser, APEX_WARNING_TITLE,
+                    String.format(APEX_WARNING_NOT_IN_CHANNEL, toolsProperties.getSelfServiceBotChannelId()));
+            return;
+        } else if (apexDto.getComments().contains("私")) {
             discordMiscService.warnUser(message, member, discordUser, APEX_WARNING_TITLE,
                     String.format(APEX_WARNING_BODY, message.getContentRaw(), toolsProperties.getSelfServiceBotChannelId()));
             return;
         } else if (discordUser.getApexId() == null) {
-            makeMessageCancelable(channel.sendMessage(new EmbedBuilder()
+            makeMessageCancelable(channel.sendMessageEmbeds(new EmbedBuilder()
                     .setAuthor(member.getEffectiveName() + " 请求Apex组队", null, member.getUser().getAvatarUrl())
                     .setTitle(processComment(apexDto.getComments()))
                     .setDescription(apexDto.getInviteUrl() == null ? apexDto.getInviteUrl() : "点击加入房间: [" + apexDto.getChannelName() + "](" + apexDto.getInviteUrl() + ")")
@@ -121,8 +124,6 @@ public class DiscordInviteService {
 							"在妖风电竞的任何语音频道使用本命令就可以自动生成上车链接。" : ""))
                     .setColor(shouldEmbedBePink(discordUser) ? pink : null)
                     .build()).complete(), member);
-
-//            https://www.clipartmax.com/png/small/261-2619611_please-note-that-the-submission-of-the-contact-form-warning-svg.png
             return;
         }
 
@@ -172,7 +173,7 @@ public class DiscordInviteService {
                             }
                         }
 
-                        makeMessageCancelable(channel.sendMessage(new EmbedBuilder()
+                        makeMessageCancelable(channel.sendMessageEmbeds(new EmbedBuilder()
                                 .setAuthor(member.getEffectiveName() + " 请求Apex组队", null, member.getUser().getAvatarUrl())
                                 .setThumbnail(apexDto.getRankAvatar())
                                 .setTitle(processComment(apexDto.getComments()))
@@ -190,7 +191,7 @@ public class DiscordInviteService {
                         onFailure(call, e);
                     }
                 } else if (response.code() == 500) {
-                    makeMessageCancelable(channel.sendMessage(new EmbedBuilder()
+                    makeMessageCancelable(channel.sendMessageEmbeds(new EmbedBuilder()
                             .setAuthor(member.getEffectiveName() + " 请求Apex组队", null, member.getUser().getAvatarUrl())
                             .setTitle(processComment(apexDto.getComments()))
                             .setDescription(apexDto.getInviteUrl() == null ? apexDto.getInviteUrl() : "点击加入房间: [" + apexDto.getChannelName() + "](" + apexDto.getInviteUrl() + ")")
@@ -200,7 +201,7 @@ public class DiscordInviteService {
                             .setColor(shouldEmbedBePink(discordUser) ? pink : null)
                             .build()).complete(), member);
                 } else {
-                    makeMessageCancelable(channel.sendMessage(new EmbedBuilder()
+                    makeMessageCancelable(channel.sendMessageEmbeds(new EmbedBuilder()
                             .setAuthor(member.getEffectiveName() + " 请求Apex组队", null, member.getUser().getAvatarUrl())
                             .setTitle(processComment(apexDto.getComments()))
                             .setDescription(apexDto.getInviteUrl() == null ? apexDto.getInviteUrl() : "点击加入房间: [" + apexDto.getChannelName() + "](" + apexDto.getInviteUrl() + ")")
@@ -214,7 +215,7 @@ public class DiscordInviteService {
             }
 
             public void onFailure(@NotNull Call call, @NotNull IOException e) {
-                makeMessageCancelable(channel.sendMessage(new EmbedBuilder()
+                makeMessageCancelable(channel.sendMessageEmbeds(new EmbedBuilder()
                         .setAuthor(member.getEffectiveName() + " 请求Apex组队", null, member.getUser().getAvatarUrl())
                         .setTitle(processComment(apexDto.getComments()))
                         .setDescription(apexDto.getInviteUrl() == null ? apexDto.getInviteUrl() : "点击加入房间: [" + apexDto.getChannelName() + "](" + apexDto.getInviteUrl() + ")")
@@ -242,7 +243,7 @@ public class DiscordInviteService {
         }
 
         DiscordUser discordUser = discordUserRepo.findById(member.getId()).orElse(null);
-        makeMessageCancelable(channel.sendMessage(new EmbedBuilder()
+        makeMessageCancelable(channel.sendMessageEmbeds(new EmbedBuilder()
                 .setAuthor(member.getEffectiveName() + " 请求组队", null, member.getUser().getAvatarUrl())
                 .setTitle(processComment(comments))
                 .setDescription(inviteUrl == null ? inviteUrl : "点击加入房间: [" + channelName + "](" + inviteUrl + ")")

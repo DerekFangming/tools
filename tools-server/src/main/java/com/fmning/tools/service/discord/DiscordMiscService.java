@@ -57,12 +57,14 @@ public class DiscordMiscService {
     public static String APEX_WARNING_TITLE = "警告: 违反组队规则";
     public static String APEX_WARNING_BODY = "违规语句: **%s**\n\n发送组队邀请时未在语音频道内。请先进入任意语音频道然后使用yf组队命令自动发送组队链接。在 <#" +
             "%s> 频道发送yf help invite查看如何使用妖风组队机器人。";
+    public static String APEX_WARNING_NOT_IN_CHANNEL = "违规原因: 使用yf命令时未在语音频道内\n\n发送组队邀请时未在语音频道内。请先进入任意语音频道然后使用yf组队命令自动发送组队链接。在 <#" +
+            "%s> 频道发送yf help invite查看如何使用妖风组队机器人。";
 
     private Random random = new Random();
 
 
     public void help(MessageChannel channel) {
-        channel.sendMessage(new EmbedBuilder()
+        channel.sendMessageEmbeds(new EmbedBuilder()
                 .setTitle("妖风电竞 bot指令")
                 .setDescription(
                         "**----------------------------------------------组队----------------------------------------------**\n" +
@@ -108,7 +110,7 @@ public class DiscordMiscService {
     }
 
     public void helpInvite(MessageChannel channel) {
-        channel.sendMessage(new EmbedBuilder()
+        channel.sendMessageEmbeds(new EmbedBuilder()
                 .setTitle("妖风电竞 bot组队指令")
                 .setDescription(
                         "**绑定或更新Origin ID：**`yf apex link 你的ID` or `yf a l 你的ID`\n绑定或更新Origin ID。" +
@@ -128,7 +130,7 @@ public class DiscordMiscService {
     }
 
     public void helpTag(MessageChannel channel) {
-        channel.sendMessage(new EmbedBuilder()
+        channel.sendMessageEmbeds(new EmbedBuilder()
                 .setTitle("妖风电竞 bot tag指令")
                 .setDescription(
                         "**创建或更新等级Tag：**`yf tag 颜色 名字` or `yf t 颜色 名字`\n在我们频道达到指定等级之后，你就可以创建你自己的等级Tag。" +
@@ -151,7 +153,7 @@ public class DiscordMiscService {
     }
 
     public void helpChannel(MessageChannel channel) {
-        channel.sendMessage(new EmbedBuilder()
+        channel.sendMessageEmbeds(new EmbedBuilder()
                 .setTitle("妖风电竞 bot频道指令")
                 .setDescription(
                         "**创建或更新临时频道：**`yf channel 名字` or `yf c 名字`\n在我们频道达到5级之后，你就可以创建临时频道。" +
