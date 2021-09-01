@@ -107,7 +107,7 @@ public class DiscordInviteService {
         if (discordUser == null) {
             channel.sendMessage("<@" + member.getId() + "> 系统错误，请稍后再试。").queue();
             return;
-        } else if (apexDto.getInviteUrl() == null) {
+        } else if (apexDto.getInviteUrl() == null && channel.getId().equals(toolsProperties.getApexChannelId())) {
             discordMiscService.warnUser(message, member, discordUser, APEX_WARNING_TITLE,
                     String.format(APEX_WARNING_NOT_IN_CHANNEL, toolsProperties.getSelfServiceBotChannelId()));
             return;
