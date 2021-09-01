@@ -1,5 +1,6 @@
 package com.fmning.tools.service.discord;
 
+import com.fmning.tools.ToolsProperties;
 import com.fmning.tools.domain.DiscordUser;
 import com.fmning.tools.repository.DiscordUserRepo;
 import lombok.Data;
@@ -23,13 +24,17 @@ import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static com.fmning.tools.service.discord.DiscordMiscService.APEX_WARNING_BODY;
+import static com.fmning.tools.service.discord.DiscordMiscService.APEX_WARNING_TITLE;
 import static com.fmning.tools.util.DiscordUtil.fromMember;
 
 @Service
 @RequiredArgsConstructor(onConstructor_={@Autowired})
 public class DiscordInviteService {
 
+    private final DiscordMiscService discordMiscService;
     private final DiscordUserRepo discordUserRepo;
+    private final ToolsProperties toolsProperties;
     private final OkHttpClient client;
     private Pattern userPattern = Pattern.compile("<@!(.*?)>");
     private String pinkRoleId = "765439046922272808";
@@ -84,7 +89,7 @@ public class DiscordInviteService {
         }
     }
     
-    public void apexInvite(MessageChannel channel, Member member, String comments) {
+    public void apexInvite(MessageChannel channel, Message message, Member member, String comments) {
         ApexDto apexDto = new ApexDto();
         apexDto.setComments(comments == null ? "Apex" : "Apex " + comments);
 
@@ -103,15 +108,21 @@ public class DiscordInviteService {
         if (discordUser == null) {
             channel.sendMessage("<@" + member.getId() + "> 系统错误，请稍后再试。").queue();
             return;
+        } else if (apexDto.getInviteUrl() == null || apexDto.getComments().contains("私")) {
+            discordMiscService.warnUser(message, member, discordUser, APEX_WARNING_TITLE,
+                    String.format(APEX_WARNING_BODY, message.getContentRaw(), toolsProperties.getSelfServiceBotChannelId()));
+            return;
         } else if (discordUser.getApexId() == null) {
             makeMessageCancelable(channel.sendMessage(new EmbedBuilder()
                     .setAuthor(member.getEffectiveName() + " 请求Apex组队", null, member.getUser().getAvatarUrl())
                     .setTitle(processComment(apexDto.getComments()))
                     .setDescription(apexDto.getInviteUrl() == null ? apexDto.getInviteUrl() : "点击加入房间: [" + apexDto.getChannelName() + "](" + apexDto.getInviteUrl() + ")")
-                    .setFooter("绑定apex账号之后才能显示战绩。使用yf help invite查看如何绑定。" + (apexDto.getInviteUrl() == null ?
+                    .setFooter("绑定apex账号之后才能显示战绩。在 \uD83D\uDCAB自助bot 频道使用yf help invite查看如何绑定。" + (apexDto.getInviteUrl() == null ?
 							"在妖风电竞的任何语音频道使用本命令就可以自动生成上车链接。" : ""))
                     .setColor(shouldEmbedBePink(discordUser) ? pink : null)
                     .build()).complete(), member);
+
+//            https://www.clipartmax.com/png/small/261-2619611_please-note-that-the-submission-of-the-contact-form-warning-svg.png
             return;
         }
 

@@ -6,7 +6,6 @@ import com.fmning.tools.repository.DiscordGuildRepo;
 import com.fmning.tools.repository.DiscordUserLogRepo;
 import com.fmning.tools.type.DiscordUserLogActionType;
 import lombok.RequiredArgsConstructor;
-import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.guild.react.GuildMessageReactionAddEvent;
@@ -21,7 +20,6 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.time.Instant;
-import java.util.regex.Pattern;
 
 @Component
 @RequiredArgsConstructor(onConstructor_={@Autowired})
@@ -96,7 +94,7 @@ public class MessageReceivedEventListener extends BaseEventListener {
                 } else if (command.length() == 4 && command.equals(2, "id", "i") && event.getMessage().getMentionedMembers().size() > 0) {
                     discordInviteService.showApexId(channel, member, event.getMessage().getMentionedMembers().get(0));
                 } else {
-                    discordInviteService.apexInvite(channel, member, command.from(2));
+                    discordInviteService.apexInvite(channel, event.getMessage(), member, command.from(2));
                 }
             }  else if (command.equals(1, "invite", "i")) {
                 discordInviteService.invite(channel, member, command.from(2));

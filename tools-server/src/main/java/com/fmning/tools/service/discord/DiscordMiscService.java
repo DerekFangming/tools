@@ -25,6 +25,7 @@ import java.util.stream.Collectors;
 public class DiscordMiscService {
 
     private final DiscordUserRepo discordUserRepo;
+    private final ToolsProperties toolsProperties;
 
     private List<String> nbList = new ArrayList<String>() {{
         add("可太牛逼了");
@@ -53,9 +54,12 @@ public class DiscordMiscService {
     private Pattern forbiddenPattern = Pattern.compile("nm|rank|\\d\\s*=\\s*\\d|私|等\\s*\\d|缺\\s*\\d");
     private DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").withZone(ZoneId.systemDefault());
 
+    public static String APEX_WARNING_TITLE = "警告: 违反组队规则";
+    public static String APEX_WARNING_BODY = "违规语句: **%s**\n\n发送组队邀请时未在语音频道内。请先进入任意语音频道然后使用yf组队命令自动发送组队链接。在 <#" +
+            "%s> 频道发送yf help invite查看如何使用妖风组队机器人。";
+
     private Random random = new Random();
 
-    private final ToolsProperties toolsProperties;
 
     public void help(MessageChannel channel) {
         channel.sendMessage(new EmbedBuilder()
@@ -180,23 +184,10 @@ public class DiscordMiscService {
             if (m.find()) {
                 if (member.getRoles().stream().anyMatch(r -> toolsProperties.getYaofengNewbieRoleId().contains(r.getId()))) {
                     if (message.getInvites().size() == 0) {
-                        boolean sendAlert = true;
-                        String reason = null;
-
-                        // In channel, don't sent
+                        // Send only if the user is not in a channel
                         GuildVoiceState voiceState = member.getVoiceState();
-                        if (voiceState != null && voiceState.getChannel() != null) {
-                            sendAlert = false;
-                        }
-
-                        if (sendAlert) {
-                            reason = " 发送组队邀请时未在语音频道内。请先进入任意语音频道然后使用yf组队命令自动发送组队链接。在 #\uD83D\uDCAB自助bot 频道发送yf help invite查看如何使用妖风组队机器人。";
-                        }
-
-
-                        if (reason != null) {
-                            warnUser(message, member, "警告: 违反组队规则", "违规语句: " +
-                                    content + "\n违规关键词: **" + m.group(0) + "**\n\n" + reason);
+                        if (voiceState == null || voiceState.getChannel() == null) {
+                            warnUser(message, member, APEX_WARNING_TITLE, String.format(APEX_WARNING_BODY, content, toolsProperties.getSelfServiceBotChannelId()));
                         }
                         return;
                     }
@@ -224,7 +215,12 @@ public class DiscordMiscService {
         }
     }
 
-    private void warnUser(Message message, Member member, String title, String desc) {
+    public void warnUser(Message message, Member member, String title, String desc) {
+        DiscordUser user = discordUserRepo.findById(member.getId()).orElse(null);
+        warnUser(message, member, user, title, desc);
+    }
+
+    public void warnUser(Message message, Member member, DiscordUser discordUser, String title, String desc) {
         EmbedBuilder builder = new EmbedBuilder()
                 .setAuthor(member.getEffectiveName(), null, member.getUser().getAvatarUrl())
                 .setThumbnail("https://i.giphy.com/media/daDPy7kxfE1TfxLzNg/giphy.gif")
@@ -233,13 +229,13 @@ public class DiscordMiscService {
                 .setFooter("多次警告无效可能导致临时禁言甚至永久封禁。如果你认为这条警告不合理，请联系管理。")
                 .setColor(Color.red);
 
-        discordUserRepo.findById(member.getId()).ifPresent(user -> {
-            user.setWarningCount(user.getWarningCount() + 1);
-            builder.addField("加入时间", dateTimeFormatter.format(user.getJoinedDate()), true);
-            builder.addField("语音频道总时长(分钟)", Integer.toString(user.getVoiceMinutes()), true);
-            builder.addField("历史警告次数", Integer.toString(user.getWarningCount()), true);
-            discordUserRepo.save(user);
-        });
+        if (discordUser != null) {
+            discordUser.setWarningCount(discordUser.getWarningCount() + 1);
+            builder.addField("加入时间", dateTimeFormatter.format(discordUser.getJoinedDate()), true);
+            builder.addField("语音频道总时长(分钟)", Integer.toString(discordUser.getVoiceMinutes()), true);
+            builder.addField("历史警告次数", Integer.toString(discordUser.getWarningCount()), true);
+            discordUserRepo.save(discordUser);
+        }
 
         message.reply(builder.build()).queue();
     }
