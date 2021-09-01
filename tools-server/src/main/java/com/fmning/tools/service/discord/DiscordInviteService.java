@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.*;
+import net.dv8tion.jda.internal.requests.restaction.MessageActionImpl;
 import okhttp3.*;
 import org.apache.commons.collections4.map.PassiveExpiringMap;
 import org.jetbrains.annotations.NotNull;
@@ -65,10 +66,11 @@ public class DiscordInviteService {
                     channel.sendMessage("<@" + discordUser.getId() + "> 你已绑定Origin ID: **" + discordUser.getApexId() +
                             "**。但是apex tracker发生了系统问题，暂时无法读取你的战绩。你现在可以正常使用组队命令，但是只有待apex tracker解决他们的问题之后，你的组队命令才能显示战绩。").queue();
                 } else {
-                    channel.sendMessage("<@" + member.getId() + "> 你绑定的Origin ID **" + apexId +
-                            "** 不存在，请重新绑定。我们的数据来自apex tracker网站，该网站目前不支持steam账号数据。 你可以尝试在 https://apex.tracker.gg 上搜索你的Origin ID。" +
-                            "你的Origin ID是加好友时输入的ID。如果你是用steam玩apex，请使用你的steam账号绑定的Origin ID。如果还是无法找到你的ID，可以联系apex tracker客服，" +
-                            "通过提交表格来让他们找到你的账号。https://thetrackernetwork.com/contact?site=apex.tracker.gg&reason=support").queue();
+                    channel.sendMessage("<@" + member.getId() + "> 你绑定的Origin ID **" + apexId + "** 不存在，请重新绑定。我们的数据来自apex tracker网站，" +
+                                    "你可以尝试在 https://apex.tracker.gg/ 上搜索你的Origin ID。\n\n •  该网站目前不支持steam账号数据。如果你是用steam玩apex，" +
+                                    "请使用你的steam账号绑定的Origin ID。\n •  如果你刚刚改了用户名或者无法搜索到steam绑定的origin账号，请尝试登陆一次origin客户端，" +
+                                    "然后再来绑定ID。\n •  如果还是无法找到你的ID，可以联系apex tracker客服，通过提交表格来让他们找到你的账号。" +
+                                    "https://thetrackernetwork.com/contact?site=apex.tracker.gg&reason=support").queue(m -> m.suppressEmbeds(true).queue());
                 }
             }
 
