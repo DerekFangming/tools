@@ -55,9 +55,9 @@ public class DiscordMiscService {
     private DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").withZone(ZoneId.systemDefault());
 
     public static String APEX_WARNING_TITLE = "警告: 违反组队规则";
-    public static String APEX_WARNING_BODY = "违规语句: **%s**\n\n发送组队邀请时未在语音频道内。请先进入任意语音频道然后使用yf组队命令自动发送组队链接。在 <#" +
+    public static String APEX_WARNING_BODY = "违规语句: **%s**\n\n请先进入任意语音频道然后使用yf组队命令自动发送组队链接。在 <#" +
             "%s> 频道发送yf help invite查看如何使用妖风组队机器人。";
-    public static String APEX_WARNING_NOT_IN_CHANNEL = "违规原因: 使用yf命令时未在语音频道内\n\n发送组队邀请时未在语音频道内。请先进入任意语音频道然后使用yf组队命令自动发送组队链接。在 <#" +
+    public static String APEX_WARNING_NOT_IN_CHANNEL = "违规原因: 使用yf命令时未在语音频道内\n\n请先进入任意语音频道然后使用yf组队命令自动发送组队链接。在 <#" +
             "%s> 频道发送yf help invite查看如何使用妖风组队机器人。";
 
     private Random random = new Random();
