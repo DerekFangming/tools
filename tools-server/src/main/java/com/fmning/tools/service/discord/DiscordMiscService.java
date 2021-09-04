@@ -212,8 +212,6 @@ public class DiscordMiscService {
 
         String total = Long.toString(daysJoined + daysBoosted * 2 + discordUser.getVoiceMinutes() / 100 + levelPoint + rankPoint);
 
-        daysBoosted = 99;
-
         EmbedBuilder builder = new EmbedBuilder()
                 .setAuthor(member.getEffectiveName(), null, member.getUser().getAvatarUrl())
                 .setTitle("总分: " + total)
