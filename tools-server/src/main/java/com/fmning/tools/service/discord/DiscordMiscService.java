@@ -9,9 +9,15 @@ import net.dv8tion.jda.api.entities.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.imageio.ImageIO;
 import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -176,6 +182,59 @@ public class DiscordMiscService {
                     .collect(Collectors.joining(" "));
             channel.sendMessage(allMentions + " " + nbList.get(random.nextInt(nbList.size()))).queue();
         }
+    }
+
+    public void getStatus(MessageChannel channel, Member member) throws IOException {
+
+        DiscordUser discordUser = discordUserRepo.findById(member.getId()).orElse(null);
+        if (discordUser == null) {
+            channel.sendMessage("<@" + member.getId() + "> 系统错误，请稍后再试。").queue();
+            return;
+        }
+
+        Instant now = Instant.now();
+        long daysJoined = ChronoUnit.DAYS.between(discordUser.getJoinedDate(), now);
+        long daysBoosted = 0;
+        if (discordUser.getBoostedDate() != null) daysBoosted = ChronoUnit.DAYS.between(discordUser.getBoostedDate(), now);
+
+        long levelPoint = 0;
+        if (discordUser.getRoles().contains("802126882585182238")) levelPoint = 1000;// 顶级
+        else if (discordUser.getRoles().contains("802613742646853632")) levelPoint = 600;// 特级
+        else if (discordUser.getRoles().contains("802650000189947974")) levelPoint = 350;// 高级
+        else if (discordUser.getRoles().contains("802650002995806218")) levelPoint = 200;// 中级
+        else if (discordUser.getRoles().contains("803212908896583731")) levelPoint = 100;// 初级
+
+        long rankPoint = 0;
+        if (discordUser.getRoles().contains("784949763685875723")) rankPoint = 1000;// 猎杀
+        else if (discordUser.getRoles().contains("784949724721578034")) rankPoint = 600;// 大师
+        else if (discordUser.getRoles().contains("784949693499179048")) rankPoint = 350;// 钻石
+        else if (discordUser.getRoles().contains("784949655406510122")) rankPoint = 200;// 白金
+
+        String total = Long.toString(daysJoined + daysBoosted * 2 + discordUser.getVoiceMinutes() / 100 + levelPoint + rankPoint);
+
+        daysBoosted = 99;
+
+        EmbedBuilder builder = new EmbedBuilder()
+                .setAuthor(member.getEffectiveName(), null, member.getUser().getAvatarUrl())
+                .setTitle("总分: " + total)
+                .setDescription("**频道成就:**\nComing soon.")
+                .setThumbnail("attachment://score.png")
+                .setFooter("总分计算方式: 加入天数X1 + boost天数X2 + 语音时长/100 + 等级分(顶级=1000，特级=600，高级=350，中级=200，初级=100) + 段位分(猎杀=1000，大师=600，钻石=350，白金=200)")
+                .addField("已加入妖风电竞", daysJoined + "天", true);
+        if (daysBoosted != 0) builder.addField("已boost妖风电竞", daysBoosted + "天", true);
+        builder.addField("语音频道总时长", discordUser.getVoiceMinutes() + "分钟", true);
+
+        BufferedImage img = new BufferedImage(total.length() * 35, 75, BufferedImage.TYPE_INT_ARGB);
+        Graphics2D g2d = img.createGraphics();
+        Font font = new Font(toolsProperties.getFont(), Font.BOLD, 60);
+        g2d.setFont(font);
+        FontMetrics fm = g2d.getFontMetrics();
+        g2d.setColor(Color.decode("#44b1ca"));
+        g2d.drawString(total, 0, fm.getAscent());
+        g2d.dispose();
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        ImageIO.write(img, "png", byteArrayOutputStream);
+        channel.sendMessageEmbeds(builder.build()).addFile(byteArrayOutputStream.toByteArray(), "score.png").complete();
     }
 
     public void checkViolations(MessageChannel channel, Member member, Message message, String content) {

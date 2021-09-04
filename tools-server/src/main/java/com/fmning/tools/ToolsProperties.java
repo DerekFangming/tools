@@ -27,4 +27,8 @@ public class ToolsProperties {
     public String getYaofengNewbieRoleId() {
         return isProduction() ? "803212908896583731, 782484706754691072" : "792772398592163840";
     }
+
+    public String getFont() {
+        return isProduction() ? "Bradley Hand ITC TT" : "Bradley Hand ITC";
+    }
 }
