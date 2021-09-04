@@ -29,6 +29,6 @@ public class ToolsProperties {
     }
 
     public String getFont() {
-        return isProduction() ? "Bradley Hand ITC TT" : "Bradley Hand ITC";
+        return isProduction() ? "Bradley Hand" : "Bradley Hand ITC";
     }
 }
