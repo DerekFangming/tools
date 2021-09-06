@@ -101,7 +101,9 @@ create table tl_discord_users (
 	voice_minutes integer not null default 0,
 	voice_last_join timestamp without time zone,
 	lottery_chance integer not null default 0,
-	warning_count integer not null default 0
+	warning_count integer not null default 0,
+	score integer not null default 0,
+	achievements text
 );
 
 create table tl_discord_roles (
@@ -149,6 +151,14 @@ create table tl_discord_role_mappings (
 	type text,
 	owner_id text,
 	approver_id text,
+	created timestamp without time zone not null
+);
+
+create table tl_discord_achievements (
+    id serial primary key,
+	guild_id text,
+	name text not null,
+	score integer not null,
 	created timestamp without time zone not null
 );
 

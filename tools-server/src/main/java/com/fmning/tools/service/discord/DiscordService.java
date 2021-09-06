@@ -10,10 +10,14 @@ import com.fmning.tools.domain.DiscordUser;
 import com.fmning.tools.dto.DiscordObjectDto;
 import com.fmning.tools.repository.*;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.apachecommons.CommonsLog;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -26,6 +30,7 @@ import java.util.stream.Collectors;
 import static com.fmning.tools.util.DiscordUtil.toHexString;
 
 @Service
+@CommonsLog
 @RequiredArgsConstructor(onConstructor_={@Autowired})
 public class DiscordService extends BaseEventListener {
 
@@ -360,6 +365,46 @@ public class DiscordService extends BaseEventListener {
         if (role != null) {
             guild.modifyRolePositions().selectPosition(role).moveTo(position).complete();
         } else {throw new IllegalArgumentException("Null role " + roleId);}
+    }
+
+    public void calculateStates() {
+        int pageInd = 0;
+        int limit = 2;
+        Page<DiscordUser> page = null;
+        while (page == null || page.getNumberOfElements() > 0) {
+            log.info("Processing page " + pageInd);
+            page = discordUserRepo.findAll(PageRequest.of(pageInd, limit, Sort.by(Sort.Direction.ASC, "id")));
+            for (DiscordUser discordUser : page.getContent()) {
+                Instant now = Instant.now();
+                long daysJoined = 0;
+                long daysBoosted = 0;
+                if (discordUser.getJoinedDate() != null) daysJoined = ChronoUnit.DAYS.between(discordUser.getJoinedDate(), now);
+                if (discordUser.getBoostedDate() != null) daysBoosted = ChronoUnit.DAYS.between(discordUser.getBoostedDate(), now);
+
+                long levelPoint = 0;
+                long rankPoint = 0;
+                if (discordUser.getRoles() != null) {
+                    if (discordUser.getRoles().contains("802126882585182238")) levelPoint = 1000;// 顶级
+                    else if (discordUser.getRoles().contains("802613742646853632")) levelPoint = 600;// 特级
+                    else if (discordUser.getRoles().contains("802650000189947974")) levelPoint = 350;// 高级
+                    else if (discordUser.getRoles().contains("802650002995806218")) levelPoint = 200;// 中级
+                    else if (discordUser.getRoles().contains("803212908896583731")) levelPoint = 100;// 初级
+
+                    if (discordUser.getRoles().contains("784949763685875723")) rankPoint = 1000;// 猎杀
+                    else if (discordUser.getRoles().contains("784949724721578034")) rankPoint = 600;// 大师
+                    else if (discordUser.getRoles().contains("784949693499179048")) rankPoint = 350;// 钻石
+                    else if (discordUser.getRoles().contains("784949655406510122")) rankPoint = 200;// 白金
+                }
+
+                long total = daysJoined + daysBoosted * 2 + discordUser.getVoiceMinutes() / 100 + levelPoint + rankPoint;
+
+                discordUser.setScore((int)total);
+                discordUserRepo.save(discordUser);
+            }
+
+            if (page.getNumberOfElements() < limit) break;
+            pageInd ++;
+        }
     }
 
 }

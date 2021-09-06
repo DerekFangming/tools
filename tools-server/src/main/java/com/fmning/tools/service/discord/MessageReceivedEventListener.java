@@ -192,14 +192,4 @@ public class MessageReceivedEventListener extends BaseEventListener {
     private void invalidCommand(MessageChannel channel, Member member, String content) {
         channel.sendMessage("<@" + member.getId() + "> 无法识别指令 **" + content + "**。请运行yf help查看指令说明。").queue();
     }
-
-    public class Fonts extends Frame
-    {
-        public void paint(Graphics g)
-        {
-            setBackground(Color.black);
-            setForeground(Color.white);
-
-        }
-    }
 }

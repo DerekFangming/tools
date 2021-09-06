@@ -72,4 +72,10 @@ public class DiscordUser {
 
     @Column(name="warning_count")
     private int warningCount;
+
+    @Column(name="score")
+    private int score;
+
+    @Column(name="achievements")
+    private String achievements;
 }
