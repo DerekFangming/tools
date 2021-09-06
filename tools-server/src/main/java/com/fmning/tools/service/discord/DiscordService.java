@@ -369,7 +369,7 @@ public class DiscordService extends BaseEventListener {
 
     public void calculateStates() {
         int pageInd = 0;
-        int limit = 2;
+        int limit = 50;
         Page<DiscordUser> page = null;
         while (page == null || page.getNumberOfElements() > 0) {
             log.info("Processing page " + pageInd);
