@@ -367,15 +367,20 @@ public class DiscordService extends BaseEventListener {
         } else {throw new IllegalArgumentException("Null role " + roleId);}
     }
 
-    public void calculateStates() {
+    @Scheduled(cron = "0 0 9 * * *")
+    public void dailyCalculateScore() {
+        calculateScore();
+    }
+
+    public void calculateScore() {
         int pageInd = 0;
         int limit = 50;
         Page<DiscordUser> page = null;
+        Instant now = Instant.now();
         while (page == null || page.getNumberOfElements() > 0) {
             log.info("Processing page " + pageInd);
             page = discordUserRepo.findAll(PageRequest.of(pageInd, limit, Sort.by(Sort.Direction.ASC, "id")));
             for (DiscordUser discordUser : page.getContent()) {
-                Instant now = Instant.now();
                 long daysJoined = 0;
                 long daysBoosted = 0;
                 if (discordUser.getJoinedDate() != null) daysJoined = ChronoUnit.DAYS.between(discordUser.getJoinedDate(), now);

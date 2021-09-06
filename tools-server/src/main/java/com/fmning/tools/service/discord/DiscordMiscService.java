@@ -6,10 +6,16 @@ import com.fmning.tools.repository.DiscordUserRepo;
 import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.*;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import javax.imageio.ImageIO;
+import javax.persistence.criteria.Predicate;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
@@ -111,6 +117,7 @@ public class DiscordMiscService {
                         "**停止播放并清空播放队列：**`yf stop`\n" +
                         "**----------------------------------------------其他----------------------------------------------**\n" +
                         "**查看积分：**`yf stats` or `yf s`\n" +
+                        "**查看积分排名：**`yf stats rank` or `yf s r`\n" +
                         "**太牛了：**`yf nb @某人` or `yf n @某人`\n" +
                         "**抽奖券情况：**`yf lottery` or `yf l`\n")
                 .build()).queue();
@@ -186,32 +193,17 @@ public class DiscordMiscService {
     }
 
     public void getStatus(MessageChannel channel, Member member) throws IOException {
-
         DiscordUser discordUser = discordUserRepo.findById(member.getId()).orElse(null);
         if (discordUser == null) {
             channel.sendMessage("<@" + member.getId() + "> 系统错误，请稍后再试。").queue();
             return;
         }
-
         Instant now = Instant.now();
-        long daysJoined = ChronoUnit.DAYS.between(discordUser.getJoinedDate(), now);
+        long daysJoined = 0;
         long daysBoosted = 0;
+        String total = Integer.toString(discordUser.getScore());
+        if (discordUser.getJoinedDate() != null) daysJoined = ChronoUnit.DAYS.between(discordUser.getJoinedDate(), now);
         if (discordUser.getBoostedDate() != null) daysBoosted = ChronoUnit.DAYS.between(discordUser.getBoostedDate(), now);
-
-        long levelPoint = 0;
-        if (discordUser.getRoles().contains("802126882585182238")) levelPoint = 1000;// 顶级
-        else if (discordUser.getRoles().contains("802613742646853632")) levelPoint = 600;// 特级
-        else if (discordUser.getRoles().contains("802650000189947974")) levelPoint = 350;// 高级
-        else if (discordUser.getRoles().contains("802650002995806218")) levelPoint = 200;// 中级
-        else if (discordUser.getRoles().contains("803212908896583731")) levelPoint = 100;// 初级
-
-        long rankPoint = 0;
-        if (discordUser.getRoles().contains("784949763685875723")) rankPoint = 1000;// 猎杀
-        else if (discordUser.getRoles().contains("784949724721578034")) rankPoint = 600;// 大师
-        else if (discordUser.getRoles().contains("784949693499179048")) rankPoint = 350;// 钻石
-        else if (discordUser.getRoles().contains("784949655406510122")) rankPoint = 200;// 白金
-
-        String total = Long.toString(daysJoined + daysBoosted * 2 + discordUser.getVoiceMinutes() / 100 + levelPoint + rankPoint);
 
         EmbedBuilder builder = new EmbedBuilder()
                 .setAuthor(member.getEffectiveName(), null, member.getUser().getAvatarUrl())
@@ -234,6 +226,21 @@ public class DiscordMiscService {
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         ImageIO.write(img, "png", byteArrayOutputStream);
         channel.sendMessageEmbeds(builder.build()).addFile(byteArrayOutputStream.toByteArray(), "score.png").complete();
+    }
+
+    public void getScoreRank(MessageChannel channel) throws IOException {
+        Page<DiscordUser> page = discordUserRepo.findAllByOrderByScoreDesc(PageRequest.of(0, 25));
+        List<DiscordUser> users = page.getContent();
+
+        StringBuilder rank = new StringBuilder();
+        for (int i = 0; i < users.size(); i ++) {
+            String trimmedName = StringUtils.abbreviate(users.get(i).getNickname(), 15);
+            rank.append(i + 1).append(". **").append(trimmedName).append("**   (").append(users.get(i).getScore()).append("分)\n");
+        }
+
+        channel.sendMessageEmbeds(new EmbedBuilder()
+                .setTitle("积分排行榜")
+                .setDescription(rank.toString()).build()).complete();
     }
 
     public void checkViolations(MessageChannel channel, Member member, Message message, String content) {

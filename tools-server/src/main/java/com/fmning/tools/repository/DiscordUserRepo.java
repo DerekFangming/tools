@@ -18,6 +18,7 @@ public interface DiscordUserRepo extends CrudRepository<DiscordUser, String> {
     List<DiscordUser> findByLotteryChanceGreaterThan(int lo);
     Page<DiscordUser> findAll(Specification<DiscordUser> spec, Pageable pageable);
     Page<DiscordUser> findAll(Pageable pageable);
+    Page<DiscordUser> findAllByOrderByScoreDesc(Pageable pageable);
 
     List<DiscordUser> findByRolesContaining(String role);
 

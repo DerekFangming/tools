@@ -248,7 +248,7 @@ public class DiscordController {
     @GetMapping("/{guildId}/calculate-states")
     @PreAuthorize("hasRole('DC')")
     public void calculateStats(@PathVariable("guildId") String guildId) {
-        discordService.calculateStates();
+        discordService.calculateScore();
     }
 
 

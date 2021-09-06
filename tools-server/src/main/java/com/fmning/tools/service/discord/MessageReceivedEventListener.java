@@ -161,7 +161,11 @@ public class MessageReceivedEventListener extends BaseEventListener {
             } else if (command.equals(1, "ping", null)) {
                 channel.sendMessage("Bot operational. Latency " + event.getJDA().getGatewayPing() + " ms").queue();
             } else if (command.equals(1, "stats", "s")) {
-                discordMiscService.getStatus(channel,member);
+                if (command.equals(2, "rank", "r")) {
+                    discordMiscService.getScoreRank(channel);
+                } else {
+                    discordMiscService.getStatus(channel,member);
+                }
             } else if (command.equals(1, "debug", "d")) {
                 discordMiscService.getStatus(channel,member);
             } else {
