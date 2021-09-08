@@ -6,11 +6,11 @@
     </button>
     <div class="collapse navbar-collapse" id="navbarNav">
       <ul class="navbar-nav mr-auto">
+        <li class="nav-item ml-2"> <a class="nav-link pointer" [routerLink]="['/discord']">Users</a></li>
         <li class="nav-item ml-2 active"><a class="nav-link pointer">Logs</a></li>
-        <li class="nav-item ml-2"> <a class="nav-link pointer" [routerLink]="['user']">Users</a></li>
-        <li class="nav-item ml-2"> <a class="nav-link pointer" [routerLink]="['role']">Roles</a></li>
-        <li class="nav-item ml-2"> <a class="nav-link pointer" [routerLink]="['channel']">Channel</a></li>
-        <li class="nav-item ml-2"> <a class="nav-link pointer" [routerLink]="['config']">Configurations</a></li>
+        <li class="nav-item ml-2"> <a class="nav-link pointer" [routerLink]="['/discord/role']">Roles</a></li>
+        <li class="nav-item ml-2"> <a class="nav-link pointer" [routerLink]="['/discord/channel']">Channel</a></li>
+        <li class="nav-item ml-2"> <a class="nav-link pointer" [routerLink]="['/discord/config']">Configurations</a></li>
       </ul>
       <form class="form-inline my-2 my-lg-0">
         <button type="button" class="btn btn-dark" (click)="utils.logout()">Log out</button>

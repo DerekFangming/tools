@@ -1,20 +1,20 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { DiscordComponent } from './discord.component';
+import { DiscordLogComponent } from './discord-log.component';
 
-describe('DiscordComponent', () => {
-  let component: DiscordComponent;
-  let fixture: ComponentFixture<DiscordComponent>;
+describe('DiscordLogComponent', () => {
+  let component: DiscordLogComponent;
+  let fixture: ComponentFixture<DiscordLogComponent>;
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ DiscordComponent ]
+      declarations: [ DiscordLogComponent ]
     })
     .compileComponents();
   }));
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(DiscordComponent);
+    fixture = TestBed.createComponent(DiscordLogComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

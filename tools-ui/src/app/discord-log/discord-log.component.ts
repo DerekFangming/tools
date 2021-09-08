@@ -7,10 +7,10 @@ import { UtilsService } from '../utils.service';
 
 @Component({
   selector: 'app-discord',
-  templateUrl: './discord.component.html',
-  styleUrls: ['./discord.component.css']
+  templateUrl: './discord-log.component.html',
+  styleUrls: ['./discord-log.component.css']
 })
-export class DiscordComponent implements OnInit {
+export class DiscordLogComponent implements OnInit {
 
   loadingUserLogs = false;
   userLogList: DiscordUserLog[];

@@ -14,7 +14,7 @@ import { AuthenticationInterceptor } from './authentication-interceptor';
 import { FormsModule } from '@angular/forms';
 import { EmailComponent } from './email/email.component';
 import { ImgUploadComponent } from './img-upload/img-upload.component';
-import { DiscordComponent } from './discord/discord.component';
+import { DiscordLogComponent } from './discord-log/discord-log.component';
 import { NotifierModule } from 'angular-notifier';
 import { DiscordConfigComponent } from './discord-config/discord-config.component';
 import { DiscordUserComponent } from './discord-user/discord-user.component';
@@ -32,7 +32,7 @@ import { DiscordChannelComponent } from './discord-channel/discord-channel.compo
     HomeComponent,
     EmailComponent,
     ImgUploadComponent,
-    DiscordComponent,
+    DiscordLogComponent,
     DiscordConfigComponent,
     DiscordUserComponent,
     DiscordRoleComponent,
