@@ -45,6 +45,7 @@ public class DiscordController {
     private final DiscordUserLogRepo discordUserLogRepo;
     private final DiscordCategoryRepo discordCategoryRepo;
     private final DiscordChannelRepo discordChannelRepo;
+    private final DiscordAchievementRepo discordAchievementRepo;
 
     @GetMapping("/{guildId}/text-channels")
     @PreAuthorize("hasRole('DC')")
@@ -251,5 +252,27 @@ public class DiscordController {
         discordService.calculateScore();
     }
 
+    @GetMapping("/{guildId}/achievements")
+    @PreAuthorize("hasRole('DC')")
+    public ResponseEntity<List<DiscordAchievement>> getAchievements(@PathVariable("guildId") String guildId) {
+        if (!"default".equalsIgnoreCase(guildId)) return ResponseEntity.ok(Collections.emptyList());
+        return ResponseEntity.ok(discordAchievementRepo.findAll());
+    }
+
+    @PostMapping("/{guildId}/achievements")
+    @PreAuthorize("hasRole('DC')")
+    public ResponseEntity<DiscordAchievement> createAchievement(@PathVariable("guildId") String guildId, @RequestBody DiscordAchievement discordAchievement) {
+        if (!"default".equalsIgnoreCase(guildId)) return ResponseEntity.badRequest().build();
+        if (discordAchievement.getId() != 0) {
+            throw new IllegalArgumentException("Id should not be set,");
+        } else if (StringUtils.isBlank(discordAchievement.getName())) {
+            throw new IllegalArgumentException("Achievement name cannot be empty");
+        }
+
+        discordAchievement.setGuildId(toolsProperties.getDcDefaultGuildId());
+        discordAchievement.setCreated(Instant.now());
+
+        return ResponseEntity.ok(discordAchievementRepo.save(discordAchievement));
+    }
 
 }

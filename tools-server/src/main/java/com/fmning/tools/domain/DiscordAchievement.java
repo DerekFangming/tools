@@ -6,10 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.DynamicUpdate;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.time.Instant;
 
 @Entity
@@ -23,7 +20,8 @@ public class DiscordAchievement {
 
     @Id
     @Column(name="id")
-    private String id;
+    @GeneratedValue(strategy=GenerationType.IDENTITY)
+    private int id;
 
     @Column(name="guild_id")
     private String guildId;

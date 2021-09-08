@@ -1,6 +1,5 @@
 package com.fmning.tools.repository;
 
-import com.fmning.tools.domain.DiscordChannel;
 import com.fmning.tools.domain.DiscordUser;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

@@ -378,7 +378,6 @@ public class DiscordService extends BaseEventListener {
         Page<DiscordUser> page = null;
         Instant now = Instant.now();
         while (page == null || page.getNumberOfElements() > 0) {
-            log.info("Processing page " + pageInd);
             page = discordUserRepo.findAll(PageRequest.of(pageInd, limit, Sort.by(Sort.Direction.ASC, "id")));
             for (DiscordUser discordUser : page.getContent()) {
                 long daysJoined = 0;
