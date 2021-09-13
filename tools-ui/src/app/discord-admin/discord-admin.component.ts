@@ -18,6 +18,9 @@ export class DiscordAdminComponent implements OnInit {
   moveRoleId = '';
   moveRolePosition = 0;
 
+  addAchMemberId = '';
+  addAchAchId = 0;
+
   constructor(private http: HttpClient, private title: Title) {
     this.title.setTitle('Discord Roles');
   }
@@ -63,6 +66,15 @@ export class DiscordAdminComponent implements OnInit {
   stopSpeed() {
     this.http.get<boolean>(environment.urlPrefix + 'api/discord/admin/speed-off').subscribe(res => {
       alert(res ? 'Started!' : 'Stopped');
+    }, error => {
+      alert(error.message);
+    });
+  }
+
+  addAchievement() {
+    let aches = [this.addAchAchId]
+    this.http.post(environment.urlPrefix + 'api/discord/default/add-achievements/' + this.addAchMemberId, aches).subscribe(res => {
+      alert('Done');
     }, error => {
       alert(error.message);
     });

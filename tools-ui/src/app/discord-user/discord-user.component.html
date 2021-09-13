@@ -45,7 +45,7 @@
 <div *ngIf="!loadingUsers" class="container">
   <div class="row">
     <div class="col mt-4">
-      <table class="table">
+      <table class="table table-hover">
         <thead>
           <tr>
             <th scope="col">Name</th>
@@ -58,7 +58,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let user of userList;">
+          <tr *ngFor="let user of userList;" class="pointer" (click)="onUserClick(user)">
             <th scope="row"> {{ user.name }}<span class="d-none">{{ user.id }}</span></th>
             <td> {{ user.nickname }} </td>
             <td> {{ user.apexId }} </td>
@@ -88,3 +88,46 @@
     </div>
   </div>
 </div>
+
+<ng-template #userModal let-modal>
+  <div class="modal-header">
+    <h4 class="modal-title">{{ selectedUser.name }}</h4>
+    <button *ngIf="!borrowingEquipment" type="button" class="close" (click)="modal.dismiss('Cross click')">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+    <!-- <div *ngIf="formError != ''" class="alert alert-danger" role="alert">{{formError}}</div> -->
+    <div class="row">
+      <div class="col">
+        <form>
+          <div class="form-row">
+            <div class="form-group col-md-6">
+              <label for="inputEmail4"><b>Email</b></label>
+              <p>Something</p>
+            </div>
+            <div class="form-group col-md-6">
+              <label for="inputPassword4">Password</label>
+              <input type="password" class="form-control" id="inputPassword4" placeholder="Password">
+            </div>
+          </div>
+          <!-- <label for="basic-url" *ngIf="borrowEquipment.borrower == null">Your name <span style="color:red">*</span></label>
+          <div class="input-group mb-3" *ngIf="borrowEquipment.borrower == null">
+            <input type="text" class="form-control" [value]="newBorrowerLog.name" (input)="newBorrowerLog.name = $event.target.value">
+          </div>
+          <label for="basic-url" [ngClass]="borrowEquipment.borrower == null ? 'mb-0' : ''">Your UT EID <span style="color:red">*</span></label>
+          <p *ngIf="borrowEquipment.borrower == null"><small><mark>You will need to enter your EID when you return this equipment.</mark></small></p>
+          <div class="input-group mb-3">
+            <input type="text" class="form-control" [value]="newBorrowerLog.utEid" (input)="newBorrowerLog.utEid = $event.target.value">
+          </div> -->
+        </form>
+      </div>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <!-- <button type="button" class="btn btn-secondary" [disabled]="borrowingEquipment" (click)="modal.dismiss('Cross click')">Cancel</button>
+    <button type="button" class="btn btn-ut" [disabled]="borrowingEquipment" (click)="onBorrow()">
+      <i class="fa fa-refresh fa-spin mr-2" *ngIf=borrowingEquipment></i>{{ borrowEquipment.borrower == null ? 'Borrow' : 'Return'}}
+    </button> -->
+  </div>
+</ng-template>

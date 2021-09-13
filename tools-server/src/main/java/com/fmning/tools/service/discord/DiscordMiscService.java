@@ -1,7 +1,12 @@
 package com.fmning.tools.service.discord;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fmning.tools.ToolsProperties;
+import com.fmning.tools.domain.DiscordAchievement;
 import com.fmning.tools.domain.DiscordUser;
+import com.fmning.tools.repository.DiscordAchievementRepo;
 import com.fmning.tools.repository.DiscordUserRepo;
 import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -33,7 +38,9 @@ import java.util.stream.Collectors;
 public class DiscordMiscService {
 
     private final DiscordUserRepo discordUserRepo;
+    private final DiscordAchievementRepo discordAchievementRepo;
     private final ToolsProperties toolsProperties;
+    private final ObjectMapper objectMapper;
 
     private List<String> nbList = new ArrayList<String>() {{
         add("可太牛逼了");
@@ -201,17 +208,34 @@ public class DiscordMiscService {
         if (discordUser.getJoinedDate() != null) daysJoined = ChronoUnit.DAYS.between(discordUser.getJoinedDate(), now);
         if (discordUser.getBoostedDate() != null) daysBoosted = ChronoUnit.DAYS.between(discordUser.getBoostedDate(), now);
 
+        String achievement = "\n尚未获得成就。参与妖风电竞活动就有机会获得成就。每个成就都有各自的永久积分。";
+        if (!StringUtils.isEmpty(discordUser.getAchievements())) {
+            achievement = "";
+            try {
+                List<Integer> achievementIds = objectMapper.readValue(discordUser.getAchievements(), new TypeReference<List<Integer>>(){});
+                for (int i = 0; i < achievementIds.size(); i ++) {
+                    DiscordAchievement discordAchievement = discordAchievementRepo.findById(achievementIds.get(i)).orElse(null);
+                    if (discordAchievement == null) {
+                        achievement += "\n无法读取";
+                    } else {
+                        achievement += "\n**" + discordAchievement.getName() + "**" + " (" + discordAchievement.getScore() + " 分)";
+                    }
+                }
+
+            } catch (Exception ignored) {}
+        }
+
         EmbedBuilder builder = new EmbedBuilder()
                 .setAuthor(member.getEffectiveName(), null, member.getUser().getAvatarUrl())
                 .setTitle("总分: " + total)
-                .setDescription("**频道成就:**\nComing soon.")
+                .setDescription("**频道成就:**" + achievement)
                 .setThumbnail("attachment://score.png")
-                .setFooter("总分计算方式: 加入天数X1 + boost天数X2 + 语音时长/100 + 等级分(顶级=1000，特级=600，高级=350，中级=200，初级=100) + 段位分(猎杀=1000，大师=600，钻石=350，白金=200)")
+                .setFooter("总分计算方式: 加入天数X1 + boost天数X2 + 语音时长/100 + 成就分 + 等级分(顶级=1000，特级=600，高级=350，中级=200，初级=100) + 段位分(猎杀=1000，大师=600，钻石=350，白金=200)")
                 .addField("已加入妖风电竞", daysJoined + "天", true);
         if (daysBoosted != 0) builder.addField("已boost妖风电竞", daysBoosted + "天", true);
         builder.addField("语音频道总时长", discordUser.getVoiceMinutes() + "分钟", true);
 
-        BufferedImage img = new BufferedImage(total.length() * 35, 75, BufferedImage.TYPE_INT_ARGB);
+        BufferedImage img = new BufferedImage(total.length() * 36, 75, BufferedImage.TYPE_INT_ARGB);
         Graphics2D g2d = img.createGraphics();
         Font font = new Font(toolsProperties.getFont(), Font.BOLD, 60);
         g2d.setFont(font);

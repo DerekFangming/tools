@@ -7,6 +7,6 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface DiscordAchievementRepo extends CrudRepository<DiscordAchievement, String> {
+public interface DiscordAchievementRepo extends CrudRepository<DiscordAchievement, Integer> {
     List<DiscordAchievement> findAll();
 }

@@ -1,6 +1,7 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, TemplateRef, ViewChild } from '@angular/core';
 import { Title } from '@angular/platform-browser';
+import { NgbModal, NgbModalOptions, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { environment } from '../../environments/environment';
 import { DiscordUser } from '../model/discord-user';
 import { UtilsService } from '../utils.service';
@@ -14,6 +15,7 @@ export class DiscordUserComponent implements OnInit {
 
   loadingUsers = false;
   keyword = '';
+  selectedUser: DiscordUser;
   userList: DiscordUser[];
 
   currentPage = -1;
@@ -22,7 +24,15 @@ export class DiscordUserComponent implements OnInit {
   resultPerPage = 15;
   math = Math;
 
-  constructor(private http: HttpClient, private title: Title, public utils: UtilsService) {
+  modalRef: NgbModalRef;
+  @ViewChild('userModal', { static: true}) userModal: TemplateRef<any>;
+  ngbModalOptions: NgbModalOptions = {
+    backdrop : 'static',
+    keyboard : false,
+    centered: true
+  };
+
+  constructor(private http: HttpClient, private title: Title, public utils: UtilsService, private modalService: NgbModal) {
     this.title.setTitle('Discord Users');
   }
 
@@ -54,6 +64,12 @@ export class DiscordUserComponent implements OnInit {
       this.loadingUsers = false;
       console.log(error.error);
     });
+  }
+
+  onUserClick(user: DiscordUser) {
+    this.selectedUser = user;
+    this.modalRef = this.modalService.open(this.userModal, this.ngbModalOptions);
+    console.log(user);
   }
 
 }

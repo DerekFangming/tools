@@ -1,5 +1,7 @@
 package com.fmning.tools.controller;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fmning.tools.domain.*;
 import com.fmning.tools.dto.DiscordRoleDto;
 import com.fmning.tools.repository.*;
@@ -11,6 +13,7 @@ import com.fmning.tools.type.DiscordUserLogActionType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.apachecommons.CommonsLog;
 import net.dv8tion.jda.api.entities.ChannelType;
+import net.dv8tion.jda.api.entities.Role;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -23,10 +26,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.persistence.criteria.Predicate;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.fmning.tools.util.WebUtil.TOTAL_COUNT;
@@ -46,6 +46,7 @@ public class DiscordController {
     private final DiscordCategoryRepo discordCategoryRepo;
     private final DiscordChannelRepo discordChannelRepo;
     private final DiscordAchievementRepo discordAchievementRepo;
+    private final ObjectMapper objectMapper;
 
     @GetMapping("/{guildId}/text-channels")
     @PreAuthorize("hasRole('DC')")
@@ -265,7 +266,7 @@ public class DiscordController {
         if (!"default".equalsIgnoreCase(guildId)) return ResponseEntity.badRequest().build();
         if (discordAchievement.getId() != 0) {
             throw new IllegalArgumentException("Id should not be set,");
-        } else if (StringUtils.isBlank(discordAchievement.getName())) {
+        } else if (StringUtils.isEmpty(discordAchievement.getName())) {
             throw new IllegalArgumentException("Achievement name cannot be empty");
         }
 
@@ -273,6 +274,35 @@ public class DiscordController {
         discordAchievement.setCreated(Instant.now());
 
         return ResponseEntity.ok(discordAchievementRepo.save(discordAchievement));
+    }
+
+    @PostMapping("/{guildId}/add-achievements/{userId}")
+    @PreAuthorize("hasRole('DC')")
+    public ResponseEntity<Void> addAchievement(@PathVariable("guildId") String guildId, @PathVariable("userId") String userId, @RequestBody List<Integer> ids) {
+        if (!"default".equalsIgnoreCase(guildId)) return ResponseEntity.badRequest().build();
+
+        DiscordUser discordUser = discordUserRepo.findById(userId).orElseThrow(() -> new IllegalArgumentException("User is not found"));
+        if (ids.size() == 0) throw new IllegalArgumentException("Achievements need to be provided");
+
+        Set<Integer> achievements = new HashSet<>();
+        if (!StringUtils.isEmpty(discordUser.getAchievements())) {
+            try {
+                achievements.addAll(objectMapper.readValue(discordUser.getAchievements(), new TypeReference<List<Integer>>(){}));
+            } catch (Exception e) {
+                throw new IllegalArgumentException("Failed to parse existing achievements.", e);
+            }
+        }
+
+        achievements.addAll(ids);
+
+        try {
+            discordUser.setAchievements(objectMapper.writeValueAsString(achievements));
+        } catch (Exception e) {
+            throw new IllegalArgumentException("Failed to parse new achievements.", e);
+        }
+        discordUserRepo.save(discordUser);
+
+        return ResponseEntity.noContent().build();
     }
 
 }

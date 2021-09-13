@@ -1,12 +1,10 @@
 package com.fmning.tools.service.discord;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fmning.tools.ToolsProperties;
-import com.fmning.tools.domain.DiscordCategory;
-import com.fmning.tools.domain.DiscordChannel;
-import com.fmning.tools.domain.DiscordRole;
-import com.fmning.tools.domain.DiscordUser;
+import com.fmning.tools.domain.*;
 import com.fmning.tools.dto.DiscordObjectDto;
 import com.fmning.tools.repository.*;
 import lombok.RequiredArgsConstructor;
@@ -14,6 +12,7 @@ import lombok.extern.apachecommons.CommonsLog;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.*;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -43,6 +42,7 @@ public class DiscordService extends BaseEventListener {
     private final DiscordRoleRepo discordRoleRepo;
     private final DiscordCategoryRepo discordCategoryRepo;
     private final DiscordChannelRepo discordChannelRepo;
+    private final DiscordAchievementRepo discordAchievementRepo;
 
     public static String speedMessageId = "";
     public static String roleId = "";
@@ -400,7 +400,21 @@ public class DiscordService extends BaseEventListener {
                     else if (discordUser.getRoles().contains("784949655406510122")) rankPoint = 200;// 白金
                 }
 
-                long total = daysJoined + daysBoosted * 2 + discordUser.getVoiceMinutes() / 100 + levelPoint + rankPoint;
+                long achievementPoint = 0;
+                if (!StringUtils.isEmpty(discordUser.getAchievements())) {
+                    try {
+                        List<Integer> achievementIds = objectMapper.readValue(discordUser.getAchievements(), new TypeReference<List<Integer>>() {});
+                        for (int achievementId : achievementIds) {
+                            DiscordAchievement discordAchievement = discordAchievementRepo.findById(achievementId).orElse(null);
+                            if (discordAchievement != null) {
+                                achievementPoint += discordAchievement.getScore();
+                            }
+                        }
+
+                    } catch (Exception ignored) {}
+                }
+
+                long total = daysJoined + daysBoosted * 2 + discordUser.getVoiceMinutes() / 100 + levelPoint + rankPoint + achievementPoint;
 
                 discordUser.setScore((int)total);
                 discordUserRepo.save(discordUser);

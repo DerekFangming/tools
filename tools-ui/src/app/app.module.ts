@@ -21,6 +21,7 @@ import { DiscordUserComponent } from './discord-user/discord-user.component';
 import { DiscordRoleComponent } from './discord-role/discord-role.component';
 import { DiscordAdminComponent } from './discord-admin/discord-admin.component';
 import { DiscordChannelComponent } from './discord-channel/discord-channel.component';
+import { DiscordAchievementComponent } from './discord-achievement/discord-achievement.component';
 
 @NgModule({
   declarations: [
@@ -37,7 +38,8 @@ import { DiscordChannelComponent } from './discord-channel/discord-channel.compo
     DiscordUserComponent,
     DiscordRoleComponent,
     DiscordAdminComponent,
-    DiscordChannelComponent
+    DiscordChannelComponent,
+    DiscordAchievementComponent
   ],
   imports: [
     BrowserModule,
