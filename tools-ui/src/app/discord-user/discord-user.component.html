@@ -92,7 +92,7 @@
 <ng-template #userModal let-modal>
   <div class="modal-header">
     <h4 class="modal-title">{{ selectedUser.name }}</h4>
-    <button *ngIf="!borrowingEquipment" type="button" class="close" (click)="modal.dismiss('Cross click')">
+    <button type="button" class="close" (click)="modal.dismiss('Cross click')">
       <span aria-hidden="true">&times;</span>
     </button>
   </div>
