@@ -13,6 +13,7 @@ import { DiscordRoleComponent } from './discord-role/discord-role.component';
 import { DiscordConfigComponent } from './discord-config/discord-config.component';
 import { DiscordAdminComponent } from './discord-admin/discord-admin.component';
 import { DiscordChannelComponent } from './discord-channel/discord-channel.component';
+import { DiscordAchievementComponent } from './discord-achievement/discord-achievement.component';
 
 
 const routes: Routes = [
@@ -21,6 +22,7 @@ const routes: Routes = [
   { path: 'discord/log', component: DiscordLogComponent},
   { path: 'discord/role', component: DiscordRoleComponent},
   { path: 'discord/channel', component: DiscordChannelComponent},
+  { path: 'discord/achievement', component: DiscordAchievementComponent},
   { path: 'discord/config', component: DiscordConfigComponent},
   { path: 'discord/admin', component: DiscordAdminComponent},
   { path: 'clipboard', component: ClipboardComponent },
