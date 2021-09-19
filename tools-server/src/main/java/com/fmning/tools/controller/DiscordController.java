@@ -14,7 +14,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.apachecommons.CommonsLog;
 import net.dv8tion.jda.api.entities.ChannelType;
 import net.dv8tion.jda.api.entities.Role;
+import okhttp3.*;
 import org.apache.commons.lang3.StringUtils;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -23,6 +26,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RequestBody;
 
 import javax.persistence.criteria.Predicate;
 import java.time.Instant;
@@ -47,6 +51,7 @@ public class DiscordController {
     private final DiscordChannelRepo discordChannelRepo;
     private final DiscordAchievementRepo discordAchievementRepo;
     private final ObjectMapper objectMapper;
+    private final OkHttpClient client;
 
     @GetMapping("/{guildId}/text-channels")
     @PreAuthorize("hasRole('DC')")
@@ -303,6 +308,29 @@ public class DiscordController {
         discordUserRepo.save(discordUser);
 
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/search_music/{keyword}")
+    public ResponseEntity<String> searchMusic(@PathVariable("keyword") String keyword) {
+        try {
+            Request request = new Request.Builder()
+                    .url(HttpUrl.parse("https://www.googleapis.com/youtube/v3/search").newBuilder()
+                            .addQueryParameter("part", "snippet")
+                            .addQueryParameter("maxResults", "1")
+                            .addQueryParameter("type", "video")
+                            .addQueryParameter("key", toolsProperties.getYoutubeApiKey())
+                            .addQueryParameter("q", keyword)
+                            .build())
+                    .build();
+            Call call = client.newCall(request);
+            Response response = call.execute();
+            JSONObject json = new JSONObject(Objects.requireNonNull(response.body()).string());
+            JSONArray items = json.getJSONArray("items");
+            JSONObject firstResult = items.getJSONObject(0);
+            return ResponseEntity.ok(firstResult.getJSONObject("id").getString("videoId"));
+        } catch (Exception e) {
+            return ResponseEntity.notFound().build();
+        }
     }
 
 }
