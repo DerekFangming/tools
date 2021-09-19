@@ -128,7 +128,7 @@ public class AudioPlayerSendHandler implements AudioSendHandler {
         if (audioTracks.size() == 0) {
             channel.sendMessageEmbeds(new EmbedBuilder()
                     .setTitle("当前播放队列")
-                    .setDescription("当前播放队列中没有歌曲。使用以下指令添加歌曲到播放列表。\n`yf play 关键词或者Youtube网址`")
+                    .setDescription("当前播放队列中没有歌曲。使用以下指令添加歌曲到播放列表。\n`yf play 歌曲名或者Youtube网址`")
                     .build()).queue();
         } else {
             int count = 1;
@@ -146,7 +146,7 @@ public class AudioPlayerSendHandler implements AudioSendHandler {
                 }
                 song.append("\n");
 
-                if (description.length() + song.length() < 2000) {
+                if (description.length() + song.length() < 1900) {
                     description.append(song);
                     count++;
                 } else {
