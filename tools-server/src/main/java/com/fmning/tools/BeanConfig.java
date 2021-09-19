@@ -85,7 +85,6 @@ public class BeanConfig {
                 .setMemberCachePolicy(MemberCachePolicy.ALL) // ignored if chunking enabled
                 .addEventListeners(messageReceivedEventListener, memberJoinedEventListener, memberRemoveEventListener, memberUpdateEventListener,
                         roleEventListener, channelEventListener, memberVoiceEventListener, slashCommandEventListener)
-                .setActivity(Activity.of(Activity.ActivityType.DEFAULT, "yf help"))
                 .build().awaitReady();
     }
 
