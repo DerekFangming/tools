@@ -153,18 +153,4 @@ public class DiscordAdminController {
     public boolean stopSpeed() {
         return discordService.stopSpeed();
     }
-
-    @GetMapping("/test")
-    @PreAuthorize("hasRole('ADMIN')")
-    public String roleFix() {
-        List<String> list = new ArrayList<>();
-        discordUserRepo.findByLotteryChanceGreaterThan(0).forEach(u -> {
-            for (int i = 0; i < u.getLotteryChance(); i ++) {
-                list.add(u.getNickname() + "(***" + u.getId().substring(u.getId().length() - 5) + ")");
-            }
-        });
-        Collections.shuffle(list);
-        return String.join("<br>", list);
-
-    }
 }

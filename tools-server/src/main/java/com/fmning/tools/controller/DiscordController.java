@@ -333,4 +333,18 @@ public class DiscordController {
         }
     }
 
+    @GetMapping("/lottery")
+    @PreAuthorize("hasRole('DC')")
+    public String lottery() {
+        List<String> list = new ArrayList<>();
+        discordUserRepo.findByLotteryChanceGreaterThan(0).forEach(u -> {
+            for (int i = 0; i < u.getLotteryChance(); i ++) {
+                list.add(u.getNickname() + "(***" + u.getId().substring(u.getId().length() - 5) + ")");
+            }
+        });
+        Collections.shuffle(list);
+        return String.join("<br>", list);
+
+    }
+
 }
