@@ -37,22 +37,22 @@ public class DiscordVoiceService {
     }
 
     public void getLotteryStatus(MessageChannel channel, Member member) {
-        DiscordUser user = discordUserRepo.findById(member.getId()).orElse(null);
-        if (user == null) {
-            channel.sendMessage("<@" + member.getId() + "> 系统错误，请稍后再试。").queue();
-        } else {
-            String status;
-            if (user.getVoiceLastJoin() != null) {
-                int minutes = (int) ChronoUnit.MINUTES.between(user.getVoiceLastJoin(), Instant.now());
-                int chance = minutes / LOTTERY_MINUTE;
-                status = "你当前积累时间" + minutes + "分钟，相当于" + (Math.min(chance, MAX_LOTTERY_CHANCE_LIMIT)) + "张抽奖券。";
-            } else {
-                status = "你当前未加入语音频道，没有积攒抽奖券。";
-            }
-            status += "你当前一共拥有" + user.getLotteryChance() + "张抽奖券。";
-            channel.sendMessage("<@" + member.getId() + "> " + status).queue();
-        }
-//        channel.sendMessage("<@" + member.getId() + "> 当前没有抽奖活动。").queue();
+//        DiscordUser user = discordUserRepo.findById(member.getId()).orElse(null);
+//        if (user == null) {
+//            channel.sendMessage("<@" + member.getId() + "> 系统错误，请稍后再试。").queue();
+//        } else {
+//            String status;
+//            if (user.getVoiceLastJoin() != null) {
+//                int minutes = (int) ChronoUnit.MINUTES.between(user.getVoiceLastJoin(), Instant.now());
+//                int chance = minutes / LOTTERY_MINUTE;
+//                status = "你当前积累时间" + minutes + "分钟，相当于" + (Math.min(chance, MAX_LOTTERY_CHANCE_LIMIT)) + "张抽奖券。";
+//            } else {
+//                status = "你当前未加入语音频道，没有积攒抽奖券。";
+//            }
+//            status += "你当前一共拥有" + user.getLotteryChance() + "张抽奖券。";
+//            channel.sendMessage("<@" + member.getId() + "> " + status).queue();
+//        }
+        channel.sendMessage("<@" + member.getId() + "> 当前没有抽奖活动。").queue();
     }
 
     private void startCounting(DiscordUser user) {
