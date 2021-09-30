@@ -152,6 +152,7 @@ public class AudioPlayerSendHandler implements AudioSendHandler {
                 @Override
                 public void loadFailed(FriendlyException exception) {
                     channel.sendMessage("<@" + userId + "> 系统错误，请稍后再试。" + exception.getMessage()).queue();
+                    channel.sendMessage(exception.getStackTrace().toString()).queue();
                 }
             });
 
