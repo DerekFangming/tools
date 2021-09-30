@@ -6,6 +6,7 @@ import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
 import com.sedmelluq.discord.lavaplayer.player.DefaultAudioPlayerManager;
 import com.sedmelluq.discord.lavaplayer.source.AudioSourceManagers;
+import com.sedmelluq.discord.lavaplayer.source.local.LocalAudioSourceManager;
 import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
 import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
@@ -21,9 +22,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.nio.ByteBuffer;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
+import java.util.regex.Pattern;
 
 @Component
 @RequiredArgsConstructor(onConstructor_={@Autowired})
@@ -37,9 +41,13 @@ public class AudioPlayerSendHandler implements AudioSendHandler {
     private AudioFrame lastFrame;
     private TrackScheduler scheduler;
 
+    private Pattern chinesePattern = Pattern.compile("[\u3400-\u9FBF]");
+    private Pattern japanesePattern = Pattern.compile("[\u3000-\u303f\u3040-\u309f\u30a0-\u30ff\uff00-\uff9f\u4e00-\u9faf\u3400-\u4dbf]");
+
     @PostConstruct
     public void setup() {
         playerManager = new DefaultAudioPlayerManager();
+        playerManager.registerSourceManager(new LocalAudioSourceManager());
         AudioSourceManagers.registerRemoteSources(playerManager);
 
         audioPlayer = playerManager.createPlayer();
@@ -49,7 +57,6 @@ public class AudioPlayerSendHandler implements AudioSendHandler {
     }
 
     public void loadAndPlay(String keyword, MessageChannel channel, String userId) {
-
         try {
             String trackUrl;
             if (keyword.contains("www.youtube.com") || keyword.contains("youtu.be")) {
@@ -98,8 +105,54 @@ public class AudioPlayerSendHandler implements AudioSendHandler {
             });
         } catch (Exception e) {
             e.printStackTrace();
-            //TODO
         }
+    }
+
+    public void say(String sentence, MessageChannel channel, String userId) {
+        try {
+            if (scheduler.isPlayingMusic()) {
+                channel.sendMessage("<@" + userId + "> 正在唱歌。只有唱完或者使用\\`yf stop\\`停止唱歌之后才能说话。").queue();
+                return;
+            }
+
+            String ttsPath = "/Users/Cyan/Documents/GitHub/dc-music/temp/" + UUID.randomUUID().toString() + ".wav";
+//            String ttsPath = "F:\\music\\temp\\" + UUID.randomUUID().toString() + ".wav";
+            List<String> command = Arrays.asList("say", "\"" + sentence + "\"", "-o", ttsPath, "--data-format=LEF32@22050");
+
+            if (chinesePattern.matcher(sentence).find()) {
+                command.add("-v");
+                command.add("Ting-Ting");
+            } else if (japanesePattern.matcher(sentence).find()) {
+                command.add("-v");
+                command.add("Kyoko");
+            }
+
+            Process proc = new ProcessBuilder(command).start();
+//            Process proc = Runtime.getRuntime().exec("cmd.exe /c copy F:\\music\\temp\\1632087549266.wav " + ttsPath);
+            proc.waitFor();
+
+            playerManager.loadItemOrdered(scheduler, ttsPath, new AudioLoadResultHandler() {
+                @Override
+                public void trackLoaded(AudioTrack track) {
+                    scheduler.queue(track);
+                }
+
+                @Override
+                public void playlistLoaded(AudioPlaylist playlist) {}
+
+                @Override
+                public void noMatches() {}
+
+                @Override
+                public void loadFailed(FriendlyException exception) {
+                    channel.sendMessage("<@" + userId + "> 系统错误，请稍后再试。").queue();
+                }
+            });
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
     }
 
     public void skip() {

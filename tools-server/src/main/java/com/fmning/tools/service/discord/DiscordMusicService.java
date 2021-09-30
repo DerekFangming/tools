@@ -6,6 +6,7 @@ import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.VoiceChannel;
 import net.dv8tion.jda.api.managers.AudioManager;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -42,6 +43,26 @@ public class DiscordMusicService {
             channel.sendMessage("<@" + member.getId() + "> 请输入歌曲名。").queue();
         } else {
             audioPlayerSendHandler.loadAndPlay(keyword, channel, member.getId());
+        }
+    }
+
+    public void say(MessageChannel channel, Member member, AudioManager audioManager, String sentence){
+        VoiceChannel voiceChannel = null;
+        GuildVoiceState voiceState = member.getVoiceState();
+        if (voiceState != null) {
+            voiceChannel = voiceState.getChannel();
+        }
+        if (voiceChannel == null) {
+            channel.sendMessage("<@" + member.getId() + "> 你必须加入一个语音频道才能使用此指令。").queue();
+            return;
+        }
+        audioManager.setSendingHandler(audioPlayerSendHandler);
+        audioManager.openAudioConnection(voiceChannel);
+
+        if (StringUtils.isEmpty(sentence)) {
+            channel.sendMessage("<@" + member.getId() + "> 请输入要说的话。").queue();
+        } else {
+            audioPlayerSendHandler.say(sentence, channel, member.getId());
         }
     }
 

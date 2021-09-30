@@ -5,6 +5,8 @@ import com.sedmelluq.discord.lavaplayer.player.event.AudioEventAdapter;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrackEndReason;
 
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -15,6 +17,7 @@ public class TrackScheduler extends AudioEventAdapter {
     private final AudioPlayer player;
     private final BlockingQueue<AudioTrack> queue;
     private boolean loop = false;
+    private boolean playingMusic = false;
 
     public TrackScheduler(AudioPlayer player) {
         this.player = player;
@@ -22,6 +25,12 @@ public class TrackScheduler extends AudioEventAdapter {
     }
 
     public void queue(AudioTrack track) {
+        if (track.getInfo().uri.startsWith("http")) {
+            playingMusic = true;
+        } else {
+            player.stopTrack();
+            queue.clear();
+        }
         player.startTrack(track, true);
         queue.offer(track);
     }
@@ -40,6 +49,7 @@ public class TrackScheduler extends AudioEventAdapter {
         loop = false;
         player.stopTrack();
         queue.clear();
+        playingMusic = false;
     }
 
     public List<AudioTrack> getQueue() {
@@ -59,14 +69,26 @@ public class TrackScheduler extends AudioEventAdapter {
         return loop;
     }
 
+    public boolean isPlayingMusic() {
+        return playingMusic;
+    }
+
     @Override
     public void onTrackEnd(AudioPlayer player, AudioTrack track, AudioTrackEndReason endReason) {
+        if (!track.getInfo().uri.startsWith("http")) {
+            try {
+                Files.deleteIfExists(Paths.get(track.getInfo().uri));
+            } catch (Exception ignored){}
+        }
+
         if (endReason.mayStartNext) {
             if (queue.peek() != null && loop) {
                 player.startTrack(Objects.requireNonNull(queue.peek()).makeClone(), false);
             } else {
                 nextTrack();
             }
+        } else {
+            playingMusic = false;
         }
     }
 }

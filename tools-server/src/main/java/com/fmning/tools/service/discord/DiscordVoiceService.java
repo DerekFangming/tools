@@ -53,7 +53,7 @@ public class DiscordVoiceService {
 //            channel.sendMessage("<@" + member.getId() + "> " + status).queue();
 //        }
         channel.sendMessage("<@" + member.getId() + "> 当前没有抽奖活动。").queue();
-    }
+    }// /Users/Cyan/Documents/GitHub/dc-music/temp
 
     private void startCounting(DiscordUser user) {
         if (user.getVoiceLastJoin() == null) {
