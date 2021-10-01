@@ -139,31 +139,31 @@ public class AudioPlayerSendHandler implements AudioSendHandler {
             playerManager.loadItemOrdered(scheduler, ttsPath, new AudioLoadResultHandler() {
                 @Override
                 public void trackLoaded(AudioTrack track) {
-                    channel.sendMessage("loaded: " + ttsPath).queue();
+//                    channel.sendMessage("loaded: " + ttsPath).queue();
                     System.out.println("loaded: " + ttsPath);
                     scheduler.queue(track);
                 }
 
                 @Override
                 public void playlistLoaded(AudioPlaylist playlist) {
-                    channel.sendMessage("loaded list: " + ttsPath).queue();
+//                    channel.sendMessage("loaded list: " + ttsPath).queue();
                 }
 
                 @Override
                 public void noMatches() {
-                    channel.sendMessage("no match: " + ttsPath).queue();
+//                    channel.sendMessage("no match: " + ttsPath).queue();
                 }
 
                 @Override
                 public void loadFailed(FriendlyException exception) {
                     channel.sendMessage("<@" + userId + "> 系统错误，请稍后再试。" + exception.getMessage()).queue();
-                    channel.sendMessage(exception.getStackTrace().toString()).queue();
+//                    channel.sendMessage(exception.getStackTrace().toString()).queue();
                 }
             });
 
         } catch (Exception e) {
             e.printStackTrace();
-            channel.sendMessage("error: " + e.getMessage()).queue();
+//            channel.sendMessage("error: " + e.getMessage()).queue();
         }
 
     }

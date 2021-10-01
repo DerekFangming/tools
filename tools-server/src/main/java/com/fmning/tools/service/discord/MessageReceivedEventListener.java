@@ -166,7 +166,7 @@ public class MessageReceivedEventListener extends BaseEventListener {
                 } else {
                     discordMiscService.getStatus(channel,member);
                 }
-            } else if (command.equals(1, "sayt", null)) {
+            } else if (command.equals(1, "say", null)) {
                 discordMusicService.say(channel, member, event.getGuild().getAudioManager(), command.from(2));
             } else if (command.equals(1, "debug", "d")) {
                 discordMiscService.getStatus(channel, member);
