@@ -117,7 +117,12 @@ public class AudioPlayerSendHandler implements AudioSendHandler {
 
             String ttsPath = "/Users/Cyan/Documents/GitHub/dc-music/temp/" + UUID.randomUUID().toString() + ".wav";
 //            String ttsPath = "F:\\music\\temp\\" + UUID.randomUUID().toString() + ".wav";
-            List<String> command = Arrays.asList("say", "\"" + sentence + "\"", "-o", ttsPath, "--data-format=LEF32@22050");
+            List<String> command = new ArrayList<>();
+            command.add("say");
+            command.add("\"" + sentence + "\"");
+            command.add("-o");
+            command.add(ttsPath);
+            command.add("--data-format=I16");
 
             if (chinesePattern.matcher(sentence).find()) {
                 command.add("-v");
