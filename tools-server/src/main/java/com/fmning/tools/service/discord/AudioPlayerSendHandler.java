@@ -116,7 +116,6 @@ public class AudioPlayerSendHandler implements AudioSendHandler {
             }
 
             String ttsPath = "/Users/Cyan/Documents/GitHub/dc-music/temp/" + UUID.randomUUID().toString() + ".wav";
-//            String ttsPath = "F:\\music\\temp\\" + UUID.randomUUID().toString() + ".wav";
             List<String> command = new ArrayList<>();
             command.add("say");
             command.add("\"" + sentence + "\"");
@@ -133,37 +132,28 @@ public class AudioPlayerSendHandler implements AudioSendHandler {
             }
 
             Process proc = new ProcessBuilder(command).start();
-//            Process proc = Runtime.getRuntime().exec("cmd.exe /c copy F:\\music\\temp\\1632087549266.wav " + ttsPath);
             proc.waitFor();
 
             playerManager.loadItemOrdered(scheduler, ttsPath, new AudioLoadResultHandler() {
                 @Override
                 public void trackLoaded(AudioTrack track) {
-//                    channel.sendMessage("loaded: " + ttsPath).queue();
-                    System.out.println("loaded: " + ttsPath);
                     scheduler.queue(track);
                 }
 
                 @Override
-                public void playlistLoaded(AudioPlaylist playlist) {
-//                    channel.sendMessage("loaded list: " + ttsPath).queue();
-                }
+                public void playlistLoaded(AudioPlaylist playlist) {}
 
                 @Override
-                public void noMatches() {
-//                    channel.sendMessage("no match: " + ttsPath).queue();
-                }
+                public void noMatches() {}
 
                 @Override
                 public void loadFailed(FriendlyException exception) {
-                    channel.sendMessage("<@" + userId + "> 系统错误，请稍后再试。" + exception.getMessage()).queue();
-//                    channel.sendMessage(exception.getStackTrace().toString()).queue();
+                    channel.sendMessage("<@" + userId + "> 系统错误，请稍后再试。").queue();
                 }
             });
 
         } catch (Exception e) {
             e.printStackTrace();
-//            channel.sendMessage("error: " + e.getMessage()).queue();
         }
 
     }
