@@ -110,10 +110,6 @@ public class AudioPlayerSendHandler implements AudioSendHandler {
 
     public void say(String sentence, MessageChannel channel, String userId) {
         try {
-            if (scheduler.isPlayingMusic()) {
-                channel.sendMessage("<@" + userId + "> 正在唱歌。只有唱完或者使用\\`yf stop\\`停止唱歌之后才能说话。").queue();
-                return;
-            }
 
             String ttsPath = "/Users/Cyan/Documents/GitHub/dc-music/temp/" + UUID.randomUUID().toString() + ".wav";
             List<String> command = new ArrayList<>();
@@ -164,6 +160,10 @@ public class AudioPlayerSendHandler implements AudioSendHandler {
 
     public void stop() {
         scheduler.stop();
+    }
+
+    public boolean isPlayingMusic() {
+        return scheduler.isPlayingMusic();
     }
 
     public void toggleLoop(MessageChannel channel, String userId) {

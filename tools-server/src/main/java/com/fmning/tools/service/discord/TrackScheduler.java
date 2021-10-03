@@ -42,6 +42,8 @@ public class TrackScheduler extends AudioEventAdapter {
         AudioTrack track = queue.peek();
         if (track != null) {
             player.startTrack(track, false);
+        } else {
+            playingMusic = false;
         }
     }
 

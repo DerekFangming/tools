@@ -47,6 +47,12 @@ public class DiscordMusicService {
     }
 
     public void say(MessageChannel channel, Member member, AudioManager audioManager, String sentence){
+        if (audioPlayerSendHandler.isPlayingMusic()) {
+            channel.sendMessage("<@" + member.getId() + "> 正在唱歌。只有唱完或者使用`yf stop" +
+                    "`停止唱歌之后才能说话。").queue();
+            return;
+        }
+
         VoiceChannel voiceChannel = null;
         GuildVoiceState voiceState = member.getVoiceState();
         if (voiceState != null) {
