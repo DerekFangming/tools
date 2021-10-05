@@ -109,7 +109,7 @@ public class MessageReceivedEventListener extends BaseEventListener {
             } else if (command.equals(1, "nb", "n")) {
                 discordMiscService.nb(channel, member, event.getMessage().getMentionedMembers());
             } else if (command.equals(1, "come", null)) {
-                discordMusicService.join(member, event.getGuild().getAudioManager());
+                discordMusicService.join(channel, member, event.getGuild().getAudioManager());
             } else if (command.equals(1, "play", "p")) {
                 discordMusicService.play(channel, member, event.getGuild().getAudioManager(), command.from(2));
             } else if (command.equals(1, "skip", null)) {

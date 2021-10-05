@@ -15,13 +15,19 @@ import org.springframework.stereotype.Service;
 public class DiscordMusicService {
     private final AudioPlayerSendHandler audioPlayerSendHandler;
 
-    public void join(Member member, AudioManager audioManager) {
+    public void join(MessageChannel channel, Member member, AudioManager audioManager) {
         GuildVoiceState voiceState = member.getVoiceState();
         if (voiceState != null) {
             VoiceChannel voiceChannel = voiceState.getChannel();
             if (voiceChannel != null) {
-                audioManager.setSendingHandler(audioPlayerSendHandler);
-                audioManager.openAudioConnection(voiceChannel);
+
+                VoiceChannel currentChannel = audioManager.getConnectedChannel();
+                if (audioPlayerSendHandler.isPlayingMusic() && currentChannel != null && !currentChannel.getId().equals(voiceChannel.getId())) {
+                    channel.sendMessage("<@" + member.getId() + "> 当前正在**" + currentChannel.getName() + "**频道播放音乐。只有播放完成之后才能切换频道。").queue();
+                } else {
+                    audioManager.setSendingHandler(audioPlayerSendHandler);
+                    audioManager.openAudioConnection(voiceChannel);
+                }
             }
         }
     }
@@ -36,6 +42,13 @@ public class DiscordMusicService {
             channel.sendMessage("<@" + member.getId() + "> 你必须加入一个语音频道才能使用此指令。").queue();
             return;
         }
+
+        VoiceChannel currentChannel = audioManager.getConnectedChannel();
+        if (audioPlayerSendHandler.isPlayingMusic() && currentChannel != null && !currentChannel.getId().equals(voiceChannel.getId())) {
+            channel.sendMessage("<@" + member.getId() + "> 当前正在**" + currentChannel.getName() + "**频道播放音乐。只有播放完成之后才能切换频道。").queue();
+            return;
+        }
+
         audioManager.setSendingHandler(audioPlayerSendHandler);
         audioManager.openAudioConnection(voiceChannel);
 
@@ -47,11 +60,6 @@ public class DiscordMusicService {
     }
 
     public void say(MessageChannel channel, Member member, AudioManager audioManager, String sentence){
-        if (audioPlayerSendHandler.isPlayingMusic()) {
-            channel.sendMessage("<@" + member.getId() + "> 正在唱歌。只有唱完或者使用`yf stop" +
-                    "`停止唱歌之后才能说话。").queue();
-            return;
-        }
 
         VoiceChannel voiceChannel = null;
         GuildVoiceState voiceState = member.getVoiceState();
@@ -62,6 +70,14 @@ public class DiscordMusicService {
             channel.sendMessage("<@" + member.getId() + "> 你必须加入一个语音频道才能使用此指令。").queue();
             return;
         }
+
+        if (audioPlayerSendHandler.isPlayingMusic()) {
+            VoiceChannel currentChannel = audioManager.getConnectedChannel();
+            String channelName = currentChannel != null ? "**" + currentChannel.getName() + "**" : "";
+            channel.sendMessage("<@" + member.getId() + "> 当前正在" + channelName + "频道播放音乐。只有播放完成之后才能说话。").queue();
+            return;
+        }
+
         audioManager.setSendingHandler(audioPlayerSendHandler);
         audioManager.openAudioConnection(voiceChannel);
 
