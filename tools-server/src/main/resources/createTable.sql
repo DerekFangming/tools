@@ -162,6 +162,15 @@ create table tl_discord_achievements (
 	created timestamp without time zone not null
 );
 
+create table tl_discord_tasks (
+    id serial primary key,
+	guild_id text,
+	type text not null,
+	payload text not null,
+	timeout timestamp without time zone not null,
+	created timestamp without time zone not null
+);
+
 create table tl_images (
     id serial primary key,
 	url text,
