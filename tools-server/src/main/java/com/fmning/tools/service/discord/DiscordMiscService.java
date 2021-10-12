@@ -8,6 +8,8 @@ import com.fmning.tools.domain.DiscordAchievement;
 import com.fmning.tools.domain.DiscordUser;
 import com.fmning.tools.repository.DiscordAchievementRepo;
 import com.fmning.tools.repository.DiscordUserRepo;
+import lombok.Builder;
+import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.*;
@@ -313,17 +315,46 @@ public class DiscordMiscService {
                 .setThumbnail("https://i.giphy.com/media/daDPy7kxfE1TfxLzNg/giphy.gif")
                 .setTitle(title)
                 .setDescription(desc)
-                .setFooter("多次警告无效可能导致临时禁言甚至永久封禁。如果你认为这条警告不合理，请联系管理。")
+                .setFooter("第三次违反将导致15分钟禁言，第四次违反将导致一小时禁言，第五次违反将导致六小时禁言，第六次违反将导致一天禁言，如果再违反，将被永久禁言。如果你认为这条警告不合理，请联系管理。")
                 .setColor(Color.red);
 
         if (discordUser != null) {
             discordUser.setWarningCount(discordUser.getWarningCount() + 1);
             builder.addField("加入时间", dateTimeFormatter.format(discordUser.getJoinedDate()), true);
             builder.addField("语音频道总时长(分钟)", Integer.toString(discordUser.getVoiceMinutes()), true);
+            builder.addBlankField(true);
             builder.addField("历史警告次数", Integer.toString(discordUser.getWarningCount()), true);
             discordUserRepo.save(discordUser);
+
+            int banSec = 0;
+            if (discordUser.getWarningCount() >= 3) builder.setThumbnail("https://upload.wikimedia.org/wikipedia/commons/thumb/1/18/Ban_circle_font_awesome-red.svg/480px-Ban_circle_font_awesome-red.svg.png");
+
+            if (discordUser.getWarningCount() == 3) banSec = 15 * 60;
+            else if (discordUser.getWarningCount() == 4) banSec = 60 * 60;
+            else if (discordUser.getWarningCount() == 5) banSec = 6 * 60 * 60;
+            else if (discordUser.getWarningCount() == 6) banSec = 24 * 60 * 60;
+            else if (discordUser.getWarningCount() >= 7) banSec = -1;
+
+            if (banSec == 0) {
+                builder.addField("处罚", "警告", true);
+                sendPrivateMsg(member, "警告，请仔细阅读妖风电竞组队规则。请先加入语音频道之后再使用yf命令组队。未加入频道之前，使用yf组队命令或者直接组队将导致警告甚至永久禁言。第三次违反规定之后你会被禁言。如果你认为这条警告不合理，请联系管理。");
+            } else if (banSec == -1) {
+                builder.addField("处罚", "永久禁言", true);
+                sendPrivateMsg(member, "你已经被妖风电竞永久禁言。如果你认为这条警告不合理，请联系管理。");
+            } else {
+                String time = banSec < 1000 ? "15 分钟" : banSec / 3600 + " 小时";
+                builder.addField("处罚", "禁言 " + time, true);
+                sendPrivateMsg(member, "因为违反组队规则，你已经被禁言 " + time + "。请仔细阅读妖风电竞组队规则。请先加入语音频道之后再使用yf命令组队。未加入频道之前，使用yf组队命令或者直接组队将导致警告甚至永久禁言。如果你认为这条警告不合理，请联系管理。");
+            }
+            builder.addBlankField(true);
+
         }
 
         message.reply(builder.build()).queue();
+    }
+
+    private void sendPrivateMsg(Member member, String msg) {
+        PrivateChannel privateChannel = member.getUser().openPrivateChannel().complete();
+        privateChannel.sendMessage(msg).queue();
     }
 }
