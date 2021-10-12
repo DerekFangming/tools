@@ -1,6 +1,5 @@
 package com.fmning.tools.domain;
 
-import com.fmning.tools.type.DiscordRoleType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

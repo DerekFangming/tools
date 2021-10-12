@@ -7,6 +7,7 @@ import com.fmning.tools.ToolsProperties;
 import com.fmning.tools.domain.*;
 import com.fmning.tools.dto.DiscordObjectDto;
 import com.fmning.tools.repository.*;
+import com.fmning.tools.type.DiscordTaskType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.apachecommons.CommonsLog;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -43,6 +44,7 @@ public class DiscordService extends BaseEventListener {
     private final DiscordCategoryRepo discordCategoryRepo;
     private final DiscordChannelRepo discordChannelRepo;
     private final DiscordAchievementRepo discordAchievementRepo;
+    private final DiscordTaskRepo discordTaskRepo;
 
     public static String speedMessageId = "";
     public static String roleId = "";
@@ -224,6 +226,26 @@ public class DiscordService extends BaseEventListener {
                 }
             });
         }
+    }
+
+
+    @Scheduled(cron= "0 */3 * * * *")
+    public void checkDiscordTasks() {
+        discordTaskRepo.findByTimeoutBefore(Instant.now()).forEach(t -> {
+            try {
+                if (t.getType() == DiscordTaskType.UN_MUTE) {
+                    Guild guild = jda.getGuildById(toolsProperties.getDcDefaultGuildId());
+                    if (guild != null) {
+                        Role role = guild.getRoleById(toolsProperties.getMutedToleId());
+                        if (role != null) guild.removeRoleFromMember(t.getPayload(), role).queue();
+                    }
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            } finally {
+                discordTaskRepo.delete(t);
+            }
+        });
     }
 
     public List<DiscordObjectDto> getTextChannels(String guildId) {

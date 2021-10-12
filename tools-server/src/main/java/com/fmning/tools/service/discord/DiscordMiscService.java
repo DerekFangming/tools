@@ -5,9 +5,12 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fmning.tools.ToolsProperties;
 import com.fmning.tools.domain.DiscordAchievement;
+import com.fmning.tools.domain.DiscordTask;
 import com.fmning.tools.domain.DiscordUser;
 import com.fmning.tools.repository.DiscordAchievementRepo;
+import com.fmning.tools.repository.DiscordTaskRepo;
 import com.fmning.tools.repository.DiscordUserRepo;
+import com.fmning.tools.type.DiscordTaskType;
 import lombok.Builder;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +23,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import javax.imageio.ImageIO;
+import javax.persistence.Column;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
@@ -43,6 +47,7 @@ public class DiscordMiscService {
     private final DiscordAchievementRepo discordAchievementRepo;
     private final ToolsProperties toolsProperties;
     private final ObjectMapper objectMapper;
+    private final DiscordTaskRepo discordTaskRepo;
 
     private List<String> nbList = new ArrayList<String>() {{
         add("可太牛逼了");
@@ -347,6 +352,22 @@ public class DiscordMiscService {
                 sendPrivateMsg(member, "因为违反组队规则，你已经被禁言 " + time + "。请仔细阅读妖风电竞组队规则。请先加入语音频道之后再使用yf命令组队。未加入频道之前，使用yf组队命令或者直接组队将导致警告甚至永久禁言。如果你认为这条警告不合理，请联系管理。");
             }
             builder.addBlankField(true);
+
+            // Ban user
+            if (banSec != 0) {
+                Role role = member.getGuild().getRoleById(toolsProperties.getMutedToleId());
+                if (role != null) member.getGuild().addRoleToMember(member.getId(), role).queue();
+
+                if (banSec != -1) {
+                    discordTaskRepo.save(DiscordTask.builder()
+                            .guildId(member.getGuild().getId())
+                            .type(DiscordTaskType.UN_MUTE)
+                            .payload(member.getId())
+                            .timeout(Instant.now().plusSeconds(banSec))
+                            .created(Instant.now())
+                            .build());
+                }
+            }
 
         }
 

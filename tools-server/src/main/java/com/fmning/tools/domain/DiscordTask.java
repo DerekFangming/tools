@@ -1,5 +1,6 @@
 package com.fmning.tools.domain;
 
+import com.fmning.tools.type.DiscordTaskType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -21,13 +22,14 @@ public class DiscordTask {
     @Id
     @Column(name="id")
     @GeneratedValue(strategy=GenerationType.IDENTITY)
-    private String id;
+    private int id;
 
     @Column(name="guild_id")
     private String guildId;
 
     @Column(name="type")
-    private String type;
+    @Enumerated(EnumType.STRING)
+    private DiscordTaskType type;
 
     @Column(name="payload")
     private String payload;

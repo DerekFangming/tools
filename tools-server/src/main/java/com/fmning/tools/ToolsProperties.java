@@ -31,4 +31,8 @@ public class ToolsProperties {
     public String getFont() {
         return isProduction() ? "Bradley Hand" : "Bradley Hand ITC";
     }
+
+    public String getMutedToleId() {
+        return isProduction() ? "784919135494078474" : "895161398554935326";
+    }
 }

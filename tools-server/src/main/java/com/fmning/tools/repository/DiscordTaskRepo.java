@@ -8,7 +8,7 @@ import java.time.Instant;
 import java.util.List;
 
 @Repository
-public interface DiscordTaskRepo extends CrudRepository<DiscordTask, String> {
+public interface DiscordTaskRepo extends CrudRepository<DiscordTask, Integer> {
 
     List<DiscordTask> findByTimeoutBefore(Instant timeout);
 }
