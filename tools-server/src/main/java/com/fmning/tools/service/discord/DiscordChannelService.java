@@ -2,11 +2,13 @@ package com.fmning.tools.service.discord;
 
 import com.fmning.tools.ToolsProperties;
 import com.fmning.tools.domain.DiscordGuild;
+import com.fmning.tools.domain.DiscordTask;
 import com.fmning.tools.domain.DiscordUser;
 import com.fmning.tools.repository.DiscordGuildRepo;
+import com.fmning.tools.repository.DiscordTaskRepo;
 import com.fmning.tools.repository.DiscordUserRepo;
+import com.fmning.tools.type.DiscordTaskType;
 import lombok.RequiredArgsConstructor;
-import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.*;
 import okhttp3.*;
@@ -17,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.time.Instant;
 import java.util.EnumSet;
 import java.util.Objects;
 
@@ -29,6 +32,7 @@ public class DiscordChannelService {
 
     private final DiscordUserRepo discordUserRepo;
     private final DiscordGuildRepo discordGuildRepo;
+    private final DiscordTaskRepo discordTaskRepo;
     private final ToolsProperties toolsProperties;
     private final OkHttpClient client;
 
@@ -142,6 +146,13 @@ public class DiscordChannelService {
             } else {
                 discordUser.setTempChannelId(vc.getId());
                 discordUserRepo.save(discordUser);
+                discordTaskRepo.save(DiscordTask.builder()
+                        .guildId(member.getGuild().getId())
+                        .type(DiscordTaskType.REMOVE_CHANNEL)
+                        .payload(member.getId())
+                        .timeout(Instant.now().plusSeconds(600))
+                        .created(Instant.now())
+                        .build());
                 Invite invite = vc.createInvite().complete();
                 channel.sendMessage("<@" + member.getId() + "> 临时频道创建成功。" + invite.getUrl()).queue();
             }

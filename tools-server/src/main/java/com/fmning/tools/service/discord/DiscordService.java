@@ -210,23 +210,6 @@ public class DiscordService extends BaseEventListener {
         discordRoleMappingRepo.deleteByCreated(Instant.now().minus(1, ChronoUnit.DAYS));
     }
 
-    @Scheduled(cron= "0 0/30 * * * ?")
-    public void cleanupTempChannel() {
-        Guild guild = jda.getGuildById(toolsProperties.getDcDefaultGuildId());
-        if (guild != null) {
-            discordUserRepo.findByTempChannelIdNotNull().forEach(u -> {
-                VoiceChannel vc = guild.getVoiceChannelById(u.getTempChannelId());
-                if (vc == null) {
-                    u.setTempChannelId(null);
-                    discordUserRepo.save(u);
-                } else if (vc.getMembers().size() == 0){
-                    vc.delete().complete();
-                    u.setTempChannelId(null);
-                    discordUserRepo.save(u);
-                }
-            });
-        }
-    }
 
 
     @Scheduled(cron= "0 */3 * * * *")
@@ -239,11 +222,30 @@ public class DiscordService extends BaseEventListener {
                         Role role = guild.getRoleById(toolsProperties.getMutedToleId());
                         if (role != null) guild.removeRoleFromMember(t.getPayload(), role).queue();
                     }
+                    discordTaskRepo.delete(t);
+                } else if (t.getType() == DiscordTaskType.REMOVE_CHANNEL) {
+                    Guild guild = jda.getGuildById(toolsProperties.getDcDefaultGuildId());
+                    if (guild != null) {
+                        DiscordUser user = discordUserRepo.findById(t.getPayload()).orElse(null);
+                        if (user != null) {
+                            VoiceChannel vc = guild.getVoiceChannelById(user.getTempChannelId());
+                            if (vc == null) {
+                                user.setTempChannelId(null);
+                                discordUserRepo.save(user);
+                            } else if (vc.getMembers().size() == 0){
+                                vc.delete().complete();
+                                user.setTempChannelId(null);
+                                discordUserRepo.save(user);
+                                discordTaskRepo.delete(t);
+                            } else {
+                                return;
+                            }
+                        }
+                    }
+                    discordTaskRepo.delete(t);
                 }
             } catch (Exception e) {
                 e.printStackTrace();
-            } finally {
-                discordTaskRepo.delete(t);
             }
         });
     }
