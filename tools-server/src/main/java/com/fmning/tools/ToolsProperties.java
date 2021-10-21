@@ -17,8 +17,8 @@ public class ToolsProperties {
         return Boolean.parseBoolean(production);
     }
 
-    public String getApexChannelId() {
-        return isProduction() ? "782427034327711765" : "879561792194494524";
+    public String getTeamLimitChannelId() {
+        return isProduction() ? "782427034327711765,790700339870433341,790475149324845056,826957188626513941" : "879561792194494524,900555475270119466";
     }
     public String getSelfServiceBotChannelId() {
         return isProduction() ? "788900934805225542" : "879561759776722945";

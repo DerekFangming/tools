@@ -66,7 +66,7 @@ public class MessageReceivedEventListener extends BaseEventListener {
 
             if (member == null || member.getUser().isBot()) return;
 
-            if (channel.getId().equals(toolsProperties.getApexChannelId())) {
+            if (toolsProperties.getTeamLimitChannelId().contains(channel.getId())) {
                 if (!command.equals(1, "apex", "a") && !command.equals(1, "invite", "i") || command.equals(2, "link", "l")) {
                     channel.sendMessage("<@" + member.getId() + "> 本频道只能使用yf组队命令。请到<#" + toolsProperties.getSelfServiceBotChannelId()
                             + "> 频道使用其他bot命令。").queue();

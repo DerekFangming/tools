@@ -1,6 +1,5 @@
 package com.fmning.tools.service.discord;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fmning.tools.ToolsProperties;
@@ -11,8 +10,6 @@ import com.fmning.tools.repository.DiscordAchievementRepo;
 import com.fmning.tools.repository.DiscordTaskRepo;
 import com.fmning.tools.repository.DiscordUserRepo;
 import com.fmning.tools.type.DiscordTaskType;
-import lombok.Builder;
-import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.*;
@@ -23,7 +20,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import javax.imageio.ImageIO;
-import javax.persistence.Column;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
@@ -275,7 +271,7 @@ public class DiscordMiscService {
         if (member == null || member.getUser().isBot()) return;
 
         // Check for apex channel invite wording
-        if (channel.getId().equals(toolsProperties.getApexChannelId())) {
+        if (toolsProperties.getTeamLimitChannelId().contains(channel.getId())) {
             Matcher m = forbiddenPattern.matcher(content);
             if (m.find()) {
                 if (member.getRoles().stream().anyMatch(r -> toolsProperties.getYaofengNewbieRoleId().contains(r.getId()))) {
