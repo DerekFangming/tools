@@ -180,19 +180,25 @@ public class MessageReceivedEventListener extends BaseEventListener {
 
     @Override
     public void onGuildMessageReactionAdd(@Nonnull GuildMessageReactionAddEvent event) {
-        if ("❌".equals(event.getReactionEmote().getName()) && discordInviteService.isCancelable(event.getMessageId(), event.getUserId())) {
-            discordInviteService.removeMessageId(event.getMessageId());
-            event.getChannel().deleteMessageById(event.getMessageId()).queue();
-        } else if ("\uD83D\uDC4D".equals(event.getReactionEmote().getName()) && !event.getUser().isBot()) {
-            // TODO: remove when speed is done
-            if (event.getMessageId().equals(DiscordService.speedMessageId)) {
-                Member member = event.getMember();
-                Role role = event.getGuild().getRoleById(DiscordService.roleId);
-                if (role != null) {
-                    event.getGuild().addRoleToMember(member, role).queue();
-                }
+        if ("❌".equals(event.getReactionEmote().getName())) {
+            if (discordInviteService.isCancelable(event.getMessageId(), event.getUserId())) {
+                discordInviteService.removeMessageId(event.getMessageId());
+                event.getChannel().deleteMessageById(event.getMessageId()).queue();
+            } else if ("360222890718920705".equals(event.getUserId())) {
+                event.b
+                event.getChannel().deleteMessageById(event.getMessageId()).queue();
             }
         }
+//        else if ("\uD83D\uDC4D".equals(event.getReactionEmote().getName()) && !event.getUser().isBot()) {
+//            // TODO: remove when speed is done
+//            if (event.getMessageId().equals(DiscordService.speedMessageId)) {
+//                Member member = event.getMember();
+//                Role role = event.getGuild().getRoleById(DiscordService.roleId);
+//                if (role != null) {
+//                    event.getGuild().addRoleToMember(member, role).queue();
+//                }
+//            }
+//        }
     }
 
     private void invalidCommand(MessageChannel channel, Member member, String content) {
