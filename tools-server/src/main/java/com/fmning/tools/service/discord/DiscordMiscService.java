@@ -272,8 +272,10 @@ public class DiscordMiscService {
 
     public void checkViolations(MessageChannel channel, Member member, Message message, String content) {
 
+        if (member == null || member.getUser().isBot()) return;
+
         // Check for apex channel invite wording
-        if (channel.getId().equals(toolsProperties.getApexChannelId()) && member != null) {
+        if (channel.getId().equals(toolsProperties.getApexChannelId())) {
             Matcher m = forbiddenPattern.matcher(content);
             if (m.find()) {
                 if (member.getRoles().stream().anyMatch(r -> toolsProperties.getYaofengNewbieRoleId().contains(r.getId()))) {
@@ -289,7 +291,7 @@ public class DiscordMiscService {
             }
         }
         // Check for invite URLs
-        if (message.getInvites().size() > 0 && member != null) {
+        if (message.getInvites().size() > 0) {
             if (member.getRoles().stream().anyMatch(r -> toolsProperties.getYaofengNewbieRoleId().contains(r.getId()))) {
                 for (String i : message.getInvites()) {
                     Invite.resolve(message.getJDA(), i).queue(v-> {
@@ -375,7 +377,8 @@ public class DiscordMiscService {
     }
 
     private void sendPrivateMsg(Member member, String msg) {
-        PrivateChannel privateChannel = member.getUser().openPrivateChannel().complete();
-        privateChannel.sendMessage(msg).queue();
+        member.getUser().openPrivateChannel().queue(privateChannel -> {
+            privateChannel.sendMessage(msg).queue();
+        });
     }
 }
