@@ -185,7 +185,6 @@ public class MessageReceivedEventListener extends BaseEventListener {
                 discordInviteService.removeMessageId(event.getMessageId());
                 event.getChannel().deleteMessageById(event.getMessageId()).queue();
             } else if ("360222890718920705".equals(event.getUserId())) {
-                event.b
                 event.getChannel().deleteMessageById(event.getMessageId()).queue();
             }
         }
