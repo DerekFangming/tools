@@ -22,9 +22,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.nio.ByteBuffer;
 import java.util.*;
 import java.util.regex.Pattern;
@@ -41,7 +38,7 @@ public class AudioPlayerSendHandler implements AudioSendHandler {
     private AudioFrame lastFrame;
     private TrackScheduler scheduler;
 
-    private Pattern chinesePattern = Pattern.compile("[\u3400-\u9FBF]");
+    public static Pattern CHINESE_PATTERN = Pattern.compile("[\u3400-\u9FBF]");
     private Pattern japanesePattern = Pattern.compile("[\u3000-\u303f\u3040-\u309f\u30a0-\u30ff\uff00-\uff9f\u4e00-\u9faf\u3400-\u4dbf]");
 
     @PostConstruct
@@ -119,7 +116,7 @@ public class AudioPlayerSendHandler implements AudioSendHandler {
             command.add(ttsPath);
             command.add("--data-format=I16");
 
-            if (chinesePattern.matcher(sentence).find()) {
+            if (CHINESE_PATTERN.matcher(sentence).find()) {
                 command.add("-v");
                 command.add("Ting-Ting");
             } else if (japanesePattern.matcher(sentence).find()) {
