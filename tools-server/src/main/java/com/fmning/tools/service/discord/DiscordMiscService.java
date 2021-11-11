@@ -69,7 +69,7 @@ public class DiscordMiscService {
         add("打得好啊");
     }};
 
-    private Pattern forbiddenPattern = Pattern.compile("nm|rank|\\d\\s*=\\s*\\d|私|等\\s*\\d|缺\\s*\\d");
+    private Pattern forbiddenPattern = Pattern.compile("nm|rank|\\d\\s*=.*?|.*?=\\d\\s*|私|等\\s*\\d|缺\\s*\\d");
     private DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").withZone(ZoneId.systemDefault());
 
     public static String APEX_WARNING_TITLE = "警告: 违反组队规则";
