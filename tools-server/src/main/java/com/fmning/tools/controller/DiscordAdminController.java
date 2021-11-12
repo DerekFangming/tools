@@ -4,6 +4,7 @@ import com.fmning.tools.ToolsProperties;
 import com.fmning.tools.domain.DiscordRole;
 import com.fmning.tools.domain.DiscordRoleMapping;
 import com.fmning.tools.domain.DiscordUser;
+import com.fmning.tools.domain.DiscordUserLog;
 import com.fmning.tools.dto.DiscordAdminDto;
 import com.fmning.tools.dto.DiscordRolePositionDto;
 import com.fmning.tools.repository.*;
@@ -11,8 +12,17 @@ import com.fmning.tools.service.discord.DiscordService;
 import com.fmning.tools.type.DiscordRoleType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.apachecommons.CommonsLog;
+import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.JDA;
+import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Role;
+import net.dv8tion.jda.api.entities.TextChannel;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,6 +30,8 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
+import static com.fmning.tools.util.WebUtil.TOTAL_COUNT;
 
 @RestController
 @RequestMapping(value = "/api/discord/admin")
@@ -31,7 +43,9 @@ public class DiscordAdminController {
     private final ToolsProperties toolsProperties;
     private final DiscordUserRepo discordUserRepo;
     private final DiscordRoleRepo discordRoleRepo;
+    private final DiscordGuildRepo discordGuildRepo;
     private final DiscordRoleMappingRepo discordRoleMappingRepo;
+    private final JDA jda;
 
     @GetMapping("/birthday")
     @PreAuthorize("hasRole('ADMIN')")
@@ -117,28 +131,23 @@ public class DiscordAdminController {
 
     @GetMapping("/role-fix")
     @PreAuthorize("hasRole('ADMIN')")
-    public String roleFix(@RequestParam("roleId") String roleId) {
-        List<DiscordUser> users = discordUserRepo.findByRolesContaining(roleId);
-        StringBuilder sb = new StringBuilder();
-        DiscordRoleMapping owner = discordRoleMappingRepo.findByTypeAndRoleId(DiscordRoleType.LEVEL, roleId);
-        for (DiscordUser u : users) {
-            if (!u.getId().equals(owner.getOwnerId())) {
-                DiscordRoleMapping mapping = discordRoleMappingRepo.findByOwnerIdAndTypeAndRoleId(u.getId(), DiscordRoleType.SHARE, roleId);
-                if (mapping == null) {
-                    sb.append("Added share to ").append(u.getNickname()).append("<br />");
-                    discordRoleMappingRepo.save(DiscordRoleMapping.builder()
-                            .guildId(toolsProperties.getDcDefaultGuildId())
-                            .roleId(roleId)
-                            .enabled(true)
-                            .code(RandomStringUtils.randomAlphanumeric(6))
-                            .type(DiscordRoleType.SHARE)
-                            .ownerId(u.getId())
-                            .approverId(null)
-                            .created(Instant.now())
-                            .build());
-                }
-            }
+    public String roleFix() {
+        String roleId = discordGuildRepo.findById(toolsProperties.getDcDefaultGuildId()).get().getWelcomeRoleId();
+        Role role = jda.getRoleById(roleId);
+        Guild guild = jda.getGuildById(toolsProperties.getDcDefaultGuildId());
+        if (role == null || guild == null) {
+            return "no role or guild";
         }
+        StringBuilder sb = new StringBuilder();
+
+        Page<DiscordUser> page = discordUserRepo.findByRoles("[]", PageRequest.of(0, 100));
+
+        for (DiscordUser u : page.getContent()) {
+            sb.append("Adding ").append(u.getNickname()).append("<br />");
+            guild.addRoleToMember(u.getId(), role).complete();
+        }
+
+
         return sb.toString();
     }
 

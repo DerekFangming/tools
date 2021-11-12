@@ -19,6 +19,9 @@ public interface DiscordUserRepo extends CrudRepository<DiscordUser, String> {
     Page<DiscordUser> findAll(Pageable pageable);
     Page<DiscordUser> findAllByOrderByScoreDesc(Pageable pageable);
 
+
+    Page<DiscordUser> findByRoles(String roles, Pageable pageable);
+
     List<DiscordUser> findByRolesContaining(String role);
 
     DiscordUser findByBoostChannelIdOrTempChannelId(String boostChannelId, String tempChannelId);
