@@ -25,7 +25,7 @@ public class ToolsProperties {
     }
 
     public String getYaofengNewbieRoleId() {
-        return isProduction() ? "803212908896583731, 782484706754691072" : "792772398592163840";
+        return isProduction() ? "803212908896583731, 908185337250086965" : "792772398592163840";
     }
 
     public String getFont() {
