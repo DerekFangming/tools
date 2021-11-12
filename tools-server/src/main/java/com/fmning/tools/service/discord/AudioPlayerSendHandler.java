@@ -138,7 +138,7 @@ public class AudioPlayerSendHandler implements AudioSendHandler {
             }
 
             params.setCodec(AudioCodec.WAV);
-            params.setFormat(AudioFormat.Format_16KHZ.AF_16khz_16bit_stereo);
+            params.setFormat(AudioFormat.Format_16KHZ.AF_16khz_16bit_mono);
             params.setBase64(false);
             params.setSSML(false);
             params.setRate(0);
