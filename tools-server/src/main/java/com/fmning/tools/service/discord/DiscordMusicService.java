@@ -59,7 +59,7 @@ public class DiscordMusicService {
         }
     }
 
-    public void say(MessageChannel channel, Member member, AudioManager audioManager, String sentence){
+    public void say(MessageChannel channel, Member member, AudioManager audioManager, String sentence, String language){
 
         VoiceChannel voiceChannel = null;
         GuildVoiceState voiceState = member.getVoiceState();
@@ -84,7 +84,7 @@ public class DiscordMusicService {
         if (StringUtils.isEmpty(sentence)) {
             channel.sendMessage("<@" + member.getId() + "> 请输入要说的话。").queue();
         } else {
-            audioPlayerSendHandler.say(sentence, channel, member.getId());
+            audioPlayerSendHandler.say(sentence, channel, member.getId(), language);
         }
     }
 

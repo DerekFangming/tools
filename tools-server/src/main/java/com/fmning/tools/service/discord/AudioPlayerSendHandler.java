@@ -11,6 +11,7 @@ import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
 import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import com.sedmelluq.discord.lavaplayer.track.playback.AudioFrame;
+import com.voicerss.tts.*;
 import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.audio.AudioSendHandler;
@@ -19,9 +20,11 @@ import okhttp3.*;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
+import java.io.FileOutputStream;
 import java.nio.ByteBuffer;
 import java.util.*;
 import java.util.regex.Pattern;
@@ -37,9 +40,12 @@ public class AudioPlayerSendHandler implements AudioSendHandler {
     private AudioPlayer audioPlayer;
     private AudioFrame lastFrame;
     private TrackScheduler scheduler;
+    private Random random = new Random();
 
     public static Pattern CHINESE_PATTERN = Pattern.compile("[\u3400-\u9FBF]");
     private Pattern japanesePattern = Pattern.compile("[\u3000-\u303f\u3040-\u309f\u30a0-\u30ff\uff00-\uff9f\u4e00-\u9faf\u3400-\u4dbf]");
+    VoiceProvider tts1 = new VoiceProvider("038f9e5ee5c54f899eebccf8aac3847a");
+    VoiceProvider tts2 = new VoiceProvider("b189deef5c194efdaffab21e7c6e4b1a");
 
     @PostConstruct
     public void setup() {
@@ -105,27 +111,47 @@ public class AudioPlayerSendHandler implements AudioSendHandler {
         }
     }
 
-    public void say(String sentence, MessageChannel channel, String userId) {
+    public void say(String sentence, MessageChannel channel, String userId, String language) {
         try {
+            VoiceProvider tts = random.nextBoolean() ? tts1 : tts2;
 
-            String ttsPath = "/Users/Cyan/Documents/GitHub/dc-music/temp/" + UUID.randomUUID().toString() + ".wav";
-            List<String> command = new ArrayList<>();
-            command.add("say");
-            command.add("\"" + sentence + "\"");
-            command.add("-o");
-            command.add(ttsPath);
-            command.add("--data-format=I16");
-
-            if (CHINESE_PATTERN.matcher(sentence).find()) {
-                command.add("-v");
-                command.add("Ting-Ting");
-            } else if (japanesePattern.matcher(sentence).find()) {
-                command.add("-v");
-                command.add("Kyoko");
+            VoiceParameters params = null;
+            
+            if ("e".equals(language)) {
+                params = new VoiceParameters(sentence, Languages.English_UnitedStates);
+            } else if ("m".equals(language)) {
+                params = new VoiceParameters(sentence, Languages.Chinese_China);
+            } else if ("c".equals(language)) {
+                params = new VoiceParameters(sentence, Languages.Chinese_HongKong);
+            } else if ("j".equals(language)) {
+                params = new VoiceParameters(sentence, Languages.Japanese);
             }
 
-            Process proc = new ProcessBuilder(command).start();
-            proc.waitFor();
+            if (params == null) {
+                if (CHINESE_PATTERN.matcher(sentence).find()) {
+                    params = new VoiceParameters(sentence, Languages.Chinese_China);
+                } else if (japanesePattern.matcher(sentence).find()) {
+                    params = new VoiceParameters(sentence, Languages.Japanese);
+                } else {
+                    params = new VoiceParameters(sentence, Languages.English_UnitedStates);
+                }
+            }
+
+            params.setCodec(AudioCodec.WAV);
+            params.setFormat(AudioFormat.Format_16KHZ.AF_16khz_16bit_stereo);
+            params.setBase64(false);
+            params.setSSML(false);
+            params.setRate(0);
+
+            byte[] voice = tts.speech(params);
+
+
+            String ttsPath = toolsProperties.isProduction() ? "/Users/Cyan/Documents/GitHub/dc-music/temp/" + UUID.randomUUID().toString() + ".wav"
+                    : "F:\\" + UUID.randomUUID().toString() + ".wav";
+            FileOutputStream fos = new FileOutputStream(ttsPath);
+            fos.write(voice, 0, voice.length);
+            fos.flush();
+            fos.close();
 
             playerManager.loadItemOrdered(scheduler, ttsPath, new AudioLoadResultHandler() {
                 @Override

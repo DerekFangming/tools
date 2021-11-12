@@ -167,7 +167,15 @@ public class MessageReceivedEventListener extends BaseEventListener {
                     discordMiscService.getStatus(channel,member);
                 }
             } else if (command.equals(1, "say", null)) {
-                discordMusicService.say(channel, member, event.getGuild().getAudioManager(), command.from(2));
+                discordMusicService.say(channel, member, event.getGuild().getAudioManager(), command.from(2), null);
+            }else if (command.equals(1, "sayj", "sj")) {
+                discordMusicService.say(channel, member, event.getGuild().getAudioManager(), command.from(2), "j");
+            }else if (command.equals(1, "saym", "sm")) {
+                discordMusicService.say(channel, member, event.getGuild().getAudioManager(), command.from(2), "m");
+            }else if (command.equals(1, "sayc", "sc")) {
+                discordMusicService.say(channel, member, event.getGuild().getAudioManager(), command.from(2), "c");
+            }else if (command.equals(1, "saye", "se")) {
+                discordMusicService.say(channel, member, event.getGuild().getAudioManager(), command.from(2), "e");
             } else if (command.equals(1, "debug", "d")) {
                 discordMiscService.getStatus(channel, member);
             } else {
