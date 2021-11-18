@@ -146,7 +146,7 @@ public class AudioPlayerSendHandler implements AudioSendHandler {
             byte[] voice = tts.speech(params);
 
 
-            String ttsPath = toolsProperties.isProduction() ? "/Users/Cyan/Documents/GitHub/dc-music/temp/" + UUID.randomUUID().toString() + ".wav"
+            String ttsPath = toolsProperties.isProduction() ? "/media/internal/tools/tts/" + UUID.randomUUID().toString() + ".wav"
                     : "F:\\" + UUID.randomUUID().toString() + ".wav";
             FileOutputStream fos = new FileOutputStream(ttsPath);
             fos.write(voice, 0, voice.length);
