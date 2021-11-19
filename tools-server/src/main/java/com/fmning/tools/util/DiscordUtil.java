@@ -108,7 +108,7 @@ public class DiscordUtil {
         StringBuilder sb = new StringBuilder();
 
         for (String line : lines) {
-            if (sb.length() + line.length() > 2000) {
+            if (sb.length() + line.length() > 1950) {
                 res.add(sb.toString());
                 sb = new StringBuilder();
             }
