@@ -42,7 +42,7 @@ public class MemberJoinedEventListener extends BaseEventListener {
                         if (g.getDebugChannelId() != null) {
                             TextChannel channel = event.getJDA().getTextChannelById(g.getDebugChannelId());
                             if (channel != null) {
-                                channel.sendMessage("用户" + member.getUser().getName() + "(" + member.getUser().getId() + ")被移除。头像为" + member.getUser().getAvatarUrl() + "。账号创建天数：" + createdDays).complete();
+                                channel.sendMessage("用户" + member.getUser().getName() + "(" + member.getUser().getId() + ")被移除。头像为" + member.getUser().getAvatarUrl() + " 。账号创建天数：" + createdDays).complete();
                             }
                         }
                     });

@@ -23,7 +23,7 @@ public class DiscordMusicService {
 
                 VoiceChannel currentChannel = audioManager.getConnectedChannel();
                 if (audioPlayerSendHandler.isPlayingMusic() && currentChannel != null && !currentChannel.getId().equals(voiceChannel.getId())) {
-                    channel.sendMessage("<@" + member.getId() + "> 当前正在**" + currentChannel.getName() + "**频道播放音乐。只有播放完成之后才能切换频道。").queue();
+                    channel.sendMessage("<@" + member.getId() + "> 当前正在**" + currentChannel.getName() + "**频道播放音乐。只有播放完成之后才能切换频道。请通过!y使用另外一个bot播放音乐。").queue();
                 } else {
                     audioManager.setSendingHandler(audioPlayerSendHandler);
                     audioManager.openAudioConnection(voiceChannel);
@@ -45,7 +45,7 @@ public class DiscordMusicService {
 
         VoiceChannel currentChannel = audioManager.getConnectedChannel();
         if (audioPlayerSendHandler.isPlayingMusic() && currentChannel != null && !currentChannel.getId().equals(voiceChannel.getId())) {
-            channel.sendMessage("<@" + member.getId() + "> 当前正在**" + currentChannel.getName() + "**频道播放音乐。只有播放完成之后才能切换频道。").queue();
+            channel.sendMessage("<@" + member.getId() + "> 当前正在**" + currentChannel.getName() + "**频道播放音乐。只有播放完成之后才能切换频道。请通过!y使用另外一个bot播放音乐。").queue();
             return;
         }
 
@@ -74,7 +74,7 @@ public class DiscordMusicService {
         if (audioPlayerSendHandler.isPlayingMusic()) {
             VoiceChannel currentChannel = audioManager.getConnectedChannel();
             String channelName = currentChannel != null ? "**" + currentChannel.getName() + "**" : "";
-            channel.sendMessage("<@" + member.getId() + "> 当前正在" + channelName + "频道播放音乐。只有播放完成之后才能说话。").queue();
+            channel.sendMessage("<@" + member.getId() + "> 当前正在" + channelName + "频道播放音乐。只有播放完成之后才能说话。请通过!y使用另外一个bot说话。").queue();
             return;
         }
 
