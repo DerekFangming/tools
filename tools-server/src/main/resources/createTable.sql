@@ -176,3 +176,9 @@ create table tl_images (
 	url text,
 	created timestamp without time zone not null
 );
+
+create table tl_ktv_songs (
+    id serial primary key,
+	title text,
+	requested boolean
+);
