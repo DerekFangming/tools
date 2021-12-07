@@ -18,7 +18,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.util.ResourceUtils;
 
+import javax.annotation.PostConstruct;
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -79,6 +81,16 @@ public class DiscordMiscService {
             "%s> 频道发送yf help invite查看如何使用妖风组队机器人。";
 
     private Random random = new Random();
+
+    @PostConstruct
+    public void setup() {
+        try {
+            GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+            ge.registerFont(Font.createFont(Font.TRUETYPE_FONT, ResourceUtils.getFile("classpath:bradleyHandItc.TTF")));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
 
     public void help(MessageChannel channel) {
@@ -240,7 +252,7 @@ public class DiscordMiscService {
 
         BufferedImage img = new BufferedImage(total.length() * 36, 75, BufferedImage.TYPE_INT_ARGB);
         Graphics2D g2d = img.createGraphics();
-        Font font = new Font(toolsProperties.getFont(), Font.BOLD, 60);
+        Font font = new Font("Bradley Hand ITC", Font.BOLD, 60);
         g2d.setFont(font);
         FontMetrics fm = g2d.getFontMetrics();
         g2d.setColor(Color.decode("#44b1ca"));
