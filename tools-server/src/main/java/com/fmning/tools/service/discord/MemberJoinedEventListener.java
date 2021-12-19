@@ -1,20 +1,22 @@
 package com.fmning.tools.service.discord;
 
+import com.fmning.tools.domain.DiscordTask;
 import com.fmning.tools.domain.DiscordUserLog;
 import com.fmning.tools.repository.DiscordGuildRepo;
+import com.fmning.tools.repository.DiscordTaskRepo;
 import com.fmning.tools.repository.DiscordUserLogRepo;
+import com.fmning.tools.type.DiscordTaskType;
 import com.fmning.tools.type.DiscordUserLogActionType;
 import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-
-import static com.fmning.tools.service.discord.AudioPlayerSendHandler.CHINESE_PATTERN;
 
 @Component
 @RequiredArgsConstructor(onConstructor_={@Autowired})
@@ -22,6 +24,7 @@ public class MemberJoinedEventListener extends BaseEventListener {
 
     private final DiscordGuildRepo discordGuildRepo;
     private final DiscordUserLogRepo discordUserLogRepo;
+    private final DiscordTaskRepo discordTaskRepo;
 
     @Override
     public void onGuildMemberJoin(GuildMemberJoinEvent event) {
@@ -31,25 +34,26 @@ public class MemberJoinedEventListener extends BaseEventListener {
 
             long createdDays = ChronoUnit.DAYS.between(Instant.from(member.getUser().getTimeCreated()), Instant.now());
             if (createdDays < 30) {
-                if (!CHINESE_PATTERN.matcher(member.getUser().getName()).find()) {
-                    PrivateChannel privateChannel = event.getUser().openPrivateChannel().complete();
-                    privateChannel.sendMessage("**哈咯，" + member.getUser().getName() + "，欢迎加入妖风电竞！**\n\n很抱歉你目前不符合加入条件并已被暂时移出我们的频道。" +
-                            "为了防止骗子使用大量bot账号加入我们服务器诈骗，妖风电竞对加入账号有如下要求。只要满足`任何一条要求`即可加入服务器。请修改你的账号再重新加入，加入之后" +
-                            "你可以取消这些设置，届时我们不会将你移出。我们的永久链接是: https://discord.gg/yaofeng\n\n" +
-                            "1. 用户名不可以全部是英文。请加入至少一个中文。\n2. 你的账号已创建超过1个月。").complete();
 
-                    discordGuildRepo.findById(event.getGuild().getId()).ifPresent(g -> {
-                        if (g.getDebugChannelId() != null) {
-                            TextChannel channel = event.getJDA().getTextChannelById(g.getDebugChannelId());
-                            if (channel != null) {
-                                channel.sendMessage("用户" + member.getUser().getName() + "(" + member.getUser().getId() + ")被移除。头像为" + member.getUser().getAvatarUrl() + " 。账号创建天数：" + createdDays).complete();
-                            }
-                        }
-                    });
+                DiscordTask task = discordTaskRepo.findByTypeAndPayloadContaining(DiscordTaskType.JOIN_CODE, member.getId());
+                String name = "妖风临时-" + RandomStringUtils.randomAlphanumeric(6);
+                if (task == null) {
+                    discordTaskRepo.save(DiscordTask.builder()
+                            .guildId(member.getGuild().getId())
+                            .type(DiscordTaskType.JOIN_CODE)
+                            .payload(member.getId() + ":" + name)
+                            .timeout(Instant.now().plusSeconds(600))
+                            .created(Instant.now())
+                            .build());
 
-                    event.getGuild().kick(member).complete();
-
+                    kickInvalidUser(event, createdDays, name);
                     return;
+                } else {
+                    name = task.getPayload().split(":")[1];
+                    if (!event.getUser().getName().equals(name)) {
+                        kickInvalidUser(event, createdDays, name);
+                        return;
+                    }
                 }
             }
 
@@ -86,6 +90,15 @@ public class MemberJoinedEventListener extends BaseEventListener {
                         guild.addRoleToMember(member.getId(), role).queue();
                     }
                 }
+
+                // Warning
+                if (createdDays <= 90 && g.getDebugChannelId() != null) {
+                    TextChannel channel = event.getJDA().getTextChannelById(g.getDebugChannelId());
+                    if (channel != null) {
+                        channel.sendMessage("已允许用户" + event.getUser().getName() + "(" + event.getUser().getId() + ")加入。头像为" +
+                                event.getUser().getAvatarUrl() + " 。账号创建天数：" + createdDays).complete();
+                    }
+                }
             });
 
 
@@ -99,5 +112,25 @@ public class MemberJoinedEventListener extends BaseEventListener {
             logError(event, discordGuildRepo, e);
         }
 
+    }
+
+    private void kickInvalidUser(GuildMemberJoinEvent event, long createdDays, String name) {
+        PrivateChannel privateChannel = event.getUser().openPrivateChannel().complete();
+        privateChannel.sendMessage("**哈咯，" + event.getUser().getName() + "，欢迎加入妖风电竞！**\n\n很抱歉你目前不符合加入条件并已被暂时移出我们的频道。" +
+                "为了防止骗子使用大量bot账号加入我们服务器进行诈骗，新创建的账号需要通过验证才可以加入妖风电竞。请将你的用户名改成下面的名字之后再重新加入，加入频道之后" +
+                "你可以重新改成原来的名字，届时我们不会将你移出频道。这个名字的有效期为10分钟，过期之后再加入时，会生成新的名字。名字修改完成后可以点击这里重新加入我们的频道" +
+                ": https://discord.gg/yaofeng\n\n**" + name + "**").complete();
+
+        discordGuildRepo.findById(event.getGuild().getId()).ifPresent(g -> {
+            if (g.getDebugChannelId() != null) {
+                TextChannel channel = event.getJDA().getTextChannelById(g.getDebugChannelId());
+                if (channel != null) {
+                    channel.sendMessage("用户" + event.getUser().getName() + "(" + event.getUser().getId() + ")被移除。头像为" +
+                            event.getUser().getAvatarUrl() + " 。账号创建天数：" + createdDays + " 。要求改名为：" + name).complete();
+                }
+            }
+        });
+
+        event.getGuild().kick(event.getMember()).complete();
     }
 }

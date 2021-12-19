@@ -243,6 +243,8 @@ public class DiscordService extends BaseEventListener {
                         }
                     }
                     discordTaskRepo.delete(t);
+                } else {
+                    discordTaskRepo.delete(t);
                 }
             } catch (Exception e) {
                 e.printStackTrace();
