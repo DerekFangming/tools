@@ -95,8 +95,8 @@ public class MemberJoinedEventListener extends BaseEventListener {
                 if (createdDays <= 90 && g.getDebugChannelId() != null) {
                     TextChannel channel = event.getJDA().getTextChannelById(g.getDebugChannelId());
                     if (channel != null) {
-                        channel.sendMessage("已允许用户" + event.getUser().getName() + "(" + event.getUser().getId() + ")加入。头像为" +
-                                event.getUser().getAvatarUrl() + " 。账号创建天数：" + createdDays).complete();
+                        channel.sendMessage("已允许用户**" + event.getUser().getName() + "**(" + event.getUser().getId() + ")加入。头像为" +
+                                (event.getUser().getAvatarId() == null ? "空" : event.getUser().getAvatarId()) + " 。账号创建天数：" + createdDays).complete();
                     }
                 }
             });
@@ -125,8 +125,8 @@ public class MemberJoinedEventListener extends BaseEventListener {
             if (g.getDebugChannelId() != null) {
                 TextChannel channel = event.getJDA().getTextChannelById(g.getDebugChannelId());
                 if (channel != null) {
-                    channel.sendMessage("用户" + event.getUser().getName() + "(" + event.getUser().getId() + ")被移除。头像为" +
-                            event.getUser().getAvatarUrl() + " 。账号创建天数：" + createdDays + " 。要求改名为：" + name).complete();
+                    channel.sendMessage("用户**" + event.getUser().getName() + "**(" + event.getUser().getId() + ")被移除。头像为" +
+                            (event.getUser().getAvatarId() == null ? "空" : event.getUser().getAvatarId()) + " 。账号创建天数：" + createdDays + " 。要求改名为：" + name).complete();
                 }
             }
         });
