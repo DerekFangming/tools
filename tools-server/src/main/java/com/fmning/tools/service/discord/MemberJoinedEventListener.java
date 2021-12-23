@@ -95,7 +95,7 @@ public class MemberJoinedEventListener extends BaseEventListener {
                 if (createdDays <= 90 && g.getDebugChannelId() != null) {
                     TextChannel channel = event.getJDA().getTextChannelById(g.getDebugChannelId());
                     if (channel != null) {
-                        channel.sendMessage("已允许用户**" + event.getUser().getName() + "**(" + event.getUser().getId() + ")加入。" +
+                        channel.sendMessage(":warning:已允许用户**" + event.getUser().getName() + "**(" + event.getUser().getId() + ")加入。" +
                                 (event.getUser().getAvatarId() == null ? "没有头像" : "头像ID为" + event.getUser().getAvatarId()) + " 。账号创建天数：" + createdDays).complete();
                     }
                 }
@@ -125,7 +125,7 @@ public class MemberJoinedEventListener extends BaseEventListener {
             if (g.getDebugChannelId() != null) {
                 TextChannel channel = event.getJDA().getTextChannelById(g.getDebugChannelId());
                 if (channel != null) {
-                    channel.sendMessage("用户**" + event.getUser().getName() + "**(" + event.getUser().getId() + ")被移除。" +
+                    channel.sendMessage(":x:用户**" + event.getUser().getName() + "**(" + event.getUser().getId() + ")被移除。" +
                             (event.getUser().getAvatarId() == null ? "没有头像" : "头像ID为" + event.getUser().getAvatarId()) +
                             " 。账号创建天数：" + createdDays + " 。要求改名为：" + name).complete();
                 }
