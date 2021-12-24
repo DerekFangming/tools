@@ -33,6 +33,7 @@ public class MemberJoinedEventListener extends BaseEventListener {
             Guild guild = member.getGuild();
 
             long createdDays = ChronoUnit.DAYS.between(Instant.from(member.getUser().getTimeCreated()), Instant.now());
+            boolean passedValidation = false;
             if (createdDays < 30) {
 
                 DiscordTask task = discordTaskRepo.findByTypeAndPayloadContaining(DiscordTaskType.JOIN_CODE, member.getId());
@@ -54,6 +55,7 @@ public class MemberJoinedEventListener extends BaseEventListener {
                         kickInvalidUser(event, createdDays, name);
                         return;
                     }
+                    passedValidation = true;
                 }
             }
 
@@ -68,6 +70,7 @@ public class MemberJoinedEventListener extends BaseEventListener {
                     .build());
 
             // Welcome
+            boolean showGreenCheck = passedValidation;
             discordGuildRepo.findById(event.getGuild().getId()).ifPresent(g -> {
                 if (g.isWelcomeEnabled()) {
 
@@ -95,8 +98,15 @@ public class MemberJoinedEventListener extends BaseEventListener {
                 if (createdDays <= 90 && g.getDebugChannelId() != null) {
                     TextChannel channel = event.getJDA().getTextChannelById(g.getDebugChannelId());
                     if (channel != null) {
-                        channel.sendMessage(":warning:已允许用户**" + event.getUser().getName() + "**(" + event.getUser().getId() + ")加入。" +
-                                (event.getUser().getAvatarId() == null ? "没有头像" : "头像ID为" + event.getUser().getAvatarId()) + " 。账号创建天数：" + createdDays).complete();
+                        if (showGreenCheck) {
+                            channel.sendMessage(":white_check_mark:用户**" + event.getUser().getName() + "**(" + event.getUser().getId() + ")通过验证码加入。" +
+                                    (event.getUser().getAvatarId() == null ? "没有头像" : "头像ID为" + event.getUser().getAvatarId()) +
+                                    " 。账号创建天数：" + createdDays).complete();
+                        } else {
+                            channel.sendMessage(":warning:已允许用户**" + event.getUser().getName() + "**(" + event.getUser().getId() + ")加入。" +
+                                    (event.getUser().getAvatarId() == null ? "没有头像" : "头像ID为" + event.getUser().getAvatarId()) +
+                                    " 。账号创建天数：" + createdDays).complete();
+                        }
                     }
                 }
             });
