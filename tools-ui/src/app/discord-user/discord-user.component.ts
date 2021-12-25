@@ -69,7 +69,19 @@ export class DiscordUserComponent implements OnInit {
   onUserClick(user: DiscordUser) {
     this.selectedUser = user;
     this.modalRef = this.modalService.open(this.userModal, this.ngbModalOptions);
-    console.log(user);
+  }
+
+  getProfileImageLink(userId: string, avatarId: string) {
+    let url = 'https://cdn.discordapp.com/avatars/' + userId + '/' + avatarId
+    return avatarId.startsWith('a_') ? url + '.gif' : url + '.jpg'
+  }
+
+  updateUser() {
+    this.http.put<DiscordUser>(environment.urlPrefix + 'api/discord/default/users/' + this.selectedUser.id, this.selectedUser).subscribe(res => {
+      this.modalRef.close();
+    }, error => {
+      alert(error.error);
+    });
   }
 
 }

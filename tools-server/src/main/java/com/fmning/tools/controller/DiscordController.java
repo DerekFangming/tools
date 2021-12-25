@@ -122,6 +122,23 @@ public class DiscordController {
                 .body(page.getContent());
     }
 
+    @PutMapping("/{guildId}/users/{userId}")
+    @PreAuthorize("hasRole('DC')")
+    public DiscordUser updateUser(@PathVariable("guildId") String guildId, @PathVariable("userId") String userId, @RequestBody DiscordUser discordUser) {
+        if (!"default".equalsIgnoreCase(guildId)) throw new IllegalArgumentException("Not allowed");
+        DiscordUser exitingUser = discordUserRepo.findById(userId).orElse(null);
+        if (exitingUser == null) {
+            throw new IllegalArgumentException("User not found.");
+        } else if (discordUser.getWarningCount() < 0) {
+            throw new IllegalArgumentException("Warning cannot be updated to negative number.");
+        }
+
+        exitingUser.setWarningCount(discordUser.getWarningCount());
+        discordUserRepo.save(exitingUser);
+
+        return exitingUser;
+    }
+
     @GetMapping("/{guildId}/roles")
     @PreAuthorize("hasRole('DC')")
     public  ResponseEntity<List<DiscordRoleDto>> getRoles(@PathVariable("guildId") String guildId, @RequestParam(value = "limit", defaultValue = "15") int limit,
