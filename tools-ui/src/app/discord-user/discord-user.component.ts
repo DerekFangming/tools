@@ -71,7 +71,7 @@ export class DiscordUserComponent implements OnInit {
     this.modalRef = this.modalService.open(this.userModal, this.ngbModalOptions);
   }
 
-  getProfileImageLink(userId: string, avatarId: string) {
+  getProfileImageLink(userId: number, avatarId: string) {
     let url = 'https://cdn.discordapp.com/avatars/' + userId + '/' + avatarId
     return avatarId.startsWith('a_') ? url + '.gif' : url + '.jpg'
   }
