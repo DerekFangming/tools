@@ -139,8 +139,8 @@ public class DiscordInviteService {
             public void onResponse(@NotNull Call call, @NotNull Response response) {
                 if (response.code() == 200) {
                     try {
-                        String res = Objects.requireNonNull(response.body()).string();
-                        JSONObject json = new JSONObject(Objects.requireNonNull(response.body()).string());
+                        String jsonStr = Objects.requireNonNull(response.body()).string();
+                        JSONObject json = new JSONObject(jsonStr);
 
                         JSONArray segments = json.getJSONObject("data").getJSONArray("segments");
                         for (int i = 0; i < segments.length(); i++) {
