@@ -139,6 +139,7 @@ public class DiscordInviteService {
             public void onResponse(@NotNull Call call, @NotNull Response response) {
                 if (response.code() == 200) {
                     try {
+                        String res = Objects.requireNonNull(response.body()).string();
                         JSONObject json = new JSONObject(Objects.requireNonNull(response.body()).string());
 
                         JSONArray segments = json.getJSONObject("data").getJSONArray("segments");
@@ -189,8 +190,8 @@ public class DiscordInviteService {
                                 .setFooter(apexDto.getInviteUrl() == null ? "在妖风电竞的任何语音频道使用本命令就可以自动生成上车链接。" : "")
                                 .setColor(shouldEmbedBePink(discordUser) ? pink : null)
                                 .build()).complete(), member);
-                    } catch (IOException e) {
-                        onFailure(call, e);
+                    } catch (Exception e) {
+                        onFailure(call, new IOException(e));
                     }
                 } else if (response.code() == 500) {
                     makeMessageCancelable(channel.sendMessageEmbeds(new EmbedBuilder()
