@@ -69,6 +69,7 @@ public class MemberUpdateEventListener extends BaseEventListener {
                 }
 
                 if (discordUser.getBoostChannelId() != null) {
+                    discordUser.setBoostChannelId(null);
                     Guild guild = member.getGuild();
                     VoiceChannel vc = guild.getVoiceChannelById(discordUser.getBoostChannelId());
                     if (vc != null) {
