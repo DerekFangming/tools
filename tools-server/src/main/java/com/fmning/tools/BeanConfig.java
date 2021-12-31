@@ -3,14 +3,7 @@ package com.fmning.tools;
 import com.fmning.tools.domain.Post;
 import com.fmning.tools.dto.PostDto;
 import com.fmning.tools.service.PostService;
-import com.fmning.tools.service.discord.*;
 import lombok.RequiredArgsConstructor;
-import net.dv8tion.jda.api.JDA;
-import net.dv8tion.jda.api.JDABuilder;
-import net.dv8tion.jda.api.entities.Activity;
-import net.dv8tion.jda.api.requests.GatewayIntent;
-import net.dv8tion.jda.api.utils.ChunkingFilter;
-import net.dv8tion.jda.api.utils.MemberCachePolicy;
 import okhttp3.OkHttpClient;
 import org.modelmapper.Converter;
 import org.modelmapper.ModelMapper;
@@ -72,20 +65,6 @@ public class BeanConfig {
         return new OkHttpClient.Builder()
                 .retryOnConnectionFailure(true)
                 .build();
-    }
-
-    @Bean
-    public JDA jda(MessageReceivedEventListener messageReceivedEventListener, MemberJoinedEventListener memberJoinedEventListener,
-                   MemberRemoveEventListener memberRemoveEventListener, MemberUpdateEventListener memberUpdateEventListener, RoleEventListener roleEventListener,
-                   ChannelEventListener channelEventListener, MemberVoiceEventListener memberVoiceEventListener,
-                   SlashCommandEventListener slashCommandEventListener) throws Exception {
-        return JDABuilder.createDefault(toolsProperties.getDcBotToken())
-                .enableIntents(GatewayIntent.GUILD_MEMBERS)
-                .setChunkingFilter(ChunkingFilter.ALL) // enable member chunking for all guilds
-                .setMemberCachePolicy(MemberCachePolicy.ALL) // ignored if chunking enabled
-                .addEventListeners(messageReceivedEventListener, memberJoinedEventListener, memberRemoveEventListener, memberUpdateEventListener,
-                        roleEventListener, channelEventListener, memberVoiceEventListener, slashCommandEventListener)
-                .build().awaitReady();
     }
 
 }

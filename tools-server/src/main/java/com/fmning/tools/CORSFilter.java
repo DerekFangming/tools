@@ -35,7 +35,6 @@ public class CORSFilter implements Filter {
             filterChain.doFilter(servletRequest, servletResponse);
         }
 
-
     }
 
 }
