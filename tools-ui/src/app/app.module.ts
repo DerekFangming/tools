@@ -14,14 +14,7 @@ import { AuthenticationInterceptor } from './authentication-interceptor';
 import { FormsModule } from '@angular/forms';
 import { EmailComponent } from './email/email.component';
 import { ImgUploadComponent } from './img-upload/img-upload.component';
-import { DiscordLogComponent } from './discord-log/discord-log.component';
 import { NotifierModule } from 'angular-notifier';
-import { DiscordConfigComponent } from './discord-config/discord-config.component';
-import { DiscordUserComponent } from './discord-user/discord-user.component';
-import { DiscordRoleComponent } from './discord-role/discord-role.component';
-import { DiscordAdminComponent } from './discord-admin/discord-admin.component';
-import { DiscordChannelComponent } from './discord-channel/discord-channel.component';
-import { DiscordAchievementComponent } from './discord-achievement/discord-achievement.component';
 
 @NgModule({
   declarations: [
@@ -32,14 +25,7 @@ import { DiscordAchievementComponent } from './discord-achievement/discord-achie
     CrlLabComponent,
     HomeComponent,
     EmailComponent,
-    ImgUploadComponent,
-    DiscordLogComponent,
-    DiscordConfigComponent,
-    DiscordUserComponent,
-    DiscordRoleComponent,
-    DiscordAdminComponent,
-    DiscordChannelComponent,
-    DiscordAchievementComponent
+    ImgUploadComponent
   ],
   imports: [
     BrowserModule,

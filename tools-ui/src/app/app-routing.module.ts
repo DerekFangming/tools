@@ -7,24 +7,10 @@ import { CrlLabComponent } from './crl-lab/crl-lab.component';
 import { HomeComponent } from './home/home.component';
 import { EmailComponent } from './email/email.component';
 import { ImgUploadComponent } from './img-upload/img-upload.component';
-import { DiscordLogComponent } from './discord-log/discord-log.component';
-import { DiscordUserComponent } from './discord-user/discord-user.component';
-import { DiscordRoleComponent } from './discord-role/discord-role.component';
-import { DiscordConfigComponent } from './discord-config/discord-config.component';
-import { DiscordAdminComponent } from './discord-admin/discord-admin.component';
-import { DiscordChannelComponent } from './discord-channel/discord-channel.component';
-import { DiscordAchievementComponent } from './discord-achievement/discord-achievement.component';
 
 
 const routes: Routes = [
   { path: 'home', component: HomeComponent },
-  { path: 'discord', component: DiscordUserComponent},
-  { path: 'discord/log', component: DiscordLogComponent},
-  { path: 'discord/role', component: DiscordRoleComponent},
-  { path: 'discord/channel', component: DiscordChannelComponent},
-  { path: 'discord/achievement', component: DiscordAchievementComponent},
-  { path: 'discord/config', component: DiscordConfigComponent},
-  { path: 'discord/admin', component: DiscordAdminComponent},
   { path: 'clipboard', component: ClipboardComponent },
   { path: 'heic', component: HeicComponent },
   { path: 's8', component: ImgComponent },

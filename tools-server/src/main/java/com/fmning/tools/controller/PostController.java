@@ -1,6 +1,5 @@
 package com.fmning.tools.controller;
 
-import com.fmning.tools.domain.DiscordUserLog;
 import com.fmning.tools.domain.Post;
 import com.fmning.tools.repository.PostRepo;
 import com.fmning.tools.dto.PostDto;
@@ -11,7 +10,6 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
