@@ -70,3 +70,17 @@ create table tl_ktv_songs (
 	title text,
 	requested boolean
 );
+
+CREATE TABLE logs (
+  id serial primary key,
+  service text not null,
+  level text not null,
+  source text,
+  message text not null,
+  stacktrace text,
+  created timestamp without time zone not null
+);
+
+CREATE INDEX logs_service_index ON logs (service);
+CREATE INDEX logs_level_index ON logs (level);
+CREATE INDEX logs_created_index ON logs (created);
