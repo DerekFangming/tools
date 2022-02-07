@@ -5,6 +5,7 @@ import com.fmning.tools.domain.Post;
 import com.fmning.tools.repository.PostRepo;
 import com.fmning.tools.type.HtmlReaderType;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.apachecommons.CommonsLog;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
@@ -46,6 +47,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 @Service
+@CommonsLog
 @RequiredArgsConstructor(onConstructor_={@Autowired})
 public class PostService {
 
@@ -81,6 +83,7 @@ public class PostService {
                     NoopHostnameVerifier.INSTANCE);
             httpClient = HttpClients.custom().setSSLSocketFactory(sslFactory).build();
         } catch (Exception e) {
+            log.error("Failed to initiate HTTP client", e);
             e.printStackTrace();
         }
     }
@@ -234,6 +237,7 @@ public class PostService {
                             FileOutputStream outstream = new FileOutputStream(new File(fileName));
                             entity.writeTo(outstream);
                         } catch (Exception exc) {
+                            log.error("Failed to download image", exc);
                             exc.printStackTrace();
                         }
                     }

@@ -73,6 +73,7 @@ public class ImageController {
                 image.setUrl(link);
             } catch (Exception e) {
                 image.setUrl(null);
+                log.error("Failed to upload images", e);
                 e.printStackTrace();
             }
         }

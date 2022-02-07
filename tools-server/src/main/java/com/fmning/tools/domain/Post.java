@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.extern.apachecommons.CommonsLog;
 import org.hibernate.annotations.DynamicUpdate;
 
 import javax.persistence.*;
@@ -17,6 +18,7 @@ import java.time.Instant;
 @DynamicUpdate
 @Data
 @Builder
+@CommonsLog
 @NoArgsConstructor
 @AllArgsConstructor
 public class Post {
@@ -68,6 +70,7 @@ public class Post {
     private String html;
 
     public void logException(Exception e) {
+        log.error("Post service ", e);
         StringWriter sw = new StringWriter();
         PrintWriter pw = new PrintWriter(sw);
         e.printStackTrace(pw);
