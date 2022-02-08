@@ -1,0 +1,93 @@
+<nav class="navbar navbar-light bg-light">
+  <div class="container-fluid">
+    <a class="navbar-brand ml-2" href="#">Logs</a>
+  </div>
+</nav>
+
+<div class="container-fluid">
+  <div class="form-row mt-3">
+    <div class="col-sm-12 col-md-5 mb-3">
+      <label>Message</label>
+      <input type="text" class="form-control" [(ngModel)]="message" (keyup.enter)="loadLogs(0)">
+    </div>
+    <div class="col-6 col-sm-6 col-md-2 mb-3">
+      <label>From date</label>
+      <input type="text" class="form-control" ngbDatepicker #df="ngbDatepicker" (click)="df.toggle()" [(ngModel)]="fromDate" (ngModelChange)="loadLogs(0)">
+    </div>
+    <div class="col-6 col-sm-6 col-md-2 mb-3">
+      <label>To date</label>
+      <input type="text" class="form-control" ngbDatepicker #dt="ngbDatepicker" (click)="dt.toggle()" [(ngModel)]="toDate" (ngModelChange)="loadLogs(0)">
+    </div>
+    <div class="col-6 col-sm-6 col-md-2 mb-3">
+      <label for="validationCustom02">Log Level</label>
+      <div class="input-group">
+        <button class="btn btn-outline-secondary btn-block dropdown-toggle text-capitalize" type="button" data-toggle="dropdown">{{ level == '' ? 'All' : level}}</button>
+        <div class="dropdown-menu">
+          <a class="dropdown-item pointer" (click)="onLevelSelected('')">All</a>
+          <div role="separator" class="dropdown-divider"></div>
+          <a class="dropdown-item pointer" (click)="onLevelSelected('DEBUG')">DEBUG</a>
+          <a class="dropdown-item pointer" (click)="onLevelSelected('INFO')">INFO</a>
+          <a class="dropdown-item pointer" (click)="onLevelSelected('WARN')">WARN</a>
+          <a class="dropdown-item pointer" (click)="onLevelSelected('ERROR')">ERROR</a>
+        </div>
+      </div>
+    </div>
+    <div class="col-6 col-sm-6 col-md-1 mb-3">
+      <label></label>
+      <div class="input-group">
+        <button class="btn btn-outline-secondary btn-block mt-2" type="button" (click)="loadLogs(0)">Search</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div *ngIf="loadingLogs" class="container-fluid">
+  <div class="row my-5">
+    <div class="col text-center my-5">
+      <i class="fa fa-refresh fa-spin fa-3x" aria-hidden="true"></i>
+    </div>
+  </div>
+</div>
+
+<div *ngIf="!loadingLogs" class="container-fluid">
+  <div class="row">
+    <div class="col mt-4">
+      <table class="table the-table">
+        <thead>
+          <tr>
+            <th style="width: 10%" scope="col">Service</th>
+            <th style="width: 10%" scope="col">Level</th>
+            <th style="width: 40%" scope="col">Message</th>
+            <th style="width: 30%" scope="col">Stacktrace</th>
+            <th style="width: 30%" scope="col">Timestamp</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let log of logList;" (click)="openDetailsWindow(log)" class="pointer">
+            <th scope="row"> {{ log.service }} </th>
+            <th> {{ log.level }} </th>
+            <td class="text-truncate"> {{ log.message }} </td>
+            <td class="text-truncate"> {{ log.stacktrace }} </td>
+            <td> {{ utils.getCreatedTime(log.created) }} </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-sm-12 col-md-3 mt-4">
+      <p class="ml-2">Showing {{totalLogs == 0 ? '0' : currentPage * resultPerPage + 1}} - {{math.min((currentPage + 1) * resultPerPage, totalLogs)}} of {{totalLogs}} results</p>
+    </div>
+    <div class="col-sm-12 col-md-9 mt-4">
+      <div class="btn-toolbar mb-3 pull-right" role="toolbar">
+        <div class="btn-group mr-2" role="group">
+          <button type="button" class="btn btn-outline-secondary" (click)="loadLogs(0)"><i class="fa fa-angle-double-left" aria-hidden="true"></i></button>
+          <button type="button" class="btn btn-outline-secondary" (click)="loadLogs(currentPage - 1)"><i class="fa fa-angle-left" aria-hidden="true"></i></button>
+          <button type="button" class="btn btn-secondary">{{ currentPage + 1 }}</button>
+          <button type="button" class="btn btn-outline-secondary" (click)="loadLogs(currentPage + 1)"><i class="fa fa-angle-right" aria-hidden="true"></i></button>
+          <button type="button" class="btn btn-outline-secondary" (click)="loadLogs(totalPages)"><i class="fa fa-angle-double-right" aria-hidden="true"></i></button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -15,6 +15,7 @@ import { FormsModule } from '@angular/forms';
 import { EmailComponent } from './email/email.component';
 import { ImgUploadComponent } from './img-upload/img-upload.component';
 import { NotifierModule } from 'angular-notifier';
+import { LogComponent } from './log/log.component';
 
 @NgModule({
   declarations: [
@@ -25,7 +26,8 @@ import { NotifierModule } from 'angular-notifier';
     CrlLabComponent,
     HomeComponent,
     EmailComponent,
-    ImgUploadComponent
+    ImgUploadComponent,
+    LogComponent
   ],
   imports: [
     BrowserModule,

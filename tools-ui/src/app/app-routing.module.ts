@@ -7,6 +7,7 @@ import { CrlLabComponent } from './crl-lab/crl-lab.component';
 import { HomeComponent } from './home/home.component';
 import { EmailComponent } from './email/email.component';
 import { ImgUploadComponent } from './img-upload/img-upload.component';
+import { LogComponent } from './log/log.component';
 
 
 const routes: Routes = [
@@ -17,6 +18,7 @@ const routes: Routes = [
   { path: 'crl', component: CrlLabComponent },
   { path: 'email', component: EmailComponent },
   { path: 'image-upload', component: ImgUploadComponent },
+  { path: 'logs', component: LogComponent },
   { path: '**', redirectTo: '/home', pathMatch: 'full' }
 ];
 
