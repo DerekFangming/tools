@@ -64,7 +64,7 @@
         </thead>
         <tbody>
           <tr *ngFor="let log of logList;" (click)="openDetailsWindow(log)" class="pointer">
-            <th scope="row"> {{ log.service }} </th>
+            <th scope="row" class="pointer"> {{ log.service }} </th>
             <th> {{ log.level }} </th>
             <td class="text-truncate"> {{ log.message }} </td>
             <td class="text-truncate"> {{ log.stacktrace }} </td>
@@ -91,3 +91,43 @@
     </div>
   </div>
 </div>
+
+<ng-template #logDetailsModal let-modal>
+  <div class="modal-header">
+    <h4 class="modal-title">Email details</h4>
+    <button type="button" class="close" (click)="modal.dismiss('Cross click')">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+    <div class="row">
+      <div class="col">
+        <label><b>Service</b></label>
+        <p>{{selectedLog.service}}</p>
+      </div>
+      <div class="col">
+        <label><b>Level</b></label>
+        <p>{{selectedLog.level}}</p>
+      </div>
+      <div class="col">
+        <label><b>Timestamp</b></label>
+        <p>{{utils.getCreatedTime(selectedLog.created)}}</p>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col">
+        <label><b>Message</b></label>
+        <p>{{selectedLog.message}}</p>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col">
+        <label><b>Stacktrace</b></label>
+        <p>{{selectedLog.stacktrace}}</p>
+      </div>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-secondary" (click)="modal.dismiss('Cross click')">Close</button>
+  </div>
+</ng-template>

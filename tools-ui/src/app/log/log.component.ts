@@ -1,7 +1,7 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, TemplateRef, ViewChild } from '@angular/core';
 import { Title } from '@angular/platform-browser';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { NotifierService } from 'angular-notifier';
 import { environment } from 'src/environments/environment';
 import { Log } from '../model/log';
@@ -15,6 +15,7 @@ import { UtilsService } from '../utils.service';
 export class LogComponent implements OnInit {
 
   loadingLogs = true
+  selectedLog: Log
   logList: Log[]
 
   message = ''
@@ -27,6 +28,9 @@ export class LogComponent implements OnInit {
   totalLogs = 0
   resultPerPage = 50
   math = Math
+
+  modalRef: NgbModalRef;
+  @ViewChild('logDetailsModal', { static: true}) logDetailsModal: TemplateRef<any>;
 
   constructor(private http: HttpClient, private title: Title, private notifierService: NotifierService,
     private modalService: NgbModal, public utils: UtilsService) {
@@ -71,12 +75,11 @@ export class LogComponent implements OnInit {
   }
 
   openDetailsWindow(log: Log) {
-    // this.selectedUserLog = userLog
-    // this.modalRef = this.modalService.open(this.detailsModal, {
-    //   backdrop : 'static',
-    //   keyboard : false,
-    //   centered: true
-    // });
+    this.selectedLog = log
+    this.modalRef = this.modalService.open(this.logDetailsModal, {
+      
+      centered: true
+    });
   }
 
 }
