@@ -20,8 +20,9 @@ export class LogComponent implements OnInit {
 
   message = ''
   fromDate: any
-  toDate:any
+  toDate: any
   level = ''
+  service = ''
 
   currentPage = -1
   totalPages = 0
@@ -53,6 +54,9 @@ export class LogComponent implements OnInit {
     if (this.level != '') {
       queryParam = queryParam.set('level', this.level);
     }
+    if (this.service != '') {
+      queryParam = queryParam.set('service', this.service);
+    }
 
     const httpOptions = {
       params: queryParam,
@@ -74,10 +78,15 @@ export class LogComponent implements OnInit {
     this.loadLogs(0)
   }
 
+  onServiceSelected(service: string) {
+    this.service = service
+    this.loadLogs(0)
+  }
+
   openDetailsWindow(log: Log) {
     this.selectedLog = log
     this.modalRef = this.modalService.open(this.logDetailsModal, {
-      
+      size: 'lg',
       centered: true
     });
   }
