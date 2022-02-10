@@ -86,7 +86,7 @@ public class JsonEventLayout extends LayoutBase<ILoggingEvent> {
     }
 
     private void saveLogs() {
-//        if (!isProduction) return;
+        if (!isProduction) return;
 
         List<Log> batch = new ArrayList<>(logs);
         logs = new ArrayList<>();
