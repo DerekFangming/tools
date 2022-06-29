@@ -33,8 +33,6 @@ import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
@@ -123,45 +121,51 @@ public class PostService {
         try {
             for (Integer category : CATEGORIES) {
                 for (int page = 1; page <= PAGE_READ_PER_CATEGORY; page++) {
-                    Post pagePost = Post.builder()
-                            .url(rootUrl + "forum-" + category + "-" + page + ".html")
-                            .build();
+                    try {
+                        Post pagePost = Post.builder()
+                                .url(rootUrl + "forum-" + category + "-" + page + ".html")
+                                .build();
 
-                    downloadHtml(pagePost);
+                        downloadHtml(pagePost);
 
-                    // Load highlights
-                    if (page == 1) {
-                        AtomicInteger rank = new AtomicInteger(1);
-                        Matcher postMatcher = Pattern.compile("(<li><em>[\\s\\S]*?)<\\/ul>").matcher(pagePost.getHtml());
-                        while (postMatcher.find()) {
-                            Post highlightedPost = Post.builder().html(postMatcher.group(0)).htmlType(HtmlReaderType.JSOUP).build();
-                            getElementsByTag(highlightedPost, "a").forEach(p -> {
-                                Post post = Post.builder().title(p.html()).category(category).rank(rank.get()).created(Instant.now()).build();
-                                processPost(post, p.attr("href"));
-                            });
-                            rank.incrementAndGet();
+                        // Load highlights
+                        if (page == 1) {
+                            AtomicInteger rank = new AtomicInteger(1);
+                            Matcher postMatcher = Pattern.compile("(<li><em>[\\s\\S]*?)<\\/ul>").matcher(pagePost.getHtml());
+                            while (postMatcher.find()) {
+                                try {
+                                    Post highlightedPost = Post.builder().html(postMatcher.group(0)).htmlType(HtmlReaderType.JSOUP).build();
+                                    getElementsByTag(highlightedPost, "a").forEach(p -> {
+                                        Post post = Post.builder().title(p.html()).category(category).rank(rank.get()).created(Instant.now()).build();
+                                        processPost(post, p.attr("href"));
+                                    });
+                                    rank.incrementAndGet();
+                                } catch (Exception e) {
+                                    log.error("Failed while loading highlights " + category + " page " + page, e);
+                                }
+                            }
                         }
-                    }
 
-                    // Load all all others
-                    Elements anchorElements = getElementsByTag(pagePost, "a");
-                    for (Element e : anchorElements) {
-                        if (e.hasClass("s xst")) {
-                            Post post = Post.builder().title(e.html()).category(category).created(Instant.now()).firstPage(page == 1).build();
-                            boolean createdNewPost = processPost(post, e.attr("href"));
-                            if (!createdNewPost) break;
+                        // Load all all others
+                        Elements anchorElements = getElementsByTag(pagePost, "a");
+                        for (Element e : anchorElements) {
+                            if (e.hasClass("s xst")) {
+                                try {
+                                    Post post = Post.builder().title(e.html()).category(category).created(Instant.now()).firstPage(page == 1).build();
+                                    boolean createdNewPost = processPost(post, e.attr("href"));
+                                    if (!createdNewPost) break;
+                                } catch (Exception ex) {
+                                    log.error("Failed while loading post " + e.attr("href"), ex);
+                                }
+                            }
                         }
+                    } catch (Exception e) {
+                        log.error("Failed while loading category " + category + " page " + page, e);
                     }
                 }
             }
         } catch(Exception e) {
-            e.printStackTrace();
-
-            StringWriter sw = new StringWriter();
-            PrintWriter pw = new PrintWriter(sw);
-            e.printStackTrace(pw);
-            String sStackTrace = sw.toString();
-            log.error("Failed while loading posts: " + sStackTrace, e);
+            log.error("Failed while loading posts", e);
         } finally  {
             loadingPosts.set(false);
         }
@@ -170,7 +174,12 @@ public class PostService {
     public void debugPosts(List<Integer> idList) {
         idList.forEach(i -> {
             Post p = Post.builder().title("").rank(DEBUG_RANK).build();
-            processPost(p, "a-" + i + "-a-a");
+            try {
+                processPost(p, "a-" + i + "-a-a");
+            } catch (Exception e) {
+                e.printStackTrace();
+                System.out.println(1);
+            }
         });
     }
 
