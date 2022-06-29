@@ -153,6 +153,7 @@ public class PostService {
                 }
             }
         } catch(Exception e) {
+            e.printStackTrace();
             log.error("Failed while loading posts", e);
         } finally  {
             loadingPosts.set(false);
