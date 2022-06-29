@@ -152,7 +152,9 @@ public class PostService {
                     }
                 }
             }
-        } finally {
+        } catch(Exception e) {
+            log.error("Failed while loading posts", e);
+        } finally  {
             loadingPosts.set(false);
         }
     }
