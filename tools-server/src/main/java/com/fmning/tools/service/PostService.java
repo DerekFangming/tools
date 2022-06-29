@@ -202,9 +202,9 @@ public class PostService {
         String folderPath = IMG_DIR + post.getId() + "/";
         new File(folderPath).mkdirs();
         post.setUrl(rootUrl + "thread-" + post.getId() + "-1-1.html");
-        downloadHtml(post);
 
         try {
+            downloadHtml(post);
             getElementsByTag(post, "img").forEach(e -> {
                 if ((e.hasAttr("id") && e.attr("id").startsWith("aimg_")) || e.hasAttr("lazyloadthumb") ||
                         (e.hasAttr("src") && e.attr("alt").startsWith("title"))) {
@@ -258,6 +258,7 @@ public class PostService {
                 }
             }
         } catch (Exception e) {
+            log.error("Failed to process post", e);
             post.logException(e);
         }
     }
