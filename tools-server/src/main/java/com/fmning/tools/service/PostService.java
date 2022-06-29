@@ -33,6 +33,8 @@ import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
@@ -154,7 +156,12 @@ public class PostService {
             }
         } catch(Exception e) {
             e.printStackTrace();
-            log.error("Failed while loading posts", e);
+
+            StringWriter sw = new StringWriter();
+            PrintWriter pw = new PrintWriter(sw);
+            e.printStackTrace(pw);
+            String sStackTrace = sw.toString();
+            log.error("Failed while loading posts: " + sStackTrace, e);
         } finally  {
             loadingPosts.set(false);
         }
