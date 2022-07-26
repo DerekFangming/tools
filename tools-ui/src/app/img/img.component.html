@@ -51,8 +51,8 @@
     <div class="card-body">
       <div *ngIf="post.imageNames.length > 0" class="row">
         <div class="col-xl-2 col-lg-4 col-md-12 mt-2 img-container" *ngFor="let imgName of post.imageNames;">
-          <img class="aspect-fill" src="{{ sanitizer.bypassSecurityTrustResourceUrl('98.156.161.67:8080/tools/images/' + post.id + '/' + imgName) }}"
-          (click)="openPreview(sanitizer.bypassSecurityTrustResourceUrl('98.156.161.67:8080/tools/images/' + post.id + '/' + imgName))">
+          <img class="aspect-fill" [src]="'98.156.161.67:8080/tools/images/' + post.id + '/' + imgName"
+          (click)="openPreview('98.156.161.67:8080/tools/images/' + post.id + '/' + imgName)">
         </div>
       </div>
       <div *ngIf="post.imageNames.length == 0" class="row">
@@ -115,7 +115,7 @@
       </div>
 	  
 	  <div class="modal-body">
-      <img class="aspect-fill" src="{{ previewedImgSrc }}">
+      <img class="aspect-fill" [src]="previewedImgSrc">
 	  </div>
 	  
     </div>
