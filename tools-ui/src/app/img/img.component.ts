@@ -3,7 +3,8 @@ import { Title } from '@angular/platform-browser';
 import { HttpClient, HttpParams, HttpResponse } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
 import { Post, PostCatMap } from '../model/post';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router'
+import { DomSanitizer } from '@angular/platform-browser'
 
 @Component({
   selector: 'app-img',
@@ -27,7 +28,7 @@ export class ImgComponent implements OnInit {
   reloadBtnText = 'Reload';
   urlPrefix = environment.urlPrefix;
 
-  constructor(private http: HttpClient, private title: Title, private activatedRoute: ActivatedRoute, private router: Router) {
+  constructor(private http: HttpClient, private title: Title, private activatedRoute: ActivatedRoute, private router: Router, public domSanitizer: DomSanitizer) {
     this.title.setTitle('Images');
     this.mode = this.activatedRoute.snapshot.queryParamMap.get('mode');
     this.category = Number(this.activatedRoute.snapshot.queryParamMap.get('category'));
