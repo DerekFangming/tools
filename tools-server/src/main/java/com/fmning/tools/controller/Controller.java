@@ -84,5 +84,12 @@ public class Controller {
 		int integer = 1;
 		boolean bool = false;
 	}
+	@GetMapping("/api/fpga-input")
+	public int[][] fpgaInput() {
+		int[][] res = new int[2048][32];
+
+		return res;
+	}
+
 
 }
