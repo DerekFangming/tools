@@ -10,6 +10,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import org.bouncycastle.util.encoders.Hex;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContext;
@@ -18,8 +20,13 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.security.MessageDigest;
 import java.security.Principal;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequiredArgsConstructor(onConstructor_={@Autowired})
@@ -85,10 +92,13 @@ public class Controller {
 		boolean bool = false;
 	}
 	@GetMapping("/api/fpga-input")
-	public int[][] fpgaInput() {
-		int[][] res = new int[2048][32];
+	public List<Long> fpgaInput() throws Exception {
 
-		return res;
+		Resource resource = new ClassPathResource("snap.txt");
+
+		File file = resource.getFile();
+		List<String> allLines = Files.readAllLines(Paths.get(file.getPath()));
+		return allLines.stream().map(Long::parseLong).collect(Collectors.toList());
 	}
 
 
