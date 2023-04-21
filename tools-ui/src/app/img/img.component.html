@@ -36,12 +36,11 @@
       <button type="button" class="btn btn-outline-success primary ml-2" (click)="nextPageBtnClicked()" [disabled]="loadingNextPage">
         {{ loadingNextPage ? 'Loading' : 'Next Page' }}
       </button>
-      <a id="navbar-example2" class="btn btn-outline-primary my-2 my-sm-0 pull-right ml-2" (click)="nextPostBtnClicked()">{{ nextBtnText }}</a>
-
+      <button class="btn btn-outline-primary my-2 my-sm-0 pull-right ml-2" (click)="nextPostBtnClicked()">{{ nextBtnText }}</button>
   </div>
 </nav>
 
-<div [hidden]="showingIFrame" class="container-fluid mt-2" data-spy="scroll" data-target="#navbar-example2" data-offset="0">
+<div [hidden]="showingIFrame" class="container-fluid mt-2">
 
   <div class="card mt-4" [id]="'post-' + i" *ngFor="let post of posts;let i = index;">
     <div class="card-header" [style.background-color]="post.rank > 0 || post.flagged ? '#00AA9E' : '#FFFFFF'">

@@ -54,7 +54,6 @@ export class ImgComponent implements OnInit {
       this.remainingPosts = res.headers.get('X-Total-Count');
 
       this.postSection = 0
-      console.log(111)
       this.router.navigate([], {
         relativeTo: this.activatedRoute,
         queryParams: { mode: this.mode },
@@ -68,6 +67,7 @@ export class ImgComponent implements OnInit {
   }
 
   nextPostBtnClicked() {
+    if (this.postSection + 1 > this.posts.length) return 
     let sec = 'post-' + this.postSection++
     this.router.navigate([], {
       relativeTo: this.activatedRoute,
