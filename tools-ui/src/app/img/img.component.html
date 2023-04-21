@@ -11,7 +11,7 @@
           </li>
           <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle active" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-              Category: {{ getCategory(category) }} 
+              Category: {{ getCategory(category) }}
             </a>
             <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
               <a class="dropdown-item" (click)="categoryChanged(newCategory)" *ngFor="let newCategory of categories;"> {{ newCategory }}</a>
@@ -49,16 +49,15 @@
       <button *ngIf="!post.saved" type="button" class="btn btn-link pt-1" (click)="saveBtnClicked(post)">Save</button>
     </div>
     <div class="card-body">
-      <div *ngIf="post.imageNames.length > 0" class="row">
-        <div class="col-xl-2 col-lg-4 col-md-12 mt-2 img-container" *ngFor="let imgName of post.imageNames;">
-          <img class="aspect-fill" [src]="domSanitizer.bypassSecurityTrustUrl('http://98.156.161.67:8080/tools/images/' + post.id + '/' + imgName)"
-          (click)="openPreview('http://98.156.161.67:8080/tools/images/' + post.id + '/' + imgName)">
+      <div class="row">
+        <div class="col-xl-2 col-lg-4 col-md-12 mt-2 img-container" *ngFor="let imgName of getImageNames(post);">
+          <img class="aspect-fill" [src]="domSanitizer.bypassSecurityTrustUrl(imgName)"
+          (click)="openPreview(imgName)">
         </div>
       </div>
-      <div *ngIf="post.imageNames.length == 0" class="row">
-        <div class="col-xl-2 col-lg-4 col-md-12 mt-2 img-container" *ngFor="let imgUrl of post.imageUrls;">
-          <img class="aspect-fill" src="{{ imgUrl }}"
-          (click)="openPreview(imgUrl)">
+      <div *ngIf="!post.expanded && (post.imageNames.length > imgLimit || post.imageUrls.length > imgLimit)" class="row mt-2 mb-0">
+        <div class="col text-center">
+          <button type="button" class="btn btn-outline-primary btn-block" (click)="post.expanded = true">Expand</button>
         </div>
       </div>
     </div>
@@ -113,12 +112,11 @@
           <span aria-hidden="true">&times;</span>
         </button>
       </div>
-	  
+
 	  <div class="modal-body">
       <img class="aspect-fill" [src]="domSanitizer.bypassSecurityTrustUrl(previewedImgSrc)">
 	  </div>
-	  
+
     </div>
   </div>
 </div>
-  

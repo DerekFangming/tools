@@ -21,6 +21,8 @@ export class ImgComponent implements OnInit {
   showingIFrame = false;
   showingPreview = false;
 
+  imgLimit = 12
+
   mode = 'all';
   category = PostCatMap.All;
   categories = Object.keys(PostCatMap).filter(value => isNaN(Number(value)));
@@ -177,5 +179,11 @@ export class ImgComponent implements OnInit {
       });
     }
   }
+
+  getImageNames(post: Post) {
+    let imgs = post.imageNames.length == 0 ? post.imageUrls : post.imageNames.map(n => 'http://98.156.161.67:8080/tools/images/' + post.id + '/' + n)
+    
+	  return post.expanded ? imgs : imgs.slice(0, this.imgLimit)
+	}
 
 }

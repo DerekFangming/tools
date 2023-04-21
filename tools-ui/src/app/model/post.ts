@@ -11,6 +11,8 @@ export class Post {
     created: string;
     saved: boolean;
 
+    expanded: boolean;
+
 	constructor() {}
 }
 
