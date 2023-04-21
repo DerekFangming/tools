@@ -1,4 +1,4 @@
-<nav class="navbar navbar-expand-lg navbar-light bg-light navbar-fixed-top">
+<nav class="navbar navbar-expand-lg navbar-light bg-light navbar-fixed-top sticky-top">
   <div class="container-fluid">
       <a class="navbar-brand ml-2" href="#">Images</a>
       <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
@@ -32,12 +32,18 @@
         </ul>
       </div>
 
-      <button class="btn btn-outline-success my-2 my-sm-0" (click)="reloadBtnClicked()">{{ reloadBtnText }}</button>
+      <button class="btn btn-outline-success my-2 my-sm-0 pull-right" (click)="reloadBtnClicked()">{{ reloadBtnText }}</button>
+      <button type="button" class="btn btn-outline-success primary ml-2" (click)="nextPageBtnClicked()" [disabled]="loadingNextPage">
+        {{ loadingNextPage ? 'Loading' : 'Next Page' }}
+      </button>
+      <a id="navbar-example2" class="btn btn-outline-primary my-2 my-sm-0 pull-right ml-2" (click)="nextPostBtnClicked()">{{ nextBtnText }}</a>
+
   </div>
 </nav>
-<div [hidden]="showingIFrame" class="container-fluid mt-2">
 
-  <div class="card mt-4" *ngFor="let post of posts;">
+<div [hidden]="showingIFrame" class="container-fluid mt-2" data-spy="scroll" data-target="#navbar-example2" data-offset="0">
+
+  <div class="card mt-4" [id]="'post-' + i" *ngFor="let post of posts;let i = index;">
     <div class="card-header" [style.background-color]="post.rank > 0 || post.flagged ? '#00AA9E' : '#FFFFFF'">
       <h4 class="my-0">{{ post.title }}</h4>
       <span class="badge badge-secondary">Catigory: {{ getCategory(post.category) }}</span>
@@ -68,11 +74,6 @@
       <p class="lead">
         No more posts found
       </p>
-    </div>
-    <div class="col-12 text-center my-4">
-      <button type="button" class="btn btn-primary" (click)="nextBtnClicked()" [disabled]="loadingNextPage">
-        {{ loadingNextPage ? 'Loading' : 'Next Page' }}
-      </button>
     </div>
   </div>
 

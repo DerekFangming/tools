@@ -21,14 +21,16 @@ export class ImgComponent implements OnInit {
   showingIFrame = false;
   showingPreview = false;
 
+  postSection = 0
   imgLimit = 12
 
   mode = 'all';
   category = PostCatMap.All;
   categories = Object.keys(PostCatMap).filter(value => isNaN(Number(value)));
 
-  reloadBtnText = 'Reload';
-  urlPrefix = environment.urlPrefix;
+  reloadBtnText = 'Reload'
+  nextBtnText = 'Next Post'
+  urlPrefix = environment.urlPrefix
 
   constructor(private http: HttpClient, private title: Title, private activatedRoute: ActivatedRoute, private router: Router, public domSanitizer: DomSanitizer) {
     this.title.setTitle('Images');
@@ -50,13 +52,32 @@ export class ImgComponent implements OnInit {
       this.loadingNextPage = false;
       this.posts = res.body;
       this.remainingPosts = res.headers.get('X-Total-Count');
+
+      this.postSection = 0
+      console.log(111)
+      this.router.navigate([], {
+        relativeTo: this.activatedRoute,
+        queryParams: { mode: this.mode },
+        queryParamsHandling: 'merge',
+        fragment: 'post-0'
+      })
     }, error => {
       this.loadingNextPage = false;
       console.log(error.error);
     });
   }
 
-  nextBtnClicked() {
+  nextPostBtnClicked() {
+    let sec = 'post-' + this.postSection++
+    this.router.navigate([], {
+      relativeTo: this.activatedRoute,
+      queryParams: { mode: this.mode },
+      queryParamsHandling: 'merge',
+      fragment: sec
+    })
+  }
+
+  nextPageBtnClicked() {
     this.loadingNextPage = true;
     var idList = this.posts.map(p => p.id);
     this.posts = [];
@@ -101,7 +122,7 @@ export class ImgComponent implements OnInit {
   
   @HostListener('document:keydown.f1', ['$event'])
   onKeydownHandler(event: KeyboardEvent) {
-    this.nextBtnClicked();
+    this.nextPageBtnClicked();
   }
 
   openPreview(src: string) {
