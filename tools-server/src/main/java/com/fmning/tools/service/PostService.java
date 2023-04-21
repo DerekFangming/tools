@@ -2,6 +2,7 @@ package com.fmning.tools.service;
 
 import com.fmning.tools.ToolsProperties;
 import com.fmning.tools.domain.Post;
+import com.fmning.tools.repository.ConfigRepo;
 import com.fmning.tools.repository.PostRepo;
 import com.fmning.tools.type.HtmlReaderType;
 import lombok.RequiredArgsConstructor;
@@ -37,10 +38,7 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
@@ -51,8 +49,9 @@ import java.util.regex.Pattern;
 @RequiredArgsConstructor(onConstructor_={@Autowired})
 public class PostService {
 
-    private String matcher;
+    private Pattern pattern;
     private String rootUrl;
+    private Set<String> imgBlackList;
     public static final String IMG_DIR = System.getenv("TL_IMG_DIR");
 
     private static CloseableHttpClient httpClient;
@@ -66,15 +65,22 @@ public class PostService {
     private AtomicBoolean loadingPosts = new AtomicBoolean(false);
 
     private final PostRepo postRepo;
+    private final ConfigRepo configRepo;
     private final QueryService queryService;
     private final ToolsProperties toolsProperties;
 
     @PostConstruct
     public void init() {
-        matcher = System.getenv("TL_MATCHER");
 
-        String urlToken = System.getenv("TL_UTL_TOKEN");
-        rootUrl = new String(Base64.decodeBase64(urlToken.getBytes()));
+        String matcher = configRepo.findById("TL_MATCHER")
+                .orElseThrow(() -> new IllegalStateException("Failed to get matcher")).getValue();
+        pattern = Pattern.compile(matcher);
+
+        rootUrl = configRepo.findById("TL_BASE_URL")
+                .orElseThrow(() -> new IllegalStateException("Failed to get base url")).getValue();
+
+        imgBlackList = configRepo.findById("TL_IMG_BL")
+                .orElseThrow(() -> new IllegalStateException("Failed to get img blacklist")).getValueSet();
 
         System.setProperty("http.agent", httpAgent);
         try {
@@ -236,6 +242,11 @@ public class PostService {
                     } else {
                         return;
                     }
+
+                    if (imgBlackList.contains(imgUrl.trim())) {
+                        return;
+                    }
+
                     post.logImageUrl(imgUrl);
 
                     String extension = FilenameUtils.getExtension(imgUrl);
@@ -292,7 +303,7 @@ public class PostService {
         }
 
         // Check flag
-        Matcher flagMatcher = Pattern.compile(matcher).matcher(post.getTitle());
+        Matcher flagMatcher = pattern.matcher(post.getTitle());
         post.setFlagged(flagMatcher.find());
     }
 

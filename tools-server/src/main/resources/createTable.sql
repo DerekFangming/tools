@@ -81,6 +81,11 @@ CREATE TABLE logs (
   created timestamp without time zone not null
 );
 
+CREATE TABLE configurations (
+  key text primary key,
+  value text not null
+);
+
 CREATE INDEX logs_service_index ON logs (service);
 CREATE INDEX logs_level_index ON logs (level);
 CREATE INDEX logs_created_index ON logs (created);
