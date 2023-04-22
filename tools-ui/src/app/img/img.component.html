@@ -1,4 +1,4 @@
-<nav class="navbar navbar-expand-lg navbar-light bg-light navbar-fixed-top sticky-top">
+<nav class="navbar navbar-expand-lg navbar-light bg-light navbar-fixed-top">
   <div class="container-fluid">
       <a class="navbar-brand ml-2" href="#">Images</a>
       <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
@@ -31,14 +31,18 @@
           </li>
         </ul>
       </div>
-
-      <button class="btn btn-outline-success my-2 my-sm-0 pull-right" (click)="reloadBtnClicked()">{{ reloadBtnText }}</button>
-      <button type="button" class="btn btn-outline-success primary ml-2" (click)="nextPageBtnClicked()" [disabled]="loadingNextPage">
-        {{ loadingNextPage ? 'Loading' : 'Next Page' }}
-      </button>
-      <button class="btn btn-outline-primary my-2 my-sm-0 pull-right ml-2" (click)="nextPostBtnClicked()">{{ nextBtnText }}</button>
+      
   </div>
+
 </nav>
+
+<div class="fixed-bottom">
+  <button class="btn btn-primary my-2 my-sm-0 pull-right ml-2" (click)="nextPostBtnClicked()">{{ nextBtnText }}</button>
+  <button type="button" class="btn btn-success primary ml-2  pull-right" (click)="nextPageBtnClicked()" [disabled]="loadingNextPage">
+    {{ loadingNextPage ? 'Loading' : 'Next Page' }}
+  </button>
+  <button class="btn btn-success my-2 my-sm-0 pull-right" (click)="reloadBtnClicked()">{{ reloadBtnText }}</button>
+</div>
 
 <div [hidden]="showingIFrame" class="container-fluid mt-2">
 
