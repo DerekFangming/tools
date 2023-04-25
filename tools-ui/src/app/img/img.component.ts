@@ -67,7 +67,9 @@ export class ImgComponent implements OnInit {
   }
 
   nextPostBtnClicked() {
-    if (this.postSection + 1 > this.posts.length) return 
+    if (this.postSection + 1 >= this.posts.length) {
+      return this.nextPageBtnClicked()
+    }
     let sec = 'post-' + ++this.postSection
     this.router.navigate([], {
       relativeTo: this.activatedRoute,
@@ -122,7 +124,7 @@ export class ImgComponent implements OnInit {
   
   @HostListener('document:keydown.f1', ['$event'])
   onKeydownHandler(event: KeyboardEvent) {
-    this.nextPageBtnClicked();
+    this.nextPostBtnClicked();
   }
 
   openPreview(src: string) {
