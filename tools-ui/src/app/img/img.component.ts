@@ -66,16 +66,22 @@ export class ImgComponent implements OnInit {
     });
   }
 
-  nextPostBtnClicked() {
-    if (this.postSection + 1 >= this.posts.length) {
+  nextPostBtnClicked(forward = true) {
+    if (forward && this.postSection + 1 >= this.posts.length) {
       return this.nextPageBtnClicked()
     }
-    let sec = 'post-' + ++this.postSection
+
+    if (!forward && this.postSection == 0) {
+      return
+    }
+
+    this.postSection = forward ? this.postSection + 1 : this.postSection - 1
+
     this.router.navigate([], {
       relativeTo: this.activatedRoute,
       queryParams: { mode: this.mode },
       queryParamsHandling: 'merge',
-      fragment: sec
+      fragment: 'post-' + this.postSection
     })
   }
 
@@ -124,8 +130,19 @@ export class ImgComponent implements OnInit {
   
   @HostListener('document:keydown.f1', ['$event'])
   onKeydownHandler(event: KeyboardEvent) {
-    this.nextPostBtnClicked();
+    this.nextPostBtnClicked()
   }
+
+  @HostListener('document:keydown.ArrowLeft', ['$event'])
+  onLeftKeydownHandler(event: KeyboardEvent) {
+    this.nextPostBtnClicked(false)
+  }
+  
+  @HostListener('document:keydown.ArrowRight', ['$event'])
+  onRightKeydownHandler(event: KeyboardEvent) {
+    this.nextPostBtnClicked()
+  }
+
 
   openPreview(src: string) {
     this.previewedImgSrc = src;
