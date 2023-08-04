@@ -19,6 +19,7 @@ import javax.annotation.PostConstruct;
 @RequiredArgsConstructor(onConstructor_={@Autowired})
 public class NotificationController {
     private String voiceMonkeyUrl;
+    private String pushoverUrl;
 
     private final ConfigRepo configRepo;
     private final OkHttpClient client;
@@ -28,6 +29,9 @@ public class NotificationController {
     public void init() {
         voiceMonkeyUrl = configRepo.findById("VOICE_MONKEY_URL")
                 .orElseThrow(() -> new IllegalStateException("Failed to get voice monkey url")).getValue();
+
+        pushoverUrl = configRepo.findById("PUSHOVER_URL")
+                .orElseThrow(() -> new IllegalStateException("Failed to get pushover url")).getValue();
     }
 
     @GetMapping()
@@ -59,7 +63,6 @@ public class NotificationController {
             iftttNotification(payload.getMessage());
         }
     }
-
 
     private void iftttNotification(String message) {
         try {
@@ -106,9 +109,48 @@ public class NotificationController {
         }
     }
 
+    @GetMapping("/pushover")
+    public void pushover(@RequestParam("message") String message,
+                         @RequestParam(value="title", required=false) String title,
+                         @RequestParam(value="device", required=false) String device,
+                         @RequestParam(value="priority", required=false) String priority) {
+        if (StringUtils.isNotEmpty(message)) {
+            pushoverNotification(message, title, device, priority);
+        }
+    }
+    @PostMapping("/pushover")
+    public void pushover(@org.springframework.web.bind.annotation.RequestBody NotificationPayload payload) {
+        if (StringUtils.isNotEmpty(payload.getMessage())) {
+            pushoverNotification(payload.getMessage(), payload.getTitle(), payload.getDevice(), payload.getPriority());
+        }
+    }
+
+    private void pushoverNotification(String message, String title, String device, String priority) {
+        try {
+            String url = pushoverUrl + "&message=" + message;
+            if (StringUtils.isNotEmpty(title)) url += "&title=" + title;
+            if (StringUtils.isNotEmpty(priority)) url += "&priority=2&retry=30&expire=300";
+            url += device == null ? "&device=nfmiphone" : "&device=" + device;
+            url += "&sound=pushover";
+
+            Request request = new Request.Builder()
+                    .url(url)
+                    .post(okhttp3.RequestBody.create("{}", MediaType.parse("application/json; charset=utf-8")))
+                    .build();
+
+            Call call = client.newCall(request);
+            Response res = call.execute();
+        } catch (Exception e) {
+            log.error("Failed to send IFTTT notification", e);
+        }
+    }
+
     @Data
     private static class NotificationPayload {
         String message;
+        String title;
+        String device;
+        String priority;
     }
 
 }
