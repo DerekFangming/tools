@@ -17,8 +17,11 @@
       </button>
     </div>
     <div class="col-3">
-      <button type="button" class="btn btn-outline-success pull-right" (click)="copyToClipboard()">
+      <button type="button" class="btn btn-outline-success pull-right" (click)="copyAllToClipboard()">
         <i class="fa fa-clipboard" aria-hidden="true"></i>
+      </button>
+      <button type="button" class="btn btn-outline-dark pull-right mr-2" (click)="showLinksModal()">
+        <i class="fa fa-link" aria-hidden="true"></i>
       </button>
     </div>
   </div>
@@ -29,3 +32,32 @@
     </div>
   </div>
 </div>
+
+<ng-template #linksModal let-modal>
+  <div class="modal-header">
+    <h4 class="modal-title">Links</h4>
+    <button type="button" class="close" (click)="modal.dismiss('Cross click')">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+    <div *ngIf="links.length == 0" class="row">
+      <div class="col">
+        <div class="alert alert-success" role="alert">No links are found.</div>
+      </div>
+    </div>
+    <div *ngFor="let link of links;" class="row">
+      <div class="col">
+        <div class="input-group mb-3">
+          <input type="text" class="form-control" [(ngModel)]="link">
+          <div class="input-group-append">
+            <button class="btn btn-outline-success" type="button" (click)="copyToClipboard(link)"><i class="fa fa-clipboard" aria-hidden="true"></i></button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-secondary" (click)="modal.dismiss('Cross click')">Close</button>
+  </div>
+</ng-template>
