@@ -78,4 +78,8 @@ export class ClipboardComponent implements OnInit {
     this.modalRef = this.modalService.open(this.linksModal, this.ngbModalOptions)
   }
 
+  goToLink(url){
+      window.open(url, "_blank");
+  }
+
 }

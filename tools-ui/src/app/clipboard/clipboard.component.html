@@ -51,6 +51,9 @@
         <div class="input-group mb-3">
           <input type="text" class="form-control" [(ngModel)]="links[index]">
           <div class="input-group-append">
+            <button class="btn btn-outline-secondary" type="button" (click)="goToLink(link)"><i class="fa fa-share" aria-hidden="true"></i></button>
+          </div>
+          <div class="input-group-append">
             <button class="btn btn-outline-success" type="button" (click)="copyToClipboard(link)"><i class="fa fa-clipboard" aria-hidden="true"></i></button>
           </div>
         </div>

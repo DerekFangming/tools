@@ -1,6 +1,7 @@
 package com.fmning.tools.controller;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fmning.tools.domain.Image;
 import com.fmning.tools.repository.PostRepo;
 import com.fmning.tools.service.PostService;
 import com.fmning.tools.service.QueryService;
@@ -16,16 +17,16 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.security.MessageDigest;
 import java.security.Principal;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @RestController
@@ -99,6 +100,17 @@ public class Controller {
 		File file = resource.getFile();
 		List<String> allLines = Files.readAllLines(Paths.get(file.getPath()));
 		return allLines.stream().map(Long::parseLong).collect(Collectors.toList());
+	}
+
+	@PostMapping("/webhook")
+	public ResponseEntity create(@RequestHeader Map<String, String> headers, @RequestBody Map<String, Object> body) {
+		System.out.println("========================");
+		System.out.println(Arrays.toString(headers.entrySet().toArray()));
+		System.out.println();
+		System.out.println();
+		System.out.println("========================");
+		System.out.println(Arrays.toString(body.entrySet().toArray()));
+		return ResponseEntity.ok().build();
 	}
 
 
