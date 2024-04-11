@@ -89,12 +89,12 @@ export class ImgComponent implements OnInit {
     this.loadingNextPage = true;
     var idList = this.posts.map(p => p.id);
     this.posts = [];
-    
+
     let url = 'api/posts/mark-read'
     if (this.mode == 'saved') {
       url = 'api/posts/mark-unsaved'
     }
-    
+
     this.http.put(environment.urlPrefix + url, idList).subscribe(() => {
       this.loadPosts();
     }, error => {
@@ -127,7 +127,7 @@ export class ImgComponent implements OnInit {
       this.showingIFrame = !this.showingIFrame;
     }
   }
-  
+
   @HostListener('document:keydown.f1', ['$event'])
   onKeydownHandler(event: KeyboardEvent) {
     this.nextPostBtnClicked()
@@ -137,7 +137,7 @@ export class ImgComponent implements OnInit {
   onLeftKeydownHandler(event: KeyboardEvent) {
     this.nextPostBtnClicked(false)
   }
-  
+
   @HostListener('document:keydown.ArrowRight', ['$event'])
   onRightKeydownHandler(event: KeyboardEvent) {
     this.nextPostBtnClicked()
@@ -221,8 +221,8 @@ export class ImgComponent implements OnInit {
   }
 
   getImageNames(post: Post) {
-    let imgs = post.imageNames.length == 0 ? post.imageUrls : post.imageNames.map(n => 'http://98.156.161.67:8080/tools/images/' + post.id + '/' + n)
-    
+    let imgs = post.imageNames.length == 0 ? post.imageUrls : post.imageNames.map(n => 'http://98.156.166.193:8080/tools/images/' + post.id + '/' + n)
+
 	  return post.expanded ? imgs : imgs.slice(0, this.imgLimit)
 	}
 
