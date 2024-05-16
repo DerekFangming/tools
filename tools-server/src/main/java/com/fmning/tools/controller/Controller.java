@@ -9,7 +9,7 @@ import lombok.Data;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
-import org.bouncycastle.util.encoders.Hex;
+//import org.bouncycastle.util.encoders.Hex;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
@@ -56,26 +56,26 @@ public class Controller {
 		return () -> "user!";
 	}
 	
-	@GetMapping("/test")
-	public ResponseEntity<Dto> test() throws Exception {
+//	@GetMapping("/test")
+//	public ResponseEntity<Dto> test() throws Exception {
+//
+//
+//
+//		//System.out.println(getUsernamePasswordHash("slpt.support", "b7gwZK41HBim7mJnMNst"));
+//
+//		System.out.println(encodeString("123"));
+//		return ResponseEntity.ok(new Dto());
+//	}
 
+//	String getUsernamePasswordHash(String username, String password) throws Exception {
+//		return encodeString(password + encodeString(username));
+//	}
 
-
-		//System.out.println(getUsernamePasswordHash("slpt.support", "b7gwZK41HBim7mJnMNst"));
-
-		System.out.println(encodeString("123"));
-		return ResponseEntity.ok(new Dto());
-	}
-
-	String getUsernamePasswordHash(String username, String password) throws Exception {
-		return encodeString(password + encodeString(username));
-	}
-
-	String encodeString(String string) throws Exception {
-		MessageDigest md = MessageDigest.getInstance("SHA-256");
-		md.update(string.getBytes("UTF-8"));
-		return new String(Hex.encode(md.digest()));
-	}
+//	String encodeString(String string) throws Exception {
+//		MessageDigest md = MessageDigest.getInstance("SHA-256");
+//		md.update(string.getBytes("UTF-8"));
+//		return new String(Hex.encode(md.digest()));
+//	}
 
 //	@GetMapping("/login")
 //	public ResponseEntity login() {

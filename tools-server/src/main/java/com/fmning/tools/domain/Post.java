@@ -8,7 +8,8 @@ import lombok.NoArgsConstructor;
 import lombok.extern.apachecommons.CommonsLog;
 import org.hibernate.annotations.DynamicUpdate;
 
-import javax.persistence.*;
+
+import jakarta.persistence.*;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.time.Instant;
