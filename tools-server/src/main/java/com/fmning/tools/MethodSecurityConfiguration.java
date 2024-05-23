@@ -7,9 +7,9 @@ import org.springframework.security.access.expression.method.MethodSecurityExpre
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.method.configuration.GlobalMethodSecurityConfiguration;
 
-@Configuration
-@ConditionalOnProperty("tools.production")
-@EnableGlobalMethodSecurity(prePostEnabled = true)
+//@Configuration
+//@ConditionalOnProperty("tools.production")
+//@EnableGlobalMethodSecurity(prePostEnabled = true)
 public class MethodSecurityConfiguration extends GlobalMethodSecurityConfiguration {
 
     @Override

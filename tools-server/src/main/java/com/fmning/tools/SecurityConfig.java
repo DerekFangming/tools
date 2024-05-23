@@ -11,32 +11,31 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 //import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 
-@Configuration
+//@Configuration
 //@EnableOAuth2Sso
-@RequiredArgsConstructor(onConstructor_={@Autowired})
-@EnableWebSecurity
-public class SecurityConfig extends WebSecurityConfigurerAdapter {
-
-    private final ToolsProperties toolsProperties;
-
-    @Override
-    public void configure(HttpSecurity http) throws Exception {
-        String[] urls = toolsProperties.isProduction() ? new String[]{"/login-redirect", "/api/posts/**", "/api/email"}
-            : new String[]{};
-
-        http
-                .antMatcher("/**")
-                .authorizeRequests()
-                .antMatchers(urls)
-                .authenticated()
-                .anyRequest().permitAll()
-                .and()
-                .logout().logoutSuccessUrl("https://sso.fmning.com/authentication/logout").permitAll()
-                .and().csrf().disable();
-    }
-
-    @Bean
-    public PrincipalExtractor toolsPrincipalExtractor(ObjectMapper objectMapper) {
-        return new ToolsPrincipalExtractor(objectMapper);
-    }
-}
+//@RequiredArgsConstructor(onConstructor_={@Autowired})
+//@EnableWebSecurity
+public class SecurityConfig {}//extends WebSecurityConfigurerAdapter {
+//
+//    private final ToolsProperties toolsProperties;
+//
+//    @Override
+//    public void configure(HttpSecurity http) throws Exception {
+//
+//
+//        http
+//                .antMatcher("/**")
+//                .authorizeRequests()
+//                .antMatchers(urls)
+//                .authenticated()
+//                .anyRequest().permitAll()
+//                .and()
+//                .logout().logoutSuccessUrl("https://sso.fmning.com/authentication/logout").permitAll()
+//                .and().csrf().disable();
+//    }
+//
+//    @Bean
+//    public PrincipalExtractor toolsPrincipalExtractor(ObjectMapper objectMapper) {
+//        return new ToolsPrincipalExtractor(objectMapper);
+//    }
+//}
