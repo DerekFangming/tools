@@ -13,8 +13,10 @@ import org.springframework.context.annotation.Configuration;
 
 import jakarta.annotation.PostConstruct;
 import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
 import org.springframework.security.oauth2.core.oidc.OidcIdToken;
 import org.springframework.security.oauth2.core.oidc.OidcUserInfo;
@@ -26,6 +28,7 @@ import java.io.File;
 import java.util.*;
 
 @Configuration
+@EnableMethodSecurity
 @RequiredArgsConstructor(onConstructor_={@Autowired})
 public class BeanConfig {
 
@@ -88,20 +91,7 @@ public class BeanConfig {
                 .oauth2Login((oauth2Login) -> oauth2Login.userInfoEndpoint((userinfo) -> userinfo
                         .userAuthoritiesMapper(this.userAuthoritiesMapper())));
 
-//        http.authorizeRequests()
-//                .anyRequest().authenticated()
-//                .and()
-//                .oauth2Login();
         return http.build();
-
-//        http
-//                .antMatcher("/**")
-//                .authorizeRequests()
-//                .antMatchers(urls)
-//                .authenticated()
-//                .anyRequest().permitAll()
-//                .and()
-//                .logout().logoutSuccessUrl("https://sso.fmning.com/authentication/logout").permitAll()
     }
 
     private GrantedAuthoritiesMapper userAuthoritiesMapper() {
@@ -109,23 +99,13 @@ public class BeanConfig {
             Set<GrantedAuthority> mappedAuthorities = new HashSet<>();
 
             authorities.forEach(authority -> {
-                if (OidcUserAuthority.class.isInstance(authority)) {
-                    OidcUserAuthority oidcUserAuthority = (OidcUserAuthority)authority;
-
-                    OidcIdToken idToken = oidcUserAuthority.getIdToken();
-                    OidcUserInfo userInfo = oidcUserAuthority.getUserInfo();
-
-                    // Map the claims found in idToken and/or userInfo
-                    // to one or more GrantedAuthority's and add it to mappedAuthorities
-
-                } else if (OAuth2UserAuthority.class.isInstance(authority)) {
-                    OAuth2UserAuthority oauth2UserAuthority = (OAuth2UserAuthority)authority;
-
-                    Map<String, Object> userAttributes = oauth2UserAuthority.getAttributes();
-
-                    // Map the attributes found in userAttributes
-                    // to one or more GrantedAuthority's and add it to mappedAuthorities
-
+                if (authority instanceof OAuth2UserAuthority) {
+                    Map<String, Object> attributes = ((OAuth2UserAuthority) authority).getAttributes();
+                    List<Object> auths = (List<Object>) attributes.get("authorities");
+                    for (Object auth : auths) {
+                        Map<String, String> authMap = (Map)auth;
+                        mappedAuthorities.add(new SimpleGrantedAuthority(authMap.get("authority")));
+                    }
                 }
             });
 

@@ -28,7 +28,7 @@ public class LogController {
     private final LogRepo logRepo;
 
     @GetMapping
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<List<Log>> listLogs(@RequestParam(value = "service", required = false) String service, @RequestParam(value = "level", required = false) String level,
                               @RequestParam(value = "message", required = false) String message,
                               @RequestParam(value = "page", defaultValue = "0") int page) {
