@@ -18,18 +18,4 @@ public class ToolsProperties {
         return Boolean.parseBoolean(production);
     }
 
-    public String getTeamLimitChannelId() {
-        return isProduction() ? "782427034327711765,790700339870433341,790475149324845056,826957188626513941" : "879561792194494524,900555475270119466";
-    }
-    public String getSelfServiceBotChannelId() {
-        return isProduction() ? "788900934805225542" : "879561759776722945";
-    }
-
-    public String getYaofengNewbieRoleId() {
-        return isProduction() ? "803212908896583731, 908185337250086965" : "792772398592163840";
-    }
-
-    public String getMutedToleId() {
-        return isProduction() ? "784919135494078474" : "895161398554935326";
-    }
 }

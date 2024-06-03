@@ -12,17 +12,14 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import jakarta.annotation.PostConstruct;
-import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
-import org.springframework.security.oauth2.core.oidc.OidcIdToken;
-import org.springframework.security.oauth2.core.oidc.OidcUserInfo;
-import org.springframework.security.oauth2.core.oidc.user.OidcUserAuthority;
 import org.springframework.security.oauth2.core.user.OAuth2UserAuthority;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 import java.io.File;
 import java.util.*;
@@ -44,32 +41,32 @@ public class BeanConfig {
     public ModelMapper modelMapper() {
         ModelMapper modelMapper = new ModelMapper();
 
-//        modelMapper.typeMap(Post.class, PostDto.class)
-//                .addMappings(mapper -> {
-//                    mapper.using((Converter<Integer, List<String>>) context -> {
-//                        List<String> imageNames = new ArrayList<>();
-//                        File folder = new File(PostService.IMG_DIR + context.getSource());
-//                        if (folder.listFiles() != null) {
-//                            for (File f : Objects.requireNonNull(folder.listFiles())) {
-//                                String[] components = f.getAbsolutePath().replace("\\", "/").split("/");
-//                                imageNames.add(components[components.length - 1]);
-//                            }
-//                        }
-//
-//                        return imageNames;
-//                    }).map(Post::getId, PostDto::setImageNames);
-//
-//                    mapper.using((Converter<String, List<String>>) context -> {
-//                        if (context.getSource() == null) {
-//                            return Collections.emptyList();
-//                        } else {
-//                            return Arrays.asList(context.getSource().split(","));
-//                        }
-//                    }).map(Post::getImgUrls, PostDto::setImageUrls);
-//
-//                    mapper.using((Converter<Integer, String>) context -> postService.getPostUrl(context.getSource())).map(Post::getId, PostDto::setUrl);
-//                });
-//
+        modelMapper.typeMap(Post.class, PostDto.class)
+                .addMappings(mapper -> {
+                    mapper.using((Converter<Integer, List<String>>) context -> {
+                        List<String> imageNames = new ArrayList<>();
+                        File folder = new File(PostService.IMG_DIR + context.getSource());
+                        if (folder.listFiles() != null) {
+                            for (File f : Objects.requireNonNull(folder.listFiles())) {
+                                String[] components = f.getAbsolutePath().replace("\\", "/").split("/");
+                                imageNames.add(components[components.length - 1]);
+                            }
+                        }
+
+                        return imageNames;
+                    }).map(Post::getId, PostDto::setImageNames);
+
+                    mapper.using((Converter<String, List<String>>) context -> {
+                        if (context.getSource() == null) {
+                            return Collections.emptyList();
+                        } else {
+                            return Arrays.asList(context.getSource().split(","));
+                        }
+                    }).map(Post::getImgUrls, PostDto::setImageUrls);
+
+                    mapper.using((Converter<Integer, String>) context -> postService.getPostUrl(context.getSource())).map(Post::getId, PostDto::setUrl);
+                });
+
         return modelMapper;
     }
 
@@ -87,7 +84,9 @@ public class BeanConfig {
 
         http.authorizeHttpRequests((requests) -> requests.requestMatchers(urls).authenticated().anyRequest().permitAll())
 //                .logout((logout) -> logout.logoutSuccessUrl("https://sso.fmning.com/authentication/logout"));
-                .logout((logout) -> logout.logoutSuccessUrl("http://localhost:9100/logout"))
+                .logout((logout) -> logout
+                        .logoutSuccessUrl("http://localhost:9100/logout")
+                        .logoutRequestMatcher(new AntPathRequestMatcher("/logout")))
                 .oauth2Login((oauth2Login) -> oauth2Login.userInfoEndpoint((userinfo) -> userinfo
                         .userAuthoritiesMapper(this.userAuthoritiesMapper())));
 
