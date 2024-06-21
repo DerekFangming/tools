@@ -1,6 +1,5 @@
 plugins {
   id 'java'
-  id 'war'
   id "com.github.node-gradle.node" version "2.2.0"
 }
 
@@ -20,5 +19,3 @@ task npmBuild(type: NpmTask, dependsOn: 'npmInstall') {
   }
 
 }
-
-war.dependsOn(npmBuild)
