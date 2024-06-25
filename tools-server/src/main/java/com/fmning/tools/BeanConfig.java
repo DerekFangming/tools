@@ -18,6 +18,10 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
 import org.springframework.security.oauth2.core.user.OAuth2UserAuthority;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
+import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
+import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
@@ -80,7 +84,7 @@ public class BeanConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         String[] urls = toolsProperties.isProduction() ? new String[]{"/login-redirect", "/api/posts/**", "/api/email"}
-                : new String[]{};
+                : new String[]{"/whoami", "/whoami1", "/whoami2"};
 
         http.authorizeHttpRequests((requests) -> requests.requestMatchers(urls).authenticated().anyRequest().permitAll())
 //                .logout((logout) -> logout.logoutSuccessUrl("https://sso.fmning.com/authentication/logout"));
@@ -88,9 +92,27 @@ public class BeanConfig {
                         .logoutSuccessUrl("http://localhost:9100/logout")
                         .logoutRequestMatcher(new AntPathRequestMatcher("/logout")))
                 .oauth2Login((oauth2Login) -> oauth2Login.userInfoEndpoint((userinfo) -> userinfo
-                        .userAuthoritiesMapper(this.userAuthoritiesMapper())));
+                        .userAuthoritiesMapper(this.userAuthoritiesMapper())))
+                .oauth2ResourceServer((resourceServer) -> resourceServer.jwt((jwt) ->
+                        jwt.jwtAuthenticationConverter(jwtConverter())));
 
         return http.build();
+    }
+
+    @Bean
+    public JwtDecoder jwtDecoder() {
+        String jwkUri = "http://localhost:9100/oauth/jwk";
+        return NimbusJwtDecoder.withJwkSetUri(jwkUri)
+                .build();
+    }
+
+    private JwtAuthenticationConverter jwtConverter() {
+        JwtGrantedAuthoritiesConverter jwtGrantedAuthoritiesConverter = new JwtGrantedAuthoritiesConverter();
+        jwtGrantedAuthoritiesConverter.setAuthorityPrefix("");
+
+        JwtAuthenticationConverter converter = new JwtAuthenticationConverter();
+        converter.setJwtGrantedAuthoritiesConverter(jwtGrantedAuthoritiesConverter);
+        return converter;
     }
 
     private GrantedAuthoritiesMapper userAuthoritiesMapper() {

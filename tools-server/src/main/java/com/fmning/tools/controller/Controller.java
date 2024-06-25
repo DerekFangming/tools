@@ -38,15 +38,21 @@ public class Controller {
 	private final QueryService queryService;
 
 	@GetMapping("/whoami")
-	@PreAuthorize("hasAuthority('USER')")
-	public String whoami(String name) {
+	public String whoami() {
 		SecurityContext securityContext = SecurityContextHolder.getContext();
 		return "";
 	}
 
 	@GetMapping("/whoami1")
+	@PreAuthorize("hasAuthority('ADMIN')")
+	public String whoami1() {
+		SecurityContext securityContext = SecurityContextHolder.getContext();
+		return "";
+	}
+
+	@GetMapping("/whoami2")
 	@PreAuthorize("hasAuthority('SSO')")
-	public String whoami1(String name) {
+	public String whoami2() {
 		SecurityContext securityContext = SecurityContextHolder.getContext();
 		return "";
 	}
