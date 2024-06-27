@@ -8,6 +8,7 @@ import okhttp3.OkHttpClient;
 import org.modelmapper.Converter;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -29,7 +30,6 @@ import java.io.File;
 import java.util.*;
 
 @Configuration
-@EnableMethodSecurity
 @RequiredArgsConstructor(onConstructor_={@Autowired})
 public class BeanConfig {
 
@@ -87,9 +87,8 @@ public class BeanConfig {
                 : new String[]{"/whoami", "/whoami1", "/whoami2"};
 
         http.authorizeHttpRequests((requests) -> requests.requestMatchers(urls).authenticated().anyRequest().permitAll())
-//                .logout((logout) -> logout.logoutSuccessUrl("https://sso.fmning.com/authentication/logout"));
                 .logout((logout) -> logout
-                        .logoutSuccessUrl("http://localhost:9100/logout")
+                        .logoutSuccessUrl(toolsProperties.getSsoBaseUrl() + "/logout")
                         .logoutRequestMatcher(new AntPathRequestMatcher("/logout")))
                 .oauth2Login((oauth2Login) -> oauth2Login.userInfoEndpoint((userinfo) -> userinfo
                         .userAuthoritiesMapper(this.userAuthoritiesMapper())))
@@ -101,7 +100,7 @@ public class BeanConfig {
 
     @Bean
     public JwtDecoder jwtDecoder() {
-        String jwkUri = "http://localhost:9100/oauth/jwk";
+        String jwkUri = toolsProperties.getSsoBaseUrl() + "/oauth/jwk";
         return NimbusJwtDecoder.withJwkSetUri(jwkUri)
                 .build();
     }

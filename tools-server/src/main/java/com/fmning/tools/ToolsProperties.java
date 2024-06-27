@@ -13,6 +13,7 @@ public class ToolsProperties {
     private String youtubeApiKey;
     private String imgurClientId;
     private String iftttKey;
+    private String ssoBaseUrl;
 
     public boolean isProduction() {
         return Boolean.parseBoolean(production);
