@@ -15,6 +15,7 @@ import org.springframework.context.annotation.Configuration;
 import jakarta.annotation.PostConstruct;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
@@ -93,7 +94,8 @@ public class BeanConfig {
                 .oauth2Login((oauth2Login) -> oauth2Login.userInfoEndpoint((userinfo) -> userinfo
                         .userAuthoritiesMapper(this.userAuthoritiesMapper())))
                 .oauth2ResourceServer((resourceServer) -> resourceServer.jwt((jwt) ->
-                        jwt.jwtAuthenticationConverter(jwtConverter())));
+                        jwt.jwtAuthenticationConverter(jwtConverter())))
+                .csrf(AbstractHttpConfigurer::disable);
 
         return http.build();
     }
