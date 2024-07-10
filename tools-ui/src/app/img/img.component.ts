@@ -221,7 +221,7 @@ export class ImgComponent implements OnInit {
   }
 
   getImageNames(post: Post) {
-    let imgs = post.imageNames.length == 0 ? post.imageUrls : post.imageNames.map(n => 'https://simg.fmning.com/tools/images/' + post.id + '/' + n)
+    let imgs = post.imageNames.length == 0 ? post.imageUrls : post.imageNames.map(n => 'https://simg.fmning.com/images/' + post.id + '/' + n)
 
 	  return post.expanded ? imgs : imgs.slice(0, this.imgLimit)
 	}
