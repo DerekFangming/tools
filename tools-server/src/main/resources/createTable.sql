@@ -50,6 +50,27 @@ create table tl_ktv_songs (
 	requested boolean
 );
 
+create table tl_spending_accounts (
+    id serial primary key,
+	name text,
+	identifier text,
+	icon text,
+	owner text
+);
+
+create table tl_spending_transactions (
+    id serial primary key,
+    account_id integer references tl_spending_accounts,
+    identifier text,
+	name text,
+	amount text,
+	category text,
+	location text,
+	day text,
+	month text,
+	year text
+);
+
 CREATE TABLE logs (
   id serial primary key,
   service text not null,
