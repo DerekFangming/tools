@@ -14,7 +14,7 @@
         </li>
       </ul>
       <form *ngIf="tab == 'manage'" class="form-inline my-2 my-lg-0">
-        <button type="button" class="btn btn-outline-success" [disabled]="loading" (click)="addAccount(null)">Add</button>
+        <button type="button" class="btn btn-outline-success" [disabled]="loading" (click)="showAccountModal(null)">Add</button>
       </form>
     </div>
   </div>
@@ -22,20 +22,7 @@
 
 <div *ngIf="tab == 'reports'" class="container">
   <div class="row">
-    <!-- <div class="col-3" *ngFor="let image of imageList;">
-      <div class="card mt-4" [ngClass]="{'shows-up': !dragOver}">
-        <img class="card-img-top img-preview" src="{{image.data}}">
-        <div class="card-body">
-          <div class="input-group text-center">
-            <div *ngIf="image.status == 0" class="alert alert-secondary w-100 py-2 mb-0" role="alert">Waiting to be uploaded.</div>
-            <div *ngIf="image.status == 1" class="w-100 my-2"><i class="fa fa-refresh fa-spin mr-2"></i>Uploading ...</div>
-            <input *ngIf="image.status == 2" type="text" class="form-control" [disabled]="image.status != 2" [(ngModel)]="image.url">
-            <div *ngIf="image.status == 3" class="alert alert-danger w-100 py-2 mb-0" role="alert">Failed to upload.</div>
-          </div>
-          <button type="button" class="btn btn-primary btn-block mt-2" [disabled]="image.status != 2" (click)="onCopyClicked(image.url)">Copy image url</button>
-        </div>
-      </div>
-    </div> -->11111
+    11111
   </div>
 </div>
 
@@ -57,8 +44,8 @@
           <p class="card-text"><i class="fa fa-user-circle-o mr-2" aria-hidden="true"></i>{{account.owner}}</p>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-success" [disabled]="loading" (click)="saveAccount()">Add Transactions</button>
-          <button type="button" class="btn btn-secondary" [disabled]="loading"(click)="addAccount(account)">Edit</button>
+          <button type="button" class="btn btn-success" [disabled]="loading" (click)="showTransactionUploadModal(account)">Add Transactions</button>
+          <button type="button" class="btn btn-secondary" [disabled]="loading"(click)="showAccountModal(account)">Edit</button>
         </div>
       </div>
     </div>
@@ -99,6 +86,40 @@
   </div>
   <div class="modal-footer">
     <button type="button" class="btn btn-success" [disabled]="loading" (click)="saveAccount()">Save</button>
+    <button type="button" class="btn btn-secondary" [disabled]="loading" (click)="modal.dismiss('Cross click')">Close</button>
+  </div>
+</ng-template>
+
+<ng-template #transactionUploadModal let-modal>
+  <div class="modal-header">
+    <h4 class="modal-title">Upload transactions for {{selectedAccount.name}}</h4>
+    <button type="button" class="close" (click)="modal.dismiss('Cross click')" [disabled]="loading">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+    <div class="row">
+      <div class="col">
+        <div class="h-100 pointer" style="width: 100%;" (click)="fileSelect.click()">
+          <div class="mx-4 text-center" style="height:30vh;" [ngClass]="{'dotted-border': dragOver}" (drop)="onFilesDropped($event)" (dragover)="onDragOver($event)"
+            (dragenter)="onDragEnter($event)" (dragleave)="onDragLeave($event)">
+            <div *ngIf="!dragOver" style="top: 20%; left: 0; right: 0; position: absolute;">
+              <img src="{{'/assets/plus.png'}}" height="100px" width="100px">
+              <p class="display-4" style="font-size: 2rem;">Click here to select CSV files or drop them here.</p>
+            </div>
+            <div *ngIf="dragOver" style="top: 50%; left: 0; right: 0; position: absolute;">
+              <p class="display-4" style="font-size: 2rem;">Drop CSV files to upload them.</p>
+            </div>
+          </div>
+          
+          <input type="file" class="d-none" multiple="multiple" #fileSelect (change)="onFilesSelected($event)">
+        </div>
+      </div>
+    </div>
+    
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-success" [disabled]="loading" (click)="uploadTransactions()">Upload</button>
     <button type="button" class="btn btn-secondary" [disabled]="loading" (click)="modal.dismiss('Cross click')">Close</button>
   </div>
 </ng-template>

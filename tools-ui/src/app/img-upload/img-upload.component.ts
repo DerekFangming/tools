@@ -24,7 +24,6 @@ export class ImgUploadComponent implements OnInit {
 
   currentUploadIndex = 0;
   clientId = "Q2xpZW50LUlEIDQzMzQzNWRkNjBmNWQ3OQ==";
-  plusImage = environment.production ? '/tools/assets/plus.png' : '/assets/plus.png';
 
   constructor(private title: Title, private http: HttpClient, @Inject(DOCUMENT) private document: Document, public utils: UtilsService) {
     this.title.setTitle('Image uploader');

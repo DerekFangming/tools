@@ -45,7 +45,7 @@
     <div class="mx-4 text-center" style="height:90vh;" [ngClass]="{'dotted-border': dragOver}" (drop)="onImagesDropped($event)" (dragover)="onDragOver($event)"
       (dragenter)="onDragEnter($event)" (dragleave)="onDragLeave($event)">
       <div *ngIf="!dragOver" style="top: 40%; left: 0; right: 0; position: absolute; z-index: -1;">
-        <img src="{{plusImage}}" height="100px" width="100px">
+        <img src="{{'/assets/plus.png'}}" height="100px" width="100px">
         <p class="display-4" style="font-size: 2rem;">Click anywhere or drop images here to upload them.</p>
       </div>
       <div *ngIf="dragOver" style="top: 50%; left: 0; right: 0; position: absolute; z-index: -1;">
