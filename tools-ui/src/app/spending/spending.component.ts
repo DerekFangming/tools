@@ -4,6 +4,8 @@ import { NgbModal, NgbModalOptions, NgbModalRef } from '@ng-bootstrap/ng-bootstr
 import { HttpClient } from '@angular/common/http'
 import { Title } from '@angular/platform-browser'
 import { environment } from '../../environments/environment'
+import { SpendingTransaction } from '../model/spending-transaction'
+import { NotifierService } from 'angular-notifier'
 
 @Component({
   selector: 'app-spending',
@@ -15,15 +17,18 @@ export class SpendingComponent implements OnInit {
   tab = 'reports'
   loading = false
   dragOver = false
+  transactionView = false
 
   selectedAccount: SpendingAccount
   accountList: SpendingAccount[] = []
+  transactionFiles = new Map<string, string>()
+  transactions: SpendingTransaction[] = []
 
   modalRef: NgbModalRef
   @ViewChild('accountModal', { static: true}) accountModal: TemplateRef<any>
   @ViewChild('transactionUploadModal', { static: true}) transactionUploadModal: TemplateRef<any>
 
-  constructor(private http: HttpClient, private title: Title, private modalService: NgbModal) {
+  constructor(private http: HttpClient, private title: Title, private modalService: NgbModal, private notifierService: NotifierService) {
     this.title.setTitle('Spending')
   }
 
@@ -67,12 +72,15 @@ export class SpendingComponent implements OnInit {
   }
 
   showTransactionUploadModal(account: SpendingAccount) {
+    this.transactionView = false
     this.selectedAccount = account
+    this.transactions = []
+    this.transactionFiles = new Map<string, string>()
     this.modalRef = this.modalService.open(this.transactionUploadModal,  { backdrop: 'static', keyboard: false, centered: true, size: 'lg' })
   }
 
   uploadTransactions() {
-
+    this.processTransactions()
   }
 
   onDragOver(event) {
@@ -109,22 +117,84 @@ export class SpendingComponent implements OnInit {
         var reader = new FileReader()
         reader.onload = (event) =>{
           var fileReader = event.target as FileReader
-    
-          // let image = new Image({status: ImageStatus.New, data: fileReader.result.toString()});
-          // this.imageList.push(image);
-
-          // console.log(fileReader)
-          // console.log(fileReader.result)
-
           let csv = atob(fileReader.result.toString().replace('data:application/vnd.ms-excel;base64,', ''))
-          console.log(csv)
-
-          let aa = this.csvToArray(csv)
-          console.log(aa)
+          this.transactionFiles.set(fileName, csv)
         }
         reader.readAsDataURL(file)
       }
     }
+  }
+
+  processTransactions() {
+    let format = null
+    for (const [key, value] of this.transactionFiles.entries()) {
+      let matrix = this.csvToArray(value)
+      if (format == null) {
+        format = matrix[0][0]
+        console.log('Processing "' + key + '"')
+      } else {
+        if (format != matrix[0][0]) {
+          this.notifierService.notify('error', 'Invalid file format for "' + key + '", format column ' + matrix[0][0] + 'is different than ' + format)
+          throw new Error('Invalid file format for "' + key + '", format column ' + matrix[0][0] + 'is different than ' + format)
+        }
+      }
+      
+      if (format == 'Date') {
+        console.log('Processing as AMEX')
+        for (let i = 1; i < matrix.length; i ++) {
+          let row = matrix[i]
+          if (row[2].startsWith('-')) {
+            console.log('Skipping row: ' + row)
+            continue
+          }
+
+          let transaction = new SpendingTransaction({accountId: this.selectedAccount.id, name: row[1], amount: row[2],
+            category: row[10], location: `${row[5]} ${row[6]}, ${row[8]}`, date: row[0]})
+          if (transaction.category == 'Merchandise & Supplies-Groceries') transaction.category = 'Grocery'
+          if (transaction.name.startsWith('H-E-B')) transaction.name = 'H-E-B'
+          if (transaction.location.includes('\n')) transaction.location = transaction.location.split('\n').join(', ')
+          this.transactions.push(this.processTransaction(transaction))
+        }
+      } else if (format == 'Transaction Date') {
+        console.log('Processing as Chase')
+        for (let i = 1; i < matrix.length; i ++) {
+          let row = matrix[i]
+          if (row.length <= 1 || !row[5].startsWith('-')) {
+            console.log('Skipping row: ' + row)
+            continue
+          }
+
+          let transaction = new SpendingTransaction({accountId: this.selectedAccount.id, name: row[2],
+            amount: row[5].substring(1), category: row[3], date: row[0]})
+          if (transaction.category == 'Health & Wellness') transaction.category = 'Health'
+          if (transaction.category == 'Food & Drink') transaction.category = 'Restaurant'
+          if (transaction.name.startsWith('COSTCO')) transaction.category = 'Grocery'
+          this.transactions.push(this.processTransaction(transaction))
+        }
+      } else if (format == 'Posted Date') {
+        console.log('Processing as BOA')
+        for (let i = 1; i < matrix.length; i ++) {
+          let row = matrix[i]
+          if (row.length <= 1 || !row[4].startsWith('-')) {
+            console.log('Skipping row: ' + row)
+            continue
+          }
+
+          let transaction = new SpendingTransaction({accountId: this.selectedAccount.id, name: row[2],
+            amount: row[4].substring(1), location: row[3], date: row[0]})
+          if (transaction.name.startsWith('TXTAG')) transaction.category = 'Transportation'
+          if (transaction.name.startsWith('Spectrum')) transaction.category = 'Utility'
+          if (transaction.name.startsWith('ALIPAY')) transaction.category = 'Shopping'
+          if (transaction.name.startsWith('BLUEBONNET')) transaction.category = 'Utility'
+          if (transaction.name.includes('GODADDY')) transaction.category = 'Subscription'
+          if (transaction.name.includes('OWNWELL')) transaction.category = 'Real Estate'
+          this.transactions.push(this.processTransaction(transaction))
+        }
+      } else {
+        console.log("not processed: " + format)
+      }
+    }
+    this.transactionView = true
   }
 
   csvToArray(text: string) {
@@ -141,6 +211,12 @@ export class SpendingComponent implements OnInit {
         p = l
     }
     return ret
+  }
+
+  processTransaction(transaction: SpendingTransaction) {
+    transaction.identifier = `${transaction.accountId}#${transaction.date}#${transaction.amount}`
+    if (transaction.category == null) transaction.category = 'Unknown'
+    return transaction
   }
 
 }

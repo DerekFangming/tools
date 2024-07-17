@@ -66,9 +66,7 @@ create table tl_spending_transactions (
 	amount text,
 	category text,
 	location text,
-	day text,
-	month text,
-	year text
+	date date
 );
 
 CREATE TABLE logs (

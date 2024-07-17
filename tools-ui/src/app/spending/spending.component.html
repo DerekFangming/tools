@@ -97,7 +97,7 @@
       <span aria-hidden="true">&times;</span>
     </button>
   </div>
-  <div class="modal-body">
+  <div *ngIf="!transactionView" class="modal-body">
     <div class="row">
       <div class="col">
         <div class="h-100 pointer" style="width: 100%;" (click)="fileSelect.click()">
@@ -116,10 +116,40 @@
         </div>
       </div>
     </div>
+
+    <div class="row">
+      <div class="col">
+        <ul class="list-group">
+          <li class="list-group-item" *ngFor="let f of transactionFiles | keyvalue;">{{f.key}}
+            <button type="button" class="btn btn-outline-danger btn-sm pull-right" (click)="transactionFiles.delete(f.key)">Remove</button></li>
+        </ul>
+      </div>
+    </div>
     
   </div>
+  <div *ngIf="transactionView" class="modal-body">
+    <table class="table">
+      <thead>
+        <tr>
+          <th scope="col">Name</th>
+          <th scope="col">Date</th>
+          <th scope="col">Amount</th>
+          <th scope="col">Category</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let t of transactions;">
+          <th scope="row">{{t.name}}</th>
+          <td>{{t.date}}</td>
+          <td>{{t.amount}}</td>
+          <td [ngClass]="{'text-warning': t.category === 'Unknown'}">{{t.category}}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
   <div class="modal-footer">
-    <button type="button" class="btn btn-success" [disabled]="loading" (click)="uploadTransactions()">Upload</button>
+    <button *ngIf="transactionView" type="button" class="btn btn-success" [disabled]="loading" (click)="uploadTransactions()">Upload</button>
+    <button *ngIf="!transactionView" type="button" class="btn btn-success" [disabled]="loading" (click)="processTransactions()">Process Files</button>
     <button type="button" class="btn btn-secondary" [disabled]="loading" (click)="modal.dismiss('Cross click')">Close</button>
   </div>
 </ng-template>

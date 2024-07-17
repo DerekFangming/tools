@@ -3,9 +3,9 @@ export class SpendingAccount {
   name: string
   identifier: string
   icon: string
-  owner: string;
+  owner: string
 
   public constructor(init?:Partial<SpendingAccount>) {
-    Object.assign(this, init);
+    Object.assign(this, init)
   }
 }

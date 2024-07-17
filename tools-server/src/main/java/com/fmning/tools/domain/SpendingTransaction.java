@@ -7,6 +7,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.DynamicUpdate;
 
+import java.sql.Date;
+
 @Entity
 @Table(name="tl_spending_transactions")
 @DynamicUpdate
@@ -30,9 +32,6 @@ public class SpendingTransaction {
     @Column(name="name")
     private String name;
 
-    @Column(name="owner")
-    private String owner;
-
     @Column(name="amount")
     private String amount;
 
@@ -42,12 +41,7 @@ public class SpendingTransaction {
     @Column(name="location")
     private String location;
 
-    @Column(name="day")
-    private String day;
+    @Column(name="date")
+    private Date date;
 
-    @Column(name="month")
-    private String month;
-
-    @Column(name="year")
-    private String year;
 }
