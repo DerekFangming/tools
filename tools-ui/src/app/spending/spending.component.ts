@@ -20,6 +20,7 @@ export class SpendingComponent implements OnInit, AfterViewInit {
 
   tab = 'reports'
   transactionPage = 0
+  transactionTotal = 0
   transactionOrder = Order.DATE_ASC
   transactionFilter = {keyword: null, category: null}
   filteredTransactions: SpendingTransaction[] = []
@@ -164,13 +165,19 @@ export class SpendingComponent implements OnInit, AfterViewInit {
   }
 
   filterTransactions(keyword: string, category: string) {
-    this.transactionFilter.keyword = keyword != null && keyword.length > 2 ? keyword : null
-    this.transactionFilter.category = category
-    this.filterAndPageTransactions(this.transactionPage, this.transactionOrder)
+    keyword = keyword != null && keyword.length > 2 ? keyword : null
+    if (this.transactionFilter.keyword != keyword ||  this.transactionFilter.category != category) {
+      this.transactionFilter.keyword = keyword
+      this.transactionFilter.category = category
+      this.filterAndPageTransactions(this.transactionPage, this.transactionOrder)
+    }
   }
 
   filterAndPageTransactions(page: number, order: Order) {
     let transactions = this.transactions.slice()
+
+    if (this.transactionFilter.keyword != null) transactions = transactions.filter(t => t.name.toLocaleLowerCase().includes(this.transactionFilter.keyword))
+    if (this.transactionFilter.category != null) transactions = transactions.filter(t => t.category == this.transactionFilter.category)
 
     if (order != null) {
       this.transactionOrder = order
@@ -185,6 +192,7 @@ export class SpendingComponent implements OnInit, AfterViewInit {
     else if (page > maxPage - 1) page = maxPage - 1
     this.transactionPage = page
 
+    this.transactionTotal = transactions.length
     this.filteredTransactions = transactions.slice(page*20, (page+1)*20)
   }
 
