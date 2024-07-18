@@ -61,7 +61,7 @@ create table tl_spending_accounts (
 create table tl_spending_transactions (
     id serial primary key,
     account_id integer references tl_spending_accounts,
-    identifier text,
+    identifier text UNIQUE not null,
 	name text,
 	amount text,
 	category text,

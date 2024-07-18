@@ -131,7 +131,6 @@ export class SpendingComponent implements OnInit {
       let matrix = this.csvToArray(value)
       if (format == null) {
         format = matrix[0][0]
-        console.log('Processing "' + key + '"')
       } else {
         if (format != matrix[0][0]) {
           this.notifierService.notify('error', 'Invalid file format for "' + key + '", format column ' + matrix[0][0] + 'is different than ' + format)
@@ -140,7 +139,7 @@ export class SpendingComponent implements OnInit {
       }
       
       if (format == 'Date') {
-        console.log('Processing as AMEX')
+        console.log(`Processing "${key}" as AMEX`)
         for (let i = 1; i < matrix.length; i ++) {
           let row = matrix[i]
           if (row[2].startsWith('-')) {
@@ -156,7 +155,7 @@ export class SpendingComponent implements OnInit {
           this.transactions.push(this.processTransaction(transaction))
         }
       } else if (format == 'Transaction Date') {
-        console.log('Processing as Chase')
+        console.log(`Processing "${key}" as Chase`)
         for (let i = 1; i < matrix.length; i ++) {
           let row = matrix[i]
           if (row.length <= 1 || !row[5].startsWith('-')) {
@@ -166,13 +165,17 @@ export class SpendingComponent implements OnInit {
 
           let transaction = new SpendingTransaction({accountId: this.selectedAccount.id, name: row[2],
             amount: row[5].substring(1), category: row[3], date: row[0]})
-          if (transaction.category == 'Health & Wellness') transaction.category = 'Health'
-          if (transaction.category == 'Food & Drink') transaction.category = 'Restaurant'
-          if (transaction.name.startsWith('COSTCO')) transaction.category = 'Grocery'
+          let name = transaction.name.toLocaleLowerCase()
+          if (name.includes('costco')) transaction.category = 'Grocery'
+          else if (name.includes('spotify') || name.includes('netflix') || name.includes('github') || name.includes('tesla') || name.includes('godaddy')) transaction.category = 'Subscription'
+          else if (name.includes('dps')) transaction.category = 'Government'
+          else if (name.includes('txtag')) transaction.category = 'Transportation'
+          else if (name.includes('vzwrlss')) transaction.category = 'Utility'
+          else if (name.includes('amazon')) transaction.category = 'Shopping'
           this.transactions.push(this.processTransaction(transaction))
         }
       } else if (format == 'Posted Date') {
-        console.log('Processing as BOA')
+        console.log(`Processing "${key}" as BOA`)
         for (let i = 1; i < matrix.length; i ++) {
           let row = matrix[i]
           if (row.length <= 1 || !row[4].startsWith('-')) {
@@ -208,7 +211,7 @@ export class SpendingComponent implements OnInit {
   }
 
   categories = ['Transportation', 'Government', 'Utility', 'Subscription', 'Real Estate', 'Restaurant', 'Entertainment', 'Shopping',
-    'Grocery', 'Healthcare']
+    'Grocery', 'Healthcare', 'Travel']
 
   nameMap = new Map([
     ['txtag', 'Transportation'],
@@ -216,7 +219,7 @@ export class SpendingComponent implements OnInit {
     ['76 - ', 'Transportation'],
     ['texaco', 'Transportation'],
     ['7-eleven', 'Transportation'],
-    ['sheraton', 'Transportation'],
+    ['sheraton', 'Travel'],
     ['vehreg', 'Government'],
     ['tx.gov', 'Government'],
     ['tpwd', 'Government'],
@@ -224,6 +227,7 @@ export class SpendingComponent implements OnInit {
     ['bluebonnet', 'Utility'],
     ['city of austin', 'Utility'],
     ['godaddy', 'Subscription'],
+    ['apple.com', 'Subscription'],
     ['ring yearly plan', 'Subscription'],
     ['mesa rim', 'Subscription'],
     ['ownwell', 'Real Estate'],
@@ -249,6 +253,16 @@ export class SpendingComponent implements OnInit {
     ['diagnostics', 'Healthcare'],
   ])
 
+  categoryMap = new Map([
+    ['Home', 'Shopping'],
+    ['Personal', 'Shopping'],
+    ['Health & Wellness', 'Healthcare'],
+    ['Food & Drink', 'Restaurant'],
+    ['Groceries', 'Grocery'],
+    ['Gas', 'Transportation'],
+    ['Automotive', 'Transportation'],
+  ])
+
   processTransaction(transaction: SpendingTransaction) {
     transaction.identifier = `${transaction.accountId}#${transaction.date}#${transaction.amount}`
     if (transaction.category == null){
@@ -258,9 +272,20 @@ export class SpendingComponent implements OnInit {
           break
         }
       }
+    } else {
+      for (const [key, value] of this.categoryMap.entries()) {
+        if (transaction.category == key) {
+          transaction.category = value
+          break
+        }
+      }
+      if (!this.categories.includes(transaction.category)) {
+        console.log(`${transaction.name} has category ${transaction.category}`)
+        transaction.category = null
+      }
     }
 
-    if (transaction.category == null) transaction.category = 'Unknown'
+    if (transaction.category == null) transaction.category = 'Other'
     return transaction
   }
 
