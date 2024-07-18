@@ -1,4 +1,4 @@
-import { Component, OnInit, TemplateRef, ViewChild } from '@angular/core'
+import { AfterViewInit, Component, Inject, OnInit, TemplateRef, ViewChild } from '@angular/core'
 import { SpendingAccount } from '../model/spending-account'
 import { NgbModal, NgbModalOptions, NgbModalRef } from '@ng-bootstrap/ng-bootstrap'
 import { HttpClient } from '@angular/common/http'
@@ -6,19 +6,23 @@ import { Title } from '@angular/platform-browser'
 import { environment } from '../../environments/environment'
 import { SpendingTransaction } from '../model/spending-transaction'
 import { NotifierService } from 'angular-notifier'
+import { DOCUMENT } from '@angular/common'
+import { Chart } from 'chart.js'
 
 @Component({
   selector: 'app-spending',
   templateUrl: './spending.component.html',
   styleUrls: ['./spending.component.css']
 })
-export class SpendingComponent implements OnInit {
+export class SpendingComponent implements OnInit, AfterViewInit {
 
   tab = 'reports'
   loading = false
   dragOver = false
   hasDuplicatedTransactions = false
   transactionView = false
+
+  monthlySpendingChart: any
 
   selectedAccount: SpendingAccount
   accountList: SpendingAccount[] = []
@@ -29,28 +33,34 @@ export class SpendingComponent implements OnInit {
   @ViewChild('accountModal', { static: true}) accountModal: TemplateRef<any>
   @ViewChild('transactionUploadModal', { static: true}) transactionUploadModal: TemplateRef<any>
 
-  constructor(private http: HttpClient, private title: Title, private modalService: NgbModal, private notifierService: NotifierService) {
+  constructor(private http: HttpClient, private title: Title, private modalService: NgbModal, private notifierService: NotifierService,
+    @Inject(DOCUMENT) private document) {
     this.title.setTitle('Spending')
   }
 
   ngOnInit() {
+    // this.showTab('reports')
+  }
+
+  ngAfterViewInit() {
     this.showTab('reports')
   }
 
   showTab(newTab: string) {
     this.tab = newTab
     if (newTab == 'reports') {
-      // this.loading = true
-      // this.transactions = []
-      // this.http.get<SpendingTransaction[]>(environment.urlPrefix + 'api/spending/transactions', {params:{
-      //   from: new Date(new Date().getFullYear() - 1, new Date().getMonth(), 1).toISOString().split('T')[0]
-      // }}).subscribe(res => {
-      //   this.transactions = res
-      //   this.loading = false
-      // }, error => {
-      //   this.loading = false
-      //   console.log(error.error)
-      // })
+      this.loading = true
+      this.transactions = []
+      this.http.get<SpendingTransaction[]>(environment.urlPrefix + 'api/spending/transactions', {params:{
+        from: new Date(new Date().getFullYear()-1, new Date().getMonth(), 1).toISOString().split('T')[0]
+      }}).subscribe(res => {
+        this.transactions = res.sort((a, b) => new Date(a.date) > new Date(b.date) ? 1 : -1)
+        this.loading = false
+        this.drawChart()
+      }, error => {
+        this.loading = false
+        console.log(error.error)
+      })
     } else if (newTab == 'manage') {
       this.loading = true
       this.http.get<SpendingAccount[]>(environment.urlPrefix + 'api/spending/accounts').subscribe(res => {
@@ -61,6 +71,85 @@ export class SpendingComponent implements OnInit {
         console.log(error.error)
       })
     }
+  }
+
+  drawChart() {
+    if (this.transactions.length == 0) return
+    let currentMonth = this.transactions[0].date.substring(0,7), currentInx = 0;
+    let data = [{label: currentMonth}]
+    this.transactions.forEach(t => {
+      let month = t.date.substring(0,7)
+      if (month != currentMonth) {
+        currentMonth = month
+        currentInx ++
+        data.push({label: currentMonth})
+      }
+      if (data[currentInx].hasOwnProperty(t.category)) {
+        data[currentInx][t.category] += parseFloat(t.amount)
+      } else {
+        data[currentInx][t.category] = parseFloat(t.amount)
+      }
+    })
+
+    console.log(data)
+    let a = ['Transportation', 'Government', 'Utility', 'Subscription', 'Real Estate', 'Restaurant', 'Entertainment', 'Shopping',
+    'Grocery', 'Healthcare', 'Travel']
+
+    let canvas: any = document.getElementById('monthlySpending')
+    this.monthlySpendingChart = new Chart(canvas.getContext('2d'), {
+      type: 'bar',
+      data: {
+        labels: data.map(d => d.label),
+        datasets: [{
+          data: data.map(d => d.hasOwnProperty('Grocery') ? d['Grocery'].toFixed(2) : 0),
+          backgroundColor: "#50c878", label: "Grocery",
+        }, {
+          data: data.map(d => d.hasOwnProperty('Shopping') ? d['Shopping'].toFixed(2) : 0),
+          backgroundColor: "#ff7373", label: "Shopping",
+        }, {
+          data: data.map(d => d.hasOwnProperty('Subscription') ? d['Subscription'].toFixed(2) : 0),
+          backgroundColor: "#36a2eb", label: "Subscription",
+        }, {
+          data: data.map(d => d.hasOwnProperty('Transportation') ? d['Transportation'].toFixed(2) : 0),
+          backgroundColor: "#ffa22e", label: "Transportation",
+        }, {
+          data: data.map(d => d.hasOwnProperty('Government') ? d['Government'].toFixed(2) : 0),
+          backgroundColor: "#c0c0c0", label: "Government",
+        }, {
+          data: data.map(d => d.hasOwnProperty('Utility') ? d['Utility'].toFixed(2) : 0),
+          backgroundColor: "#104624", label: "Utility",
+        }, {
+          data: data.map(d => d.hasOwnProperty('Real Estate') ? d['Real Estate'].toFixed(2) : 0),
+          backgroundColor: "#19454b", label: "Real Estate",
+        }, {
+          data: data.map(d => d.hasOwnProperty('Restaurant') ? d['Restaurant'].toFixed(2) : 0),
+          backgroundColor: "#f0953c", label: "Restaurant",
+        }, {
+          data: data.map(d => d.hasOwnProperty('Entertainment') ? d['Entertainment'].toFixed(2) : 0),
+          backgroundColor: "#8cbed6", label: "Entertainment",
+        }, {
+          data: data.map(d => d.hasOwnProperty('Healthcare') ? d['Healthcare'].toFixed(2) : 0),
+          backgroundColor: "#444eff", label: "Healthcare",
+        }, {
+          data: data.map(d => d.hasOwnProperty('Travel') ? d['Travel'].toFixed(2) : 0),
+          backgroundColor: "#885640", label: "Travel",
+        }]
+      },
+      options: {
+        interaction: {
+          intersect: false
+        },
+        maintainAspectRatio: false,
+        scales: {
+          xAxes: [{
+            stacked: true
+          }],
+          yAxes: [{
+            stacked: true
+          }]
+        }
+      }
+    })
   }
 
   showAccountModal(account: SpendingAccount) {
