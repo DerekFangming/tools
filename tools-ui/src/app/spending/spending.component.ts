@@ -34,12 +34,24 @@ export class SpendingComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.showTab('manage')
+    this.showTab('reports')
   }
 
   showTab(newTab: string) {
     this.tab = newTab
-    if (newTab == 'manage') {
+    if (newTab == 'reports') {
+      // this.loading = true
+      // this.transactions = []
+      // this.http.get<SpendingTransaction[]>(environment.urlPrefix + 'api/spending/transactions', {params:{
+      //   from: new Date(new Date().getFullYear() - 1, new Date().getMonth(), 1).toISOString().split('T')[0]
+      // }}).subscribe(res => {
+      //   this.transactions = res
+      //   this.loading = false
+      // }, error => {
+      //   this.loading = false
+      //   console.log(error.error)
+      // })
+    } else if (newTab == 'manage') {
       this.loading = true
       this.http.get<SpendingAccount[]>(environment.urlPrefix + 'api/spending/accounts').subscribe(res => {
         this.accountList = res.sort((a, b) => a.owner.localeCompare(b.owner))
@@ -113,7 +125,7 @@ export class SpendingComponent implements OnInit {
     }
 
     this.loading = true
-    this.http.post<any>(environment.urlPrefix + `api/spending/accounts/${this.selectedAccount.id}/transactions`, this.transactions).subscribe(res => {
+    this.http.post<any>(environment.urlPrefix + `api/spending/transactions`, this.transactions).subscribe(res => {
       this.loading = false
       this.modalRef.close()
     }, error => {

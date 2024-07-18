@@ -14,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.sql.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -64,15 +65,17 @@ public class SpendingController {
 
     @RequestMapping(value = "/transactions", method = RequestMethod.GET)
     @PreAuthorize("hasAnyAuthority('ADMIN', 'SPENDING')")
-    public List<SpendingTransaction> uploadTransactions() {
-        return StreamSupport
-                .stream(transactionRepo.findAll().spliterator(), false)
-                .toList();
+    public List<SpendingTransaction> getTransactions(@RequestParam(required=false) Date from) {
+        if (from == null) {
+            return transactionRepo.findAll();
+        } else {
+            return transactionRepo.findAllByDateAfter(from);
+        }
     }
 
-    @RequestMapping(value = "/accounts/{id}/transactions", method = RequestMethod.POST)
+    @RequestMapping(value = "/transactions", method = RequestMethod.POST)
     @PreAuthorize("hasAnyAuthority('ADMIN', 'SPENDING')")
-    public void uploadTransactions(@PathVariable int id, @RequestBody List<SpendingTransaction> transactions) {
+    public void uploadTransactions(@RequestBody List<SpendingTransaction> transactions) {
         try {
             transactionRepo.saveAll(transactions);
         } catch (DataIntegrityViolationException e) {
