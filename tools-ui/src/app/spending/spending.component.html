@@ -135,14 +135,32 @@
           <th scope="col">Date</th>
           <th scope="col">Amount</th>
           <th scope="col">Category</th>
+          <th scope="col">Action</th>
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let t of transactions;">
+        <tr *ngFor="let t of transactions; let i = index">
           <th scope="row">{{t.name}}</th>
           <td>{{t.date}}</td>
           <td>{{t.amount}}</td>
           <td [ngClass]="{'text-warning': t.category === 'Unknown'}">{{t.category}}</td>
+          <td>
+            <div class="row mx-0">
+              <div class="col-6 px-0">
+                <button type="button" class="btn btn btn-outline-danger" (click)="transactions.splice(i, 1)">
+                  <i class="fa fa-trash-o" aria-hidden="true"></i>
+                </button>
+              </div>
+              <div *ngIf="t.category === 'Unknown'" class="col-6 dropdown px-0">
+                <button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                  <i class="fa fa-chevron-down" aria-hidden="true"></i>
+                </button>
+                <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                  <a class="dropdown-item" *ngFor="let c of categories;" (click)="t.category = c">{{c}}</a>
+                </div>
+              </div>
+            </div>
+          </td>
         </tr>
       </tbody>
     </table>

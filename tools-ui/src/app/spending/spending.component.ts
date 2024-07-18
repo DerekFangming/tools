@@ -76,7 +76,7 @@ export class SpendingComponent implements OnInit {
     this.selectedAccount = account
     this.transactions = []
     this.transactionFiles = new Map<string, string>()
-    this.modalRef = this.modalService.open(this.transactionUploadModal,  { backdrop: 'static', keyboard: false, centered: true, size: 'lg' })
+    this.modalRef = this.modalService.open(this.transactionUploadModal,  { backdrop: 'static', keyboard: false, centered: true, size: 'lg'})
   }
 
   uploadTransactions() {
@@ -182,12 +182,6 @@ export class SpendingComponent implements OnInit {
 
           let transaction = new SpendingTransaction({accountId: this.selectedAccount.id, name: row[2],
             amount: row[4].substring(1), location: row[3], date: row[0]})
-          if (transaction.name.startsWith('TXTAG')) transaction.category = 'Transportation'
-          if (transaction.name.startsWith('Spectrum')) transaction.category = 'Utility'
-          if (transaction.name.startsWith('ALIPAY')) transaction.category = 'Shopping'
-          if (transaction.name.startsWith('BLUEBONNET')) transaction.category = 'Utility'
-          if (transaction.name.includes('GODADDY')) transaction.category = 'Subscription'
-          if (transaction.name.includes('OWNWELL')) transaction.category = 'Real Estate'
           this.transactions.push(this.processTransaction(transaction))
         }
       } else {
@@ -213,8 +207,59 @@ export class SpendingComponent implements OnInit {
     return ret
   }
 
+  categories = ['Transportation', 'Government', 'Utility', 'Subscription', 'Real Estate', 'Restaurant', 'Entertainment', 'Shopping',
+    'Grocery', 'Healthcare']
+
+  nameMap = new Map([
+    ['txtag', 'Transportation'],
+    ['uber', 'Transportation'],
+    ['76 - ', 'Transportation'],
+    ['texaco', 'Transportation'],
+    ['7-eleven', 'Transportation'],
+    ['sheraton', 'Transportation'],
+    ['vehreg', 'Government'],
+    ['tx.gov', 'Government'],
+    ['tpwd', 'Government'],
+    ['spectrum', 'Utility'],
+    ['bluebonnet', 'Utility'],
+    ['city of austin', 'Utility'],
+    ['godaddy', 'Subscription'],
+    ['ring yearly plan', 'Subscription'],
+    ['mesa rim', 'Subscription'],
+    ['ownwell', 'Real Estate'],
+    ['frozen custard', 'Restaurant'],
+    ['kitchen', 'Restaurant'],
+    ['fooda', 'Restaurant'],
+    ['bakery', 'Restaurant'],
+    ['chicken', 'Restaurant'],
+    ['seatgeek', 'Entertainment'],
+    ['electronic arts', 'Entertainment'],
+    ['chanel.com', 'Shopping'],
+    ['gucci', 'Shopping'],
+    ['bakerty', 'Shopping'],
+    ['alipay', 'Shopping'],
+    ['aliexpress', 'Shopping'],
+    ['home depot', 'Shopping'],
+    ['homedepot', 'Shopping'],
+    ['paypal', 'Shopping'],
+    ['ebay', 'Shopping'],
+    ['costco', 'Grocery'],
+    ['pharmacy', 'Healthcare'],
+    ['dermatology', 'Healthcare'],
+    ['diagnostics', 'Healthcare'],
+  ])
+
   processTransaction(transaction: SpendingTransaction) {
     transaction.identifier = `${transaction.accountId}#${transaction.date}#${transaction.amount}`
+    if (transaction.category == null){
+      for (const [key, value] of this.nameMap.entries()) {
+        if (transaction.name.toLocaleLowerCase().includes(key)) {
+          transaction.category = value
+          break
+        }
+      }
+    }
+
     if (transaction.category == null) transaction.category = 'Unknown'
     return transaction
   }
