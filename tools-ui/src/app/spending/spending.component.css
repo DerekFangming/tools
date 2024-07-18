@@ -5,3 +5,9 @@
 .dotted-border {
   border-style: dashed;
 }
+
+.account-title {
+  font-weight: 500;
+  overflow: hidden;
+  white-space: nowrap;
+}

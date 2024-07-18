@@ -39,7 +39,7 @@
       <div class="card mt-4">
         <img class="card-img-top img-preview" src="{{account.icon}}">
         <div class="card-body">
-          <p class="lead" style="font-weight: 500;">{{account.name}}</p>
+          <p class="lead account-title">{{account.name}}</p>
           <p class="card-text mb-0"><i class="fa fa-credit-card mr-1" aria-hidden="true"></i>**** {{account.identifier}}</p>
           <p class="card-text"><i class="fa fa-user-circle-o mr-2" aria-hidden="true"></i>{{account.owner}}</p>
         </div>
@@ -139,7 +139,7 @@
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let t of transactions; let i = index">
+        <tr *ngFor="let t of transactions; let i = index" [ngClass]="{'bg-danger': t.error}">
           <th scope="row">{{t.name}}</th>
           <td>{{t.date}}</td>
           <td>{{t.amount}}</td>
@@ -147,7 +147,7 @@
           <td>
             <div class="row mx-0">
               <div class="col-6 px-0">
-                <button type="button" class="btn btn btn-outline-danger" (click)="transactions.splice(i, 1)">
+                <button type="button" class="btn btn btn-outline-danger" (click)="transactions.splice(i, 1)" [ngClass]="{'text-white': t.error}">
                   <i class="fa fa-trash-o" aria-hidden="true"></i>
                 </button>
               </div>
@@ -166,6 +166,7 @@
     </table>
   </div>
   <div class="modal-footer">
+    <button *ngIf="hasDuplicatedTransactions" type="button" class="btn btn-warning" [disabled]="loading" (click)="forceDedupTransactions()">Dedup</button>
     <button *ngIf="transactionView" type="button" class="btn btn-success" [disabled]="loading" (click)="uploadTransactions()">Upload</button>
     <button *ngIf="!transactionView" type="button" class="btn btn-success" [disabled]="loading" (click)="processTransactions()">Process Files</button>
     <button type="button" class="btn btn-secondary" [disabled]="loading" (click)="modal.dismiss('Cross click')">Close</button>

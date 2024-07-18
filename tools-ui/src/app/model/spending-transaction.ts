@@ -8,6 +8,8 @@ export class SpendingTransaction {
   location: string
   date: string
 
+  error: boolean
+
   public constructor(init?:Partial<SpendingTransaction>) {
     Object.assign(this, init)
   }

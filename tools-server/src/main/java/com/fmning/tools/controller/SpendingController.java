@@ -1,15 +1,23 @@
 package com.fmning.tools.controller;
 
+import com.fmning.tools.ToolsExceptionHandler;
 import com.fmning.tools.domain.SpendingAccount;
+import com.fmning.tools.domain.SpendingTransaction;
 import com.fmning.tools.repository.SpendingAccountRepo;
 import com.fmning.tools.repository.SpendingTransactionRepo;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.apachecommons.CommonsLog;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.StreamSupport;
 
 @CommonsLog
@@ -52,6 +60,31 @@ public class SpendingController {
     @PreAuthorize("hasAnyAuthority('ADMIN', 'SPENDING')")
     public void deleteAccount(@PathVariable int id) {
         accountRepo.deleteById(id);
+    }
+
+    @RequestMapping(value = "/transactions", method = RequestMethod.GET)
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'SPENDING')")
+    public List<SpendingTransaction> uploadTransactions() {
+        return StreamSupport
+                .stream(transactionRepo.findAll().spliterator(), false)
+                .toList();
+    }
+
+    @RequestMapping(value = "/accounts/{id}/transactions", method = RequestMethod.POST)
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'SPENDING')")
+    public void uploadTransactions(@PathVariable int id, @RequestBody List<SpendingTransaction> transactions) {
+        try {
+            transactionRepo.saveAll(transactions);
+        } catch (DataIntegrityViolationException e) {
+            if (!e.getMessage().contains("tl_spending_transactions_identifier_key")) throw e;
+
+            Pattern p = Pattern.compile("\\(identifier\\)=\\((.*?)\\)");
+            Matcher m = p.matcher(e.getMessage());
+            if (m.find()) {
+                throw new IllegalArgumentException(m.group(1));
+            }
+            throw e;
+        }
     }
 
 }
