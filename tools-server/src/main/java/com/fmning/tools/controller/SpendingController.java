@@ -1,6 +1,5 @@
 package com.fmning.tools.controller;
 
-import com.fmning.tools.ToolsExceptionHandler;
 import com.fmning.tools.domain.SpendingAccount;
 import com.fmning.tools.domain.SpendingTransaction;
 import com.fmning.tools.repository.SpendingAccountRepo;
@@ -9,17 +8,13 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.apachecommons.CommonsLog;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.sql.Date;
 import java.util.List;
-import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.StreamSupport;
 
 @CommonsLog
 @RestController
@@ -33,9 +28,7 @@ public class SpendingController {
     @RequestMapping(value = "/accounts", method = RequestMethod.GET)
     @PreAuthorize("hasAnyAuthority('ADMIN', 'SPENDING')")
     public List<SpendingAccount> getAccounts() {
-        return StreamSupport
-                .stream(accountRepo.findAll().spliterator(), false)
-                .toList();
+        return accountRepo.findAll();
     }
 
     @RequestMapping(value = "/accounts", method = RequestMethod.POST)

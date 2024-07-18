@@ -1,6 +1,6 @@
 import { AfterViewInit, Component, Inject, OnInit, TemplateRef, ViewChild } from '@angular/core'
 import { SpendingAccount } from '../model/spending-account'
-import { NgbModal, NgbModalOptions, NgbModalRef } from '@ng-bootstrap/ng-bootstrap'
+import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap'
 import { HttpClient } from '@angular/common/http'
 import { Title } from '@angular/platform-browser'
 import { environment } from '../../environments/environment'
@@ -8,6 +8,8 @@ import { SpendingTransaction } from '../model/spending-transaction'
 import { NotifierService } from 'angular-notifier'
 import { DOCUMENT } from '@angular/common'
 import { Chart } from 'chart.js'
+
+enum Order { DATE_ASC='DATE_ASC', DATE_DESC='DATE_DESC', AMOUNT_ASC='AMOUNT_ASC', AMOUNT_DESC='AMOUNT_DESC' }
 
 @Component({
   selector: 'app-spending',
@@ -17,6 +19,10 @@ import { Chart } from 'chart.js'
 export class SpendingComponent implements OnInit, AfterViewInit {
 
   tab = 'reports'
+  transactionPage = 0
+  transactionOrder = Order.DATE_ASC
+  transactionFilter = {keyword: null, category: null}
+  filteredTransactions: SpendingTransaction[] = []
   loading = false
   dragOver = false
   hasDuplicatedTransactions = false
@@ -27,20 +33,22 @@ export class SpendingComponent implements OnInit, AfterViewInit {
   selectedAccount: SpendingAccount
   accountList: SpendingAccount[] = []
   transactionFiles = new Map<string, string>()
+  selectedTransaction: SpendingTransaction
   transactions: SpendingTransaction[] = []
 
   modalRef: NgbModalRef
   @ViewChild('accountModal', { static: true}) accountModal: TemplateRef<any>
+  @ViewChild('transactionModal', { static: true}) transactionModal: TemplateRef<any>
   @ViewChild('transactionUploadModal', { static: true}) transactionUploadModal: TemplateRef<any>
+
+  categories = ['Transportation', 'Government', 'Utility', 'Subscription', 'Real Estate', 'Restaurant', 'Entertainment', 'Shopping', 'Grocery', 'Healthcare', 'Travel']
 
   constructor(private http: HttpClient, private title: Title, private modalService: NgbModal, private notifierService: NotifierService,
     @Inject(DOCUMENT) private document) {
     this.title.setTitle('Spending')
   }
 
-  ngOnInit() {
-    // this.showTab('reports')
-  }
+  ngOnInit() { }
 
   ngAfterViewInit() {
     this.showTab('reports')
@@ -56,9 +64,16 @@ export class SpendingComponent implements OnInit, AfterViewInit {
       }}).subscribe(res => {
         this.transactions = res.sort((a, b) => new Date(a.date) > new Date(b.date) ? 1 : -1)
         this.loading = false
+        this.filterAndPageTransactions(0, Order.DATE_ASC)
         this.drawChart()
       }, error => {
         this.loading = false
+        console.log(error.error)
+      })
+
+      this.http.get<SpendingAccount[]>(environment.urlPrefix + 'api/spending/accounts').subscribe(res => {
+        this.accountList = res
+      }, error => {
         console.log(error.error)
       })
     } else if (newTab == 'manage') {
@@ -90,10 +105,6 @@ export class SpendingComponent implements OnInit, AfterViewInit {
         data[currentInx][t.category] = parseFloat(t.amount)
       }
     })
-
-    console.log(data)
-    let a = ['Transportation', 'Government', 'Utility', 'Subscription', 'Real Estate', 'Restaurant', 'Entertainment', 'Shopping',
-    'Grocery', 'Healthcare', 'Travel']
 
     let canvas: any = document.getElementById('monthlySpending')
     this.monthlySpendingChart = new Chart(canvas.getContext('2d'), {
@@ -150,6 +161,43 @@ export class SpendingComponent implements OnInit, AfterViewInit {
         }
       }
     })
+  }
+
+  filterTransactions(keyword: string, category: string) {
+    this.transactionFilter.keyword = keyword != null && keyword.length > 2 ? keyword : null
+    this.transactionFilter.category = category
+    this.filterAndPageTransactions(this.transactionPage, this.transactionOrder)
+  }
+
+  filterAndPageTransactions(page: number, order: Order) {
+    let transactions = this.transactions.slice()
+
+    if (order != null) {
+      this.transactionOrder = order
+      if (order == Order.DATE_ASC) transactions = transactions.sort((a, b) => new Date(a.date) > new Date(b.date) ? 1 : -1)
+      else if (order == Order.DATE_DESC) transactions = transactions.sort((a, b) => new Date(a.date) < new Date(b.date) ? 1 : -1)
+      else if (order == Order.AMOUNT_ASC) transactions = transactions.sort((a, b) => parseFloat(a.amount) - parseFloat(b.amount))
+      else if (order == Order.AMOUNT_DESC) transactions = transactions.sort((a, b) => parseFloat(b.amount) - parseFloat(a.amount))
+    }
+
+    let maxPage =  Math.ceil(transactions.length / 20)
+    if (page < 0) page = 0
+    else if (page > maxPage - 1) page = maxPage - 1
+    this.transactionPage = page
+
+    this.filteredTransactions = transactions.slice(page*20, (page+1)*20)
+  }
+
+  showTransactionModal(transaction: SpendingTransaction) {
+    let accounts = this.accountList.filter(a => a.id == transaction.accountId)
+    if (accounts.length > 0) this.selectedAccount = accounts[0]
+    else this.selectedAccount = new SpendingAccount({name: 'Unknown', identifier: '0000', owner: 'Unknown', icon: 'https://img.icons8.com/ios/500/credit-card-front.png'})
+    this.selectedTransaction = transaction
+    this.modalRef = this.modalService.open(this.transactionModal, { backdrop: 'static', keyboard: false, centered: true, size: 'lg' })
+  }
+
+  showTransactionPage(page: number) {
+    console.log(page)
   }
 
   showAccountModal(account: SpendingAccount) {
@@ -355,9 +403,6 @@ export class SpendingComponent implements OnInit, AfterViewInit {
     }
     return ret
   }
-
-  categories = ['Transportation', 'Government', 'Utility', 'Subscription', 'Real Estate', 'Restaurant', 'Entertainment', 'Shopping',
-    'Grocery', 'Healthcare', 'Travel']
 
   nameMap = new Map([
     ['txtag', 'Transportation'],
