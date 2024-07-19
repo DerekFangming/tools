@@ -32,6 +32,9 @@ public class SpendingTransaction {
     @Column(name="name")
     private String name;
 
+    @Column(name="original_name")
+    private String originalName;
+
     @Column(name="amount")
     private String amount;
 

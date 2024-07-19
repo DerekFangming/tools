@@ -8,6 +8,7 @@ import { SpendingTransaction } from '../model/spending-transaction'
 import { NotifierService } from 'angular-notifier'
 import { DOCUMENT } from '@angular/common'
 import { Chart } from 'chart.js'
+import { UtilsService, transactionCategories } from '../utils.service'
 
 enum Order { DATE_ASC='DATE_ASC', DATE_DESC='DATE_DESC', AMOUNT_ASC='AMOUNT_ASC', AMOUNT_DESC='AMOUNT_DESC' }
 
@@ -30,6 +31,7 @@ export class SpendingComponent implements OnInit, AfterViewInit {
   transactionView = false
 
   monthlySpendingChart: any
+  topSpendingChart: any
 
   selectedAccount: SpendingAccount
   accountList: SpendingAccount[] = []
@@ -42,11 +44,12 @@ export class SpendingComponent implements OnInit, AfterViewInit {
   @ViewChild('transactionModal', { static: true}) transactionModal: TemplateRef<any>
   @ViewChild('transactionUploadModal', { static: true}) transactionUploadModal: TemplateRef<any>
 
-  categories = ['Transportation', 'Government', 'Utility', 'Subscription', 'Real Estate', 'Restaurant', 'Entertainment', 'Shopping', 'Grocery', 'Healthcare', 'Travel']
+  categories = []
 
   constructor(private http: HttpClient, private title: Title, private modalService: NgbModal, private notifierService: NotifierService,
-    @Inject(DOCUMENT) private document) {
+    @Inject(DOCUMENT) private document, public utils: UtilsService) {
     this.title.setTitle('Spending')
+    this.categories = transactionCategories
   }
 
   ngOnInit() { }
@@ -61,7 +64,7 @@ export class SpendingComponent implements OnInit, AfterViewInit {
       this.loading = true
       this.transactions = []
       this.http.get<SpendingTransaction[]>(environment.urlPrefix + 'api/spending/transactions', {params:{
-        from: new Date(new Date().getFullYear()-1, new Date().getMonth(), 1).toISOString().split('T')[0]
+        from: new Date(new Date().getFullYear()-2, new Date().getMonth(), 1).toISOString().split('T')[0]
       }}).subscribe(res => {
         this.transactions = res.sort((a, b) => new Date(a.date) > new Date(b.date) ? 1 : -1)
         this.loading = false
@@ -91,59 +94,66 @@ export class SpendingComponent implements OnInit, AfterViewInit {
 
   drawChart() {
     if (this.transactions.length == 0) return
-    let currentMonth = this.transactions[0].date.substring(0,7), currentInx = 0;
-    let data = [{label: currentMonth}]
+    let currentMonth = this.transactions[0].date.substring(0,7), currentInx = 0
+    let spendingByMerchant = new Map<string, any>()
+    let monthlySpendingData = [{label: currentMonth}]
     this.transactions.forEach(t => {
+      if (spendingByMerchant.has(t.name)) {
+        spendingByMerchant.get(t.name).count ++
+        spendingByMerchant.get(t.name).amount += parseFloat(t.amount)
+      } else {
+        spendingByMerchant.set(t.name, {label: t.name, count: 1, amount: parseFloat(t.amount)})
+      }
       let month = t.date.substring(0,7)
       if (month != currentMonth) {
         currentMonth = month
         currentInx ++
-        data.push({label: currentMonth})
+        monthlySpendingData.push({label: currentMonth})
       }
-      if (data[currentInx].hasOwnProperty(t.category)) {
-        data[currentInx][t.category] += parseFloat(t.amount)
+      if (monthlySpendingData[currentInx].hasOwnProperty(t.category)) {
+        monthlySpendingData[currentInx][t.category] += parseFloat(t.amount)
       } else {
-        data[currentInx][t.category] = parseFloat(t.amount)
+        monthlySpendingData[currentInx][t.category] = parseFloat(t.amount)
       }
     })
 
-    let canvas: any = document.getElementById('monthlySpending')
-    this.monthlySpendingChart = new Chart(canvas.getContext('2d'), {
+    let monthlySpendingCanvas: any = document.getElementById('monthlySpending')
+    this.monthlySpendingChart = new Chart(monthlySpendingCanvas.getContext('2d'), {
       type: 'bar',
       data: {
-        labels: data.map(d => d.label),
+        labels: monthlySpendingData.map(d => d.label),
         datasets: [{
-          data: data.map(d => d.hasOwnProperty('Grocery') ? d['Grocery'].toFixed(2) : 0),
+          data: monthlySpendingData.map(d => d.hasOwnProperty('Grocery') ? d['Grocery'].toFixed(2) : 0),
           backgroundColor: "#50c878", label: "Grocery",
         }, {
-          data: data.map(d => d.hasOwnProperty('Shopping') ? d['Shopping'].toFixed(2) : 0),
+          data: monthlySpendingData.map(d => d.hasOwnProperty('Shopping') ? d['Shopping'].toFixed(2) : 0),
           backgroundColor: "#ff7373", label: "Shopping",
         }, {
-          data: data.map(d => d.hasOwnProperty('Subscription') ? d['Subscription'].toFixed(2) : 0),
+          data: monthlySpendingData.map(d => d.hasOwnProperty('Subscription') ? d['Subscription'].toFixed(2) : 0),
           backgroundColor: "#36a2eb", label: "Subscription",
         }, {
-          data: data.map(d => d.hasOwnProperty('Transportation') ? d['Transportation'].toFixed(2) : 0),
+          data: monthlySpendingData.map(d => d.hasOwnProperty('Transportation') ? d['Transportation'].toFixed(2) : 0),
           backgroundColor: "#ffa22e", label: "Transportation",
         }, {
-          data: data.map(d => d.hasOwnProperty('Government') ? d['Government'].toFixed(2) : 0),
+          data: monthlySpendingData.map(d => d.hasOwnProperty('Government') ? d['Government'].toFixed(2) : 0),
           backgroundColor: "#c0c0c0", label: "Government",
         }, {
-          data: data.map(d => d.hasOwnProperty('Utility') ? d['Utility'].toFixed(2) : 0),
+          data: monthlySpendingData.map(d => d.hasOwnProperty('Utility') ? d['Utility'].toFixed(2) : 0),
           backgroundColor: "#104624", label: "Utility",
         }, {
-          data: data.map(d => d.hasOwnProperty('Real Estate') ? d['Real Estate'].toFixed(2) : 0),
-          backgroundColor: "#19454b", label: "Real Estate",
+          data: monthlySpendingData.map(d => d.hasOwnProperty('Real Estate') ? d['Real Estate'].toFixed(2) : 0),
+          backgroundColor: "#ff80ed", label: "Real Estate",
         }, {
-          data: data.map(d => d.hasOwnProperty('Restaurant') ? d['Restaurant'].toFixed(2) : 0),
-          backgroundColor: "#f0953c", label: "Restaurant",
+          data: monthlySpendingData.map(d => d.hasOwnProperty('Restaurant') ? d['Restaurant'].toFixed(2) : 0),
+          backgroundColor: "#ffd700", label: "Restaurant",
         }, {
-          data: data.map(d => d.hasOwnProperty('Entertainment') ? d['Entertainment'].toFixed(2) : 0),
-          backgroundColor: "#8cbed6", label: "Entertainment",
+          data: monthlySpendingData.map(d => d.hasOwnProperty('Entertainment') ? d['Entertainment'].toFixed(2) : 0),
+          backgroundColor: "#cc0000", label: "Entertainment",
         }, {
-          data: data.map(d => d.hasOwnProperty('Healthcare') ? d['Healthcare'].toFixed(2) : 0),
+          data: monthlySpendingData.map(d => d.hasOwnProperty('Healthcare') ? d['Healthcare'].toFixed(2) : 0),
           backgroundColor: "#444eff", label: "Healthcare",
         }, {
-          data: data.map(d => d.hasOwnProperty('Travel') ? d['Travel'].toFixed(2) : 0),
+          data: monthlySpendingData.map(d => d.hasOwnProperty('Travel') ? d['Travel'].toFixed(2) : 0),
           backgroundColor: "#885640", label: "Travel",
         }]
       },
@@ -159,13 +169,49 @@ export class SpendingComponent implements OnInit, AfterViewInit {
           yAxes: [{
             stacked: true
           }]
+        },
+        title: {
+          display: true,
+          text: 'Monthly Spending Chart'
+        }
+      }
+    })
+
+    let topSpendingData = Array.from( spendingByMerchant.values()).sort((a, b) => b.amount - a.amount).slice(0, 20)
+
+    let topSpendingCanvas: any = document.getElementById('topSpending')
+    this.topSpendingChart = new Chart(topSpendingCanvas.getContext('2d'), {
+      type: 'bar',
+      data: {
+        labels: topSpendingData.map(d => d.label),
+        datasets: [{
+          data: topSpendingData.map(d => d.amount.toFixed(2)),
+          backgroundColor: '#50c878',
+          label: 'Total Amount'
+        }]
+      },
+      options: {
+        interaction: {
+          intersect: false
+        },
+        maintainAspectRatio: false,
+        tooltips: {
+          callbacks: {
+            label: function(tooltipItem, data) {
+                return `Spent $${data.datasets[0].data[tooltipItem.index]} on ${topSpendingData[tooltipItem.index].count} transactions`
+            }
+          }
+        },
+        title: {
+          display: true,
+          text: 'Top Spending Chart'
         }
       }
     })
   }
 
   filterTransactions(keyword: string, category: string) {
-    keyword = keyword != null && keyword.length > 2 ? keyword : null
+    keyword = keyword != null && keyword.length > 2 ? keyword.toLowerCase() : null
     if (this.transactionFilter.keyword != keyword ||  this.transactionFilter.category != category) {
       this.transactionFilter.keyword = keyword
       this.transactionFilter.category = category
@@ -202,10 +248,6 @@ export class SpendingComponent implements OnInit, AfterViewInit {
     else this.selectedAccount = new SpendingAccount({name: 'Unknown', identifier: '0000', owner: 'Unknown', icon: 'https://img.icons8.com/ios/500/credit-card-front.png'})
     this.selectedTransaction = transaction
     this.modalRef = this.modalService.open(this.transactionModal, { backdrop: 'static', keyboard: false, centered: true, size: 'lg' })
-  }
-
-  showTransactionPage(page: number) {
-    console.log(page)
   }
 
   showAccountModal(account: SpendingAccount) {
@@ -351,10 +393,7 @@ export class SpendingComponent implements OnInit, AfterViewInit {
 
           let transaction = new SpendingTransaction({accountId: this.selectedAccount.id, name: row[1], amount: row[2],
             category: row[10], location: `${row[5]} ${row[6]}, ${row[8]}`, date: row[0]})
-          if (transaction.category == 'Merchandise & Supplies-Groceries') transaction.category = 'Grocery'
-          if (transaction.name.startsWith('H-E-B')) transaction.name = 'H-E-B'
-          if (transaction.location.includes('\n')) transaction.location = transaction.location.split('\n').join(', ')
-          this.transactions.push(this.processTransaction(transaction))
+          this.transactions.push(this.utils.processTransaction(transaction, 'AMEX'))
         }
       } else if (format == 'Transaction Date') {
         console.log(`Processing "${key}" as Chase`)
@@ -367,14 +406,7 @@ export class SpendingComponent implements OnInit, AfterViewInit {
 
           let transaction = new SpendingTransaction({accountId: this.selectedAccount.id, name: row[2],
             amount: row[5].substring(1), category: row[3], date: row[0]})
-          let name = transaction.name.toLocaleLowerCase()
-          if (name.includes('costco')) transaction.category = 'Grocery'
-          else if (name.includes('spotify') || name.includes('netflix') || name.includes('github') || name.includes('tesla') || name.includes('godaddy')) transaction.category = 'Subscription'
-          else if (name.includes('dps')) transaction.category = 'Government'
-          else if (name.includes('txtag')) transaction.category = 'Transportation'
-          else if (name.includes('vzwrlss')) transaction.category = 'Utility'
-          else if (name.includes('amazon')) transaction.category = 'Shopping'
-          this.transactions.push(this.processTransaction(transaction))
+          this.transactions.push(this.utils.processTransaction(transaction, 'Chase'))
         }
       } else if (format == 'Posted Date') {
         console.log(`Processing "${key}" as BOA`)
@@ -387,7 +419,7 @@ export class SpendingComponent implements OnInit, AfterViewInit {
 
           let transaction = new SpendingTransaction({accountId: this.selectedAccount.id, name: row[2],
             amount: row[4].substring(1), location: row[3], date: row[0]})
-          this.transactions.push(this.processTransaction(transaction))
+          this.transactions.push(this.utils.processTransaction(transaction, 'BOA'))
         }
       } else {
         console.log("not processed: " + format)
@@ -410,83 +442,6 @@ export class SpendingComponent implements OnInit, AfterViewInit {
         p = l
     }
     return ret
-  }
-
-  nameMap = new Map([
-    ['txtag', 'Transportation'],
-    ['uber', 'Transportation'],
-    ['76 - ', 'Transportation'],
-    ['texaco', 'Transportation'],
-    ['7-eleven', 'Transportation'],
-    ['sheraton', 'Travel'],
-    ['vehreg', 'Government'],
-    ['tx.gov', 'Government'],
-    ['tpwd', 'Government'],
-    ['spectrum', 'Utility'],
-    ['bluebonnet', 'Utility'],
-    ['city of austin', 'Utility'],
-    ['godaddy', 'Subscription'],
-    ['apple.com', 'Subscription'],
-    ['ring yearly plan', 'Subscription'],
-    ['mesa rim', 'Subscription'],
-    ['ownwell', 'Real Estate'],
-    ['frozen custard', 'Restaurant'],
-    ['kitchen', 'Restaurant'],
-    ['fooda', 'Restaurant'],
-    ['bakery', 'Restaurant'],
-    ['chicken', 'Restaurant'],
-    ['seatgeek', 'Entertainment'],
-    ['electronic arts', 'Entertainment'],
-    ['chanel.com', 'Shopping'],
-    ['gucci', 'Shopping'],
-    ['bakerty', 'Shopping'],
-    ['alipay', 'Shopping'],
-    ['aliexpress', 'Shopping'],
-    ['home depot', 'Shopping'],
-    ['homedepot', 'Shopping'],
-    ['paypal', 'Shopping'],
-    ['ebay', 'Shopping'],
-    ['costco', 'Grocery'],
-    ['pharmacy', 'Healthcare'],
-    ['dermatology', 'Healthcare'],
-    ['diagnostics', 'Healthcare'],
-  ])
-
-  categoryMap = new Map([
-    ['Home', 'Shopping'],
-    ['Personal', 'Shopping'],
-    ['Health & Wellness', 'Healthcare'],
-    ['Food & Drink', 'Restaurant'],
-    ['Groceries', 'Grocery'],
-    ['Gas', 'Transportation'],
-    ['Automotive', 'Transportation'],
-  ])
-
-  processTransaction(transaction: SpendingTransaction) {
-    transaction.date = new Date(transaction.date).toISOString().split('T')[0]
-    transaction.identifier = `${transaction.accountId}#${transaction.date}#${transaction.amount}`
-    if (transaction.category == null){
-      for (const [key, value] of this.nameMap.entries()) {
-        if (transaction.name.toLocaleLowerCase().includes(key)) {
-          transaction.category = value
-          break
-        }
-      }
-    } else {
-      for (const [key, value] of this.categoryMap.entries()) {
-        if (transaction.category == key) {
-          transaction.category = value
-          break
-        }
-      }
-      if (!this.categories.includes(transaction.category)) {
-        console.log(`${transaction.name} has category ${transaction.category}`)
-        transaction.category = null
-      }
-    }
-
-    if (transaction.category == null) transaction.category = 'Other'
-    return transaction
   }
 
 }

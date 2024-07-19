@@ -3,6 +3,7 @@ export class SpendingTransaction {
   accountId: number
   identifier: string
   name: string
+  originalName: string
   amount: string
   category: string
   location: string

@@ -63,6 +63,7 @@ create table tl_spending_transactions (
     account_id integer references tl_spending_accounts,
     identifier text UNIQUE not null,
 	name text,
+	original_name text,
 	amount text,
 	category text,
 	location text,
