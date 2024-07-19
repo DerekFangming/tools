@@ -177,7 +177,7 @@ export class SpendingComponent implements OnInit, AfterViewInit {
       }
     })
 
-    let topSpendingData = Array.from( spendingByMerchant.values()).sort((a, b) => b.amount - a.amount).slice(0, 20)
+    let topSpendingData = Array.from( spendingByMerchant.values()).sort((a, b) => b.amount - a.amount).slice(60, 80)
 
     let topSpendingCanvas: any = document.getElementById('topSpending')
     this.topSpendingChart = new Chart(topSpendingCanvas.getContext('2d'), {

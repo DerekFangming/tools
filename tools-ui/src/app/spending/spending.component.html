@@ -250,7 +250,7 @@
         <div class="card">
           <img class="card-img-top img-preview" src="{{selectedAccount.icon}}">
         </div>
-        <p class="lead account-title">{{selectedAccount.name}}</p>
+        <p class="lead account-title">{{selectedAccount.originalName ? selectedAccount.originalName : selectedAccount.name}}</p>
         <p class="card-text mb-0"><i class="fa fa-credit-card mr-1" aria-hidden="true"></i>**** {{selectedAccount.identifier}}</p>
         <p class="card-text"><i class="fa fa-user-circle-o mr-2" aria-hidden="true"></i>{{selectedAccount.owner}}</p>
       </div>
@@ -268,7 +268,7 @@
         <div class="row">
           <div class="col">
             <label><b>Name</b></label>
-            <p>{{selectedTransaction.name}}</p>
+            <p>{{selectedTransaction.originalName ? selectedTransaction.originalName : selectedTransaction.name}}</p>
           </div>
           <div class="col">
             <label><b>Amount</b></label>

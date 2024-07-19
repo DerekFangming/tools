@@ -116,26 +116,17 @@ export class UtilsService {
     else if (name.includes('academy sports')) this.updateTransactionName(transaction, 'Academy Sports')
     else if (name.includes('walgreens')) this.updateTransactionName(transaction, 'Walgreens')
     else if (name.includes('shell oil')) this.updateTransactionName(transaction, 'Shell Oil')
-
-      
-      
+    else if (name.includes('marriott')) this.updateTransactionName(transaction, 'Marriott')
+    else if (name.includes('burnet road animal')) this.updateTransactionName(transaction, 'Burnet Animal')
+    else if (name.includes('vehreg')) this.updateTransactionName(transaction, 'VehReg')
+    else if (name.includes('spirit airl')) this.updateTransactionName(transaction, 'Spirit Airl')
 
     return transaction
   }
 
   updateTransactionName(transaction: SpendingTransaction, newName: string) {
-    console.log('===========================================1')
-    console.log(transaction)
-    if (transaction.originalName == null) {
-      console.log('===========================================11')
-      transaction.originalName = transaction.name
-    } else {
-      console.log('===========================================12')
-      console.log(transaction.originalName)
-    }
+    if (transaction.originalName == null) transaction.originalName = transaction.name
     transaction.name = newName
-    console.log('===========================================2')
-    console.log(transaction)
   }
 
   processTransactionCategory(transaction: SpendingTransaction) {
