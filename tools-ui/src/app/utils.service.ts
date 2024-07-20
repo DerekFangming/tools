@@ -46,19 +46,22 @@ export class UtilsService {
       else if (name.includes('txtag')) transaction.category = 'Transportation'
       else if (name.includes('vzwrlss')) transaction.category = 'Utility'
       else if (name.includes('amazon')) transaction.category = 'Shopping'
-      
+
     } else if (bank == 'BOA') {
       if (name.includes('uber')) transaction.category = 'Travel'
+    } else if (bank == 'BOA checking') {
     }
+
+
 
     // Generic
     if (name.includes('&amp;')) this.updateTransactionName(transaction, transaction.name.replace(/&amp;/g, '&'))
     if (/(\+\d{1,2}\s)?\(?\d{3}\)?[\s.-]\d{3}[\s.-]\d{4}/.test(name)) this.updateTransactionName(transaction, transaction.name.replace(/(\+\d{1,2}\s)?\(?\d{3}\)?[\s.-]\d{3}[\s.-]\d{4}/g, ''))
-    
+
       // Specific
     if (name.includes('costco')) this.updateTransactionName(transaction, 'Costco')
     else if (name.includes('cvs')) this.updateTransactionName(transaction, 'CVS')
-    else if (name.includes('home') || name.includes('depot')) this.updateTransactionName(transaction, 'The Home Depot')
+    else if (name.includes('home') && name.includes('depot')) this.updateTransactionName(transaction, 'The Home Depot')
     else if (name.includes('aliexpress')) this.updateTransactionName(transaction, 'aliexpress')
     else if (name.includes('amazon')) this.updateTransactionName(transaction, 'Amazon')
     else if (name.includes('amzn mktp')) this.updateTransactionName(transaction, 'Amazon')
@@ -73,11 +76,12 @@ export class UtilsService {
     else if (name.includes('spectrum')) this.updateTransactionName(transaction, 'Spectrum')
     else if (name.includes('uber')) this.updateTransactionName(transaction, 'Uber')
     else if (name.includes('alipay')) this.updateTransactionName(transaction, 'Alipay')
-    else if (name.includes('godaddy')) this.updateTransactionName(transaction, 'Godaddy') 
+    else if (name.includes('godaddy')) this.updateTransactionName(transaction, 'Godaddy')
     else if (name.includes('bluebonnet')) this.updateTransactionName(transaction, 'Bluebonnet')
     else if (name.includes('mesa rim')) this.updateTransactionName(transaction, 'Mesa Rim')
     else if (name.includes('ebay')) this.updateTransactionName(transaction, 'eBay')
     else if (name.includes('paypal')) this.updateTransactionName(transaction, 'PayPal')
+    else if (name.includes('venmo')) this.updateTransactionName(transaction, 'Venmo')
     else if (name.includes('h-e-b')) this.updateTransactionName(transaction, 'H-E-B')
     else if (name.includes('99 ranch')) this.updateTransactionName(transaction, '99 Ranch')
     else if (name.includes('h mart')) this.updateTransactionName(transaction, 'H-Mart')
@@ -90,7 +94,7 @@ export class UtilsService {
     else if (name.includes('wal-mart')) this.updateTransactionName(transaction, 'Walmart')
     else if (name.includes('target')) this.updateTransactionName(transaction, 'Target')
     else if (name.includes('lowes')) this.updateTransactionName(transaction, 'Lowes')
-    else if (name.includes('expedia')) this.updateTransactionName(transaction, 'Expedia') 
+    else if (name.includes('expedia')) this.updateTransactionName(transaction, 'Expedia')
     else if (name.includes('starbucks')) this.updateTransactionName(transaction, 'Starbucks')
     else if (name.includes('united')) this.updateTransactionName(transaction, 'United')
     else if (name.includes('delta air')) this.updateTransactionName(transaction, 'Delta Air')
@@ -120,6 +124,18 @@ export class UtilsService {
     else if (name.includes('burnet road animal')) this.updateTransactionName(transaction, 'Burnet Animal')
     else if (name.includes('vehreg')) this.updateTransactionName(transaction, 'VehReg')
     else if (name.includes('spirit airl')) this.updateTransactionName(transaction, 'Spirit Airl')
+    else if (name.includes('zelle transfer') || name.includes('zelle pay')) this.updateTransactionName(transaction, 'Zelle Transfer')
+    else if (name.includes('pennymac')) this.updateTransactionName(transaction, 'PennyMac')
+    else if (name.includes('allstate')) this.updateTransactionName(transaction, 'Allstate')
+    else if (name.includes('city of austin')) this.updateTransactionName(transaction, 'City of Austin')
+    else if (name.includes('one gas')) this.updateTransactionName(transaction, 'One Gas')
+    else if (name.includes('diagnostic')) this.updateTransactionName(transaction, 'Quest Diagnostic')
+    else if (name.includes('bkofamerica atm')) this.updateTransactionName(transaction, 'BOA ATM')
+    else if (name.includes('bellingham')) this.updateTransactionName(transaction, 'Bellingham HOA')
+    else if (name.includes('atgpay online')) this.updateTransactionName(transaction, 'AtgPay HOA')
+
+
+
 
     return transaction
   }
@@ -155,7 +171,7 @@ export class UtilsService {
     if (transaction.category == null) transaction.category = 'Other'
     return transaction
   }
-  
+
 }
 
 const nameToCategory = new Map([
@@ -171,11 +187,16 @@ const nameToCategory = new Map([
   ['spectrum', 'Utility'],
   ['bluebonnet', 'Utility'],
   ['city of austin', 'Utility'],
+  ['allstate', 'Utility'],
+  ['one gas', 'Utility'],
   ['godaddy', 'Subscription'],
   ['apple', 'Subscription'],
   ['ring yearly plan', 'Subscription'],
   ['mesa rim', 'Subscription'],
   ['ownwell', 'Real Estate'],
+  ['pennymac', 'Real Estate'],
+  ['bellingham', 'Real Estate'],
+  ['atgpay', 'Real Estate'],
   ['frozen custard', 'Restaurant'],
   ['kitchen', 'Restaurant'],
   ['fooda', 'Restaurant'],
@@ -191,11 +212,15 @@ const nameToCategory = new Map([
   ['home depot', 'Shopping'],
   ['homedepot', 'Shopping'],
   ['paypal', 'Shopping'],
+  ['venmo', 'Shopping'],
   ['ebay', 'Shopping'],
+  ['zelle', 'Shopping'],
+  ['boa atm', 'Shopping'],
   ['costco', 'Grocery'],
+  ['h-e-b', 'Grocery'],
   ['pharmacy', 'Healthcare'],
   ['dermatology', 'Healthcare'],
-  ['diagnostics', 'Healthcare'],
+  ['diagnostic', 'Healthcare'],
 ])
 
 const categoryConvertion = new Map([
