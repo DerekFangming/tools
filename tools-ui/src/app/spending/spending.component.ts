@@ -1,4 +1,5 @@
 import { AfterViewInit, Component, Inject, OnInit, TemplateRef, ViewChild } from '@angular/core'
+import { Router } from '@angular/router'
 import { SpendingAccount } from '../model/spending-account'
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap'
 import { HttpClient } from '@angular/common/http'
@@ -47,7 +48,7 @@ export class SpendingComponent implements OnInit, AfterViewInit {
   categories = []
 
   constructor(private http: HttpClient, private title: Title, private modalService: NgbModal, private notifierService: NotifierService,
-    @Inject(DOCUMENT) private document, public utils: UtilsService) {
+    @Inject(DOCUMENT) private document, public utils: UtilsService, private router: Router) {
     this.title.setTitle('Spending')
     this.categories = transactionCategories
   }
@@ -55,7 +56,11 @@ export class SpendingComponent implements OnInit, AfterViewInit {
   ngOnInit() { }
 
   ngAfterViewInit() {
-    this.showTab('reports')
+    if (this.router.url == '/spending/manage') {
+      this.showTab('manage')
+    } else {
+      this.showTab('reports')
+    }
   }
 
   showTab(newTab: string) {
@@ -177,7 +182,7 @@ export class SpendingComponent implements OnInit, AfterViewInit {
       }
     })
 
-    let topSpendingData = Array.from( spendingByMerchant.values()).sort((a, b) => b.amount - a.amount).slice(60, 80)
+    let topSpendingData = Array.from( spendingByMerchant.values()).sort((a, b) => b.amount - a.amount).slice(0, 15)
 
     let topSpendingCanvas: any = document.getElementById('topSpending')
     this.topSpendingChart = new Chart(topSpendingCanvas.getContext('2d'), {
@@ -307,7 +312,7 @@ export class SpendingComponent implements OnInit, AfterViewInit {
     })
 
     if (this.hasDuplicatedTransactions) {
-      this.notifierService.notify('error', 'Found duplicated record, review before upload')
+      this.notifierService.notify('warning', 'Local check found duplicated record, review before upload')
       return
     }
 
@@ -361,7 +366,7 @@ export class SpendingComponent implements OnInit, AfterViewInit {
         var reader = new FileReader()
         reader.onload = (event) =>{
           var fileReader = event.target as FileReader
-          let csv = atob(fileReader.result.toString().replace('data:application/vnd.ms-excel;base64,', ''))
+          let csv = atob(fileReader.result.toString().replace('data:application/vnd.ms-excel;base64,', '').replace('data:text/csv;base64,', ''))
           this.transactionFiles.set(fileName, csv)
         }
         reader.readAsDataURL(file)
@@ -381,7 +386,7 @@ export class SpendingComponent implements OnInit, AfterViewInit {
           throw new Error('Invalid file format for "' + key + '", format column ' + matrix[0][0] + 'is different than ' + format)
         }
       }
-      
+
       if (format == 'Date') {
         console.log(`Processing "${key}" as AMEX`)
         for (let i = 1; i < matrix.length; i ++) {
@@ -421,8 +426,39 @@ export class SpendingComponent implements OnInit, AfterViewInit {
             amount: row[4].substring(1), location: row[3], date: row[0]})
           this.transactions.push(this.utils.processTransaction(transaction, 'BOA'))
         }
-      } else {
-        console.log("not processed: " + format)
+      } else if (format == 'Description') {
+        console.log(`Processing "${key}" as BOA checking`)
+        for (let i = 1; i < matrix.length; i ++) {
+          let row = matrix[i]
+          let description = row[1] == null ? null : row[1].toLocaleLowerCase()
+          if (description == null || (!row[0].startsWith('0') && !row[0].startsWith('1')) || !row[2].startsWith('-')
+            || description.includes('autopay') || description.includes('auto pay') || description.includes('american express')
+            || description.includes('bank of a')) {
+            console.log('Skipping row: ' + row)
+            continue
+          }
+
+          let transaction = new SpendingTransaction({accountId: this.selectedAccount.id, name: row[1],
+            amount: row[2].substring(1), date: row[0]})
+          this.transactions.push(this.utils.processTransaction(transaction, 'BOA checking'))
+        }
+      } else if (format == 'Details') {
+        console.log(`Processing "${key}" as Chase checking`)
+        for (let i = 1; i < matrix.length; i ++) {
+          let row = matrix[i]
+          let description = row[2] == null ? null : row[2].toLocaleLowerCase()
+          if (description == null || (!row[0].startsWith('1') && !row[1].startsWith('1')) || !row[3].startsWith('-')
+            || description.includes('autopay') || description.includes('auto pay')) {
+            console.log('Skipping row: ' + row)
+            continue
+          }
+
+          let transaction = new SpendingTransaction({accountId: this.selectedAccount.id, name: row[2],
+            amount: row[3].substring(1), date: row[1]})
+          this.transactions.push(this.utils.processTransaction(transaction, 'BOA checking'))
+        }
+     } else {
+        console.log("Not processed due to unknown format: " + format)
       }
     }
     this.transactionView = true

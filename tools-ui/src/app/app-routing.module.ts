@@ -19,6 +19,7 @@ const routes: Routes = [
   { path: 'image-upload', component: ImgUploadComponent },
   { path: 'logs', component: LogComponent },
   { path: 'spending', component: SpendingComponent },
+  { path: 'spending/manage', component: SpendingComponent },
   { path: '**', redirectTo: '/home', pathMatch: 'full' }
 ]
 

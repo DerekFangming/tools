@@ -7,10 +7,10 @@
     <div class="collapse navbar-collapse" id="navbarNav">
       <ul class="navbar-nav mr-auto">
         <li class="nav-item" [ngClass]="{'active': tab == 'reports'}">
-          <a class="nav-link pointer" (click)="showTab('reports')">Reports</a>
+          <a class="nav-link pointer" [routerLink]="'/spending'">Reports</a>
         </li>
         <li class="nav-item" [ngClass]="{'active': tab == 'manage'}">
-          <a class="nav-link pointer" (click)="showTab('manage')">Manage</a>
+          <a class="nav-link pointer" [routerLink]="'/spending/manage'">Manage</a>
         </li>
       </ul>
       <form *ngIf="tab == 'manage'" class="form-inline my-2 my-lg-0">
@@ -76,7 +76,7 @@
         <div class="col-5">
           <p class="pt-2 mb-0">Showing {{transactionPage * 20 + 1}} - {{(transactionPage + 1) * 20 > transactionTotal ? transactionTotal : (transactionPage + 1) * 20}} of {{transactionTotal}} transactions</p>
         </div>
-        <div class="col-7"> 
+        <div class="col-7">
           <div class="btn-group" role="group" aria-label="Basic example">
             <button type="button" class="btn btn-outline-secondary" (click)="filterAndPageTransactions(0, null)"><i class="fa fa-fast-backward" aria-hidden="true"></i></button>
             <button type="button" class="btn btn-outline-secondary" (click)="filterAndPageTransactions(transactionPage - 1, null)"><i class="fa fa-backward" aria-hidden="true"></i></button>
@@ -146,7 +146,7 @@
         </form>
       </div>
     </div>
-    
+
   </div>
   <div class="modal-footer">
     <button type="button" class="btn btn-success" [disabled]="loading" (click)="saveAccount()">Save</button>
@@ -175,7 +175,7 @@
               <p class="display-4" style="font-size: 2rem;">Drop CSV files to upload them.</p>
             </div>
           </div>
-          
+
           <input type="file" class="d-none" multiple="multiple" #fileSelect (change)="onFilesSelected($event)">
         </div>
       </div>
@@ -189,7 +189,7 @@
         </ul>
       </div>
     </div>
-    
+
   </div>
   <div *ngIf="transactionView" class="modal-body">
     <table class="table">
