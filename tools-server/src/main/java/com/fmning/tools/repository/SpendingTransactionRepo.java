@@ -14,4 +14,5 @@ public interface SpendingTransactionRepo extends CrudRepository<SpendingTransact
     @NotNull
     List<SpendingTransaction> findAll();
     List<SpendingTransaction> findAllByDateAfter(Date date);
+    List<SpendingTransaction> findAllByDateAfterAndDateBefore(Date from, Date to);
 }

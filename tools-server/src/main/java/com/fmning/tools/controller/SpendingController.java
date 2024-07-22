@@ -58,11 +58,16 @@ public class SpendingController {
 
     @RequestMapping(value = "/transactions", method = RequestMethod.GET)
     @PreAuthorize("hasAnyAuthority('ADMIN', 'SPENDING')")
-    public List<SpendingTransaction> getTransactions(@RequestParam(required=false) Date from) {
+    public List<SpendingTransaction> getTransactions(@RequestParam(required=false) Date from,
+                                                     @RequestParam(required=false) Date to) {
         if (from == null) {
             return transactionRepo.findAll();
-        } else {
+        }
+        from.setTime(from.getTime() - 24 * 60 * 60 * 1000);
+        if (to == null) {
             return transactionRepo.findAllByDateAfter(from);
+        } else {
+            return transactionRepo.findAllByDateAfterAndDateBefore(from, to);
         }
     }
 

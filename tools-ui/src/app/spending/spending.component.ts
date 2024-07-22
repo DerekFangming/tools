@@ -25,6 +25,8 @@ export class SpendingComponent implements OnInit, AfterViewInit {
   transactionTotal = 0
   transactionOrder = Order.DATE_ASC
   transactionFilter = {keyword: null, category: null}
+  transactionRangeLabel = 'Last Year'
+  hack = [1,1,1,1,1,1,1,1,1,1]
   filteredTransactions: SpendingTransaction[] = []
   loading = false
   dragOver = false
@@ -66,19 +68,7 @@ export class SpendingComponent implements OnInit, AfterViewInit {
   showTab(newTab: string) {
     this.tab = newTab
     if (newTab == 'reports') {
-      this.loading = true
-      this.transactions = []
-      this.http.get<SpendingTransaction[]>(environment.urlPrefix + 'api/spending/transactions', {params:{
-        from: new Date(new Date().getFullYear()-2, new Date().getMonth(), 1).toISOString().split('T')[0]
-      }}).subscribe(res => {
-        this.transactions = res.sort((a, b) => new Date(a.date) > new Date(b.date) ? 1 : -1)
-        this.loading = false
-        this.filterAndPageTransactions(0, Order.DATE_ASC)
-        this.drawChart()
-      }, error => {
-        this.loading = false
-        console.log(error.error)
-      })
+      this.loadTransactions(12, 0)
 
       this.http.get<SpendingAccount[]>(environment.urlPrefix + 'api/spending/accounts').subscribe(res => {
         this.accountList = res
@@ -95,6 +85,31 @@ export class SpendingComponent implements OnInit, AfterViewInit {
         console.log(error.error)
       })
     }
+  }
+
+  getTransactionRangeLabel(from: number, to: number) {
+    if (from - to == 1) return new Date(new Date().getFullYear(), new Date().getMonth() - from + 1, 1).toISOString().substring(0,7)
+    else if (to == 0) return from==24 ? 'Last 2 Years' : from==12 ? 'Last Year' : from==6 ? 'Last 6 months' : from==3 ? 'Last Quarter' : `Last ${from} Months`
+    else return 'Custom Range'
+  }
+
+  loadTransactions(from: number, to: number) {
+    this.transactionRangeLabel = this.getTransactionRangeLabel(from, to)
+    let params = to == 0 ? {from: new Date(new Date().getFullYear(), new Date().getMonth() - from + 1, 1).toISOString().split('T')[0]} : {
+      from: new Date(new Date().getFullYear(), new Date().getMonth() - from + 1, 1).toISOString().split('T')[0],
+      to: to == 0 ? null : new Date(new Date().getFullYear(), new Date().getMonth() - to + 1, 1).toISOString().split('T')[0]
+    }
+    this.loading = true
+    this.transactions = []
+    this.http.get<SpendingTransaction[]>(environment.urlPrefix + 'api/spending/transactions', {params: params}).subscribe(res => {
+      this.transactions = res.sort((a, b) => new Date(a.date) > new Date(b.date) ? 1 : -1)
+      this.loading = false
+      this.filterAndPageTransactions(0, Order.DATE_ASC)
+      this.drawChart()
+    }, error => {
+      this.loading = false
+      console.log(error.error)
+    })
   }
 
   drawChart() {
@@ -122,7 +137,28 @@ export class SpendingComponent implements OnInit, AfterViewInit {
       }
     })
 
-    let monthlySpendingCanvas: any = document.getElementById('monthlySpending')
+    // If there is only one month, display day chart 2022-01-01
+    if (currentInx == 0) {
+      let currentDay = this.transactions[0].date.substring(8,10)
+      monthlySpendingData = [{label: currentDay}]
+      monthlySpendingData = [{label: currentDay}]
+      this.transactions.forEach(t => {
+        let day = t.date.substring(8,10)
+        if (day != currentDay) {
+          currentDay = day
+          currentInx ++
+          monthlySpendingData.push({label: currentDay})
+        }
+        if (monthlySpendingData[currentInx].hasOwnProperty(t.category)) {
+          monthlySpendingData[currentInx][t.category] += parseFloat(t.amount)
+        } else {
+          monthlySpendingData[currentInx][t.category] = parseFloat(t.amount)
+        }
+      })
+    }
+
+    let monthlySpendingCanvas: any = document.getElementById('monthlySpending') //TODO: rename?
+    if (this.monthlySpendingChart != null) this.monthlySpendingChart.destroy()
     this.monthlySpendingChart = new Chart(monthlySpendingCanvas.getContext('2d'), {
       type: 'bar',
       data: {
@@ -185,6 +221,7 @@ export class SpendingComponent implements OnInit, AfterViewInit {
     let topSpendingData = Array.from( spendingByMerchant.values()).sort((a, b) => b.amount - a.amount).slice(0, 15)
 
     let topSpendingCanvas: any = document.getElementById('topSpending')
+    if (this.topSpendingChart != null) this.topSpendingChart.destroy()
     this.topSpendingChart = new Chart(topSpendingCanvas.getContext('2d'), {
       type: 'bar',
       data: {
@@ -194,6 +231,16 @@ export class SpendingComponent implements OnInit, AfterViewInit {
           backgroundColor: '#50c878',
           label: 'Total Amount'
         }]
+        // datasets : topSpendingData.map((d, i) => {
+        //   let data = Array(15).fill(0)
+        //   data[i] = d.amount.toFixed(2)
+        //   console.log(data)
+        //   return {
+        //     data: topSpendingData.map(d => d.amount.toFixed(2)),
+        //     backgroundColor: '#50c878',
+        //     label: d.label
+        //   }
+        // })
       },
       options: {
         interaction: {
@@ -217,7 +264,7 @@ export class SpendingComponent implements OnInit, AfterViewInit {
 
   filterTransactions(keyword: string, category: string) {
     keyword = keyword != null && keyword.length > 2 ? keyword.toLowerCase() : null
-    if (this.transactionFilter.keyword != keyword ||  this.transactionFilter.category != category) {
+    if (this.transactionFilter.keyword != keyword || this.transactionFilter.category != category) {
       this.transactionFilter.keyword = keyword
       this.transactionFilter.category = category
       this.filterAndPageTransactions(this.transactionPage, this.transactionOrder)
