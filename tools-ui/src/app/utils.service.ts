@@ -133,9 +133,7 @@ export class UtilsService {
     else if (name.includes('bkofamerica atm')) this.updateTransactionName(transaction, 'BOA ATM')
     else if (name.includes('bellingham')) this.updateTransactionName(transaction, 'Bellingham HOA')
     else if (name.includes('atgpay online')) this.updateTransactionName(transaction, 'AtgPay HOA')
-
-
-
+    else if (name.includes('airbnb')) this.updateTransactionName(transaction, 'Airbnb')
 
     return transaction
   }
@@ -162,7 +160,7 @@ export class UtilsService {
           break
         }
       }
-      if (!transactionCategories.includes(transaction.category)) {
+      if (!transactionCategories.has(transaction.category)) {
         console.log(`${transaction.name} has category ${transaction.category}`)
         transaction.category = null
       }
@@ -174,7 +172,7 @@ export class UtilsService {
 
 }
 
-const nameToCategory = new Map([
+export const nameToCategory = new Map([
   ['txtag', 'Transportation'],
   ['uber', 'Transportation'],
   ['76 - ', 'Transportation'],
@@ -223,7 +221,7 @@ const nameToCategory = new Map([
   ['diagnostic', 'Healthcare'],
 ])
 
-const categoryConvertion = new Map([
+export const categoryConvertion = new Map([
   ['Home', 'Shopping'],
   ['Personal', 'Shopping'],
   ['Health & Wellness', 'Healthcare'],
@@ -233,5 +231,17 @@ const categoryConvertion = new Map([
   ['Automotive', 'Transportation'],
 ])
 
-export const transactionCategories = ['Transportation', 'Government', 'Utility', 'Subscription', 'Real Estate',
-  'Restaurant', 'Entertainment', 'Shopping', 'Grocery', 'Healthcare', 'Travel']
+export const transactionCategories = new Map<string, string>([
+  ['Transportation','#ffa22e'],
+  ['Government','#c0c0c0'],
+  ['Utility','#104624'],
+  ['Subscription','#36a2eb'],
+  ['Real Estate','#ff80ed'],
+  ['Restaurant','#ffd700'],
+  ['Entertainment','#cc0000'],
+  ['Shopping','#ff7373'],
+  ['Grocery','#50c878'],
+  ['Healthcare','#444eff'],
+  ['Travel','#885640'],
+  ['Other', '#ccff00']
+])

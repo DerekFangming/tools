@@ -9,7 +9,7 @@ import { SpendingTransaction } from '../model/spending-transaction'
 import { NotifierService } from 'angular-notifier'
 import { DOCUMENT } from '@angular/common'
 import { Chart } from 'chart.js'
-import { UtilsService, transactionCategories } from '../utils.service'
+import { UtilsService, nameToCategory, transactionCategories } from '../utils.service'
 
 enum Order { DATE_ASC='DATE_ASC', DATE_DESC='DATE_DESC', AMOUNT_ASC='AMOUNT_ASC', AMOUNT_DESC='AMOUNT_DESC' }
 
@@ -26,7 +26,6 @@ export class SpendingComponent implements OnInit, AfterViewInit {
   transactionOrder = Order.DATE_ASC
   transactionFilter = {keyword: null, category: null}
   transactionRangeLabel = 'Last Year'
-  hack = [1,1,1,1,1,1,1,1,1,1]
   filteredTransactions: SpendingTransaction[] = []
   loading = false
   dragOver = false
@@ -52,7 +51,7 @@ export class SpendingComponent implements OnInit, AfterViewInit {
   constructor(private http: HttpClient, private title: Title, private modalService: NgbModal, private notifierService: NotifierService,
     @Inject(DOCUMENT) private document, public utils: UtilsService, private router: Router) {
     this.title.setTitle('Spending')
-    this.categories = transactionCategories
+    this.categories = Array.from( transactionCategories.keys() )
   }
 
   ngOnInit() { }
@@ -122,7 +121,7 @@ export class SpendingComponent implements OnInit, AfterViewInit {
         spendingByMerchant.get(t.name).count ++
         spendingByMerchant.get(t.name).amount += parseFloat(t.amount)
       } else {
-        spendingByMerchant.set(t.name, {label: t.name, count: 1, amount: parseFloat(t.amount)})
+        spendingByMerchant.set(t.name, {label: t.name, category: t.category, count: 1, amount: parseFloat(t.amount)})
       }
       let month = t.date.substring(0,7)
       if (month != currentMonth) {
@@ -140,7 +139,6 @@ export class SpendingComponent implements OnInit, AfterViewInit {
     // If there is only one month, display day chart 2022-01-01
     if (currentInx == 0) {
       let currentDay = this.transactions[0].date.substring(8,10)
-      monthlySpendingData = [{label: currentDay}]
       monthlySpendingData = [{label: currentDay}]
       this.transactions.forEach(t => {
         let day = t.date.substring(8,10)
@@ -165,37 +163,40 @@ export class SpendingComponent implements OnInit, AfterViewInit {
         labels: monthlySpendingData.map(d => d.label),
         datasets: [{
           data: monthlySpendingData.map(d => d.hasOwnProperty('Grocery') ? d['Grocery'].toFixed(2) : 0),
-          backgroundColor: "#50c878", label: "Grocery",
+          backgroundColor: transactionCategories.get('Grocery'), label: "Grocery",
         }, {
           data: monthlySpendingData.map(d => d.hasOwnProperty('Shopping') ? d['Shopping'].toFixed(2) : 0),
-          backgroundColor: "#ff7373", label: "Shopping",
+          backgroundColor: transactionCategories.get('Shopping'), label: "Shopping",
         }, {
           data: monthlySpendingData.map(d => d.hasOwnProperty('Subscription') ? d['Subscription'].toFixed(2) : 0),
-          backgroundColor: "#36a2eb", label: "Subscription",
+          backgroundColor: transactionCategories.get('Subscription'), label: "Subscription",
         }, {
           data: monthlySpendingData.map(d => d.hasOwnProperty('Transportation') ? d['Transportation'].toFixed(2) : 0),
-          backgroundColor: "#ffa22e", label: "Transportation",
+          backgroundColor: transactionCategories.get('Transportation'), label: "Transportation",
         }, {
           data: monthlySpendingData.map(d => d.hasOwnProperty('Government') ? d['Government'].toFixed(2) : 0),
-          backgroundColor: "#c0c0c0", label: "Government",
+          backgroundColor: transactionCategories.get('Government'), label: "Government",
         }, {
           data: monthlySpendingData.map(d => d.hasOwnProperty('Utility') ? d['Utility'].toFixed(2) : 0),
-          backgroundColor: "#104624", label: "Utility",
+          backgroundColor: transactionCategories.get('Utility'), label: "Utility",
         }, {
           data: monthlySpendingData.map(d => d.hasOwnProperty('Real Estate') ? d['Real Estate'].toFixed(2) : 0),
-          backgroundColor: "#ff80ed", label: "Real Estate",
+          backgroundColor: transactionCategories.get('Real Estate'), label: "Real Estate",
         }, {
           data: monthlySpendingData.map(d => d.hasOwnProperty('Restaurant') ? d['Restaurant'].toFixed(2) : 0),
-          backgroundColor: "#ffd700", label: "Restaurant",
+          backgroundColor: transactionCategories.get('Restaurant'), label: "Restaurant",
         }, {
           data: monthlySpendingData.map(d => d.hasOwnProperty('Entertainment') ? d['Entertainment'].toFixed(2) : 0),
-          backgroundColor: "#cc0000", label: "Entertainment",
+          backgroundColor: transactionCategories.get('Entertainment'), label: "Entertainment",
         }, {
           data: monthlySpendingData.map(d => d.hasOwnProperty('Healthcare') ? d['Healthcare'].toFixed(2) : 0),
-          backgroundColor: "#444eff", label: "Healthcare",
+          backgroundColor: transactionCategories.get('Healthcare'), label: "Healthcare",
         }, {
           data: monthlySpendingData.map(d => d.hasOwnProperty('Travel') ? d['Travel'].toFixed(2) : 0),
-          backgroundColor: "#885640", label: "Travel",
+          backgroundColor: transactionCategories.get('Travel'), label: "Travel",
+        }, {
+          data: monthlySpendingData.map(d => d.hasOwnProperty('Other') ? d['Other'].toFixed(2) : 0),
+          backgroundColor: transactionCategories.get('Other'), label: "Other",
         }]
       },
       options: {
@@ -226,27 +227,42 @@ export class SpendingComponent implements OnInit, AfterViewInit {
       type: 'bar',
       data: {
         labels: topSpendingData.map(d => d.label),
-        datasets: [{
-          data: topSpendingData.map(d => d.amount.toFixed(2)),
-          backgroundColor: '#50c878',
-          label: 'Total Amount'
-        }]
-        // datasets : topSpendingData.map((d, i) => {
-        //   let data = Array(15).fill(0)
-        //   data[i] = d.amount.toFixed(2)
-        //   console.log(data)
-        //   return {
-        //     data: topSpendingData.map(d => d.amount.toFixed(2)),
-        //     backgroundColor: '#50c878',
-        //     label: d.label
-        //   }
-        // })
+        // datasets: [{
+        //   data: topSpendingData.map(d => d.amount.toFixed(2)),
+        //   backgroundColor: '#50c878',
+        //   label: 'Total Amount'
+        // }]
+        datasets : topSpendingData.map((d, i) => {
+          let data = Array(15).fill(0)
+          data[i] = d.amount.toFixed(2)
+          // console.log(data)
+          // let category = 'Other'
+          // for (const [key, value] of nameToCategory.entries()) {
+          //   if (d.label.toLocaleLowerCase().includes(key)) {
+          //     category = value
+          //     break
+          //   }
+          // }
+          return {
+            data: data,
+            backgroundColor: transactionCategories.get(d.category),
+            label: d.category
+          }
+        })
       },
       options: {
         interaction: {
           intersect: false
         },
         maintainAspectRatio: false,
+        scales: {
+          xAxes: [{
+            stacked: true
+          }],
+          yAxes: [{
+            stacked: true
+          }]
+        },
         tooltips: {
           callbacks: {
             label: function(tooltipItem, data) {
@@ -297,7 +313,7 @@ export class SpendingComponent implements OnInit, AfterViewInit {
   showTransactionModal(transaction: SpendingTransaction) {
     let accounts = this.accountList.filter(a => a.id == transaction.accountId)
     if (accounts.length > 0) this.selectedAccount = accounts[0]
-    else this.selectedAccount = new SpendingAccount({name: 'Unknown', identifier: '0000', owner: 'Unknown', icon: 'https://img.icons8.com/ios/500/credit-card-front.png'})
+    else this.selectedAccount = new SpendingAccount({name: 'Other', identifier: '0000', owner: 'Other', icon: 'https://img.icons8.com/ios/500/credit-card-front.png'})
     this.selectedTransaction = transaction
     this.modalRef = this.modalService.open(this.transactionModal, { backdrop: 'static', keyboard: false, centered: true, size: 'lg' })
   }

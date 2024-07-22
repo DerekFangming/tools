@@ -51,7 +51,7 @@
                 <a class="dropdown-item pointer" (click)="loadTransactions(12, 0)">{{ getTransactionRangeLabel(12, 0) }}</a>
                 <a class="dropdown-item pointer" (click)="loadTransactions(24, 0)">{{ getTransactionRangeLabel(24, 0) }}</a>
                 <div role="separator" class="dropdown-divider"></div>
-                <a class="dropdown-item pointer" *ngFor="let c of hack; let i = index" (click)="loadTransactions(i+1, i)">{{getTransactionRangeLabel(i+1, i)}}</a>
+                <a class="dropdown-item pointer" *ngFor="let c of [].constructor(10); let i = index" (click)="loadTransactions(i+1, i)">{{getTransactionRangeLabel(i+1, i)}}</a>
               </div>
             </div>
           </div>
