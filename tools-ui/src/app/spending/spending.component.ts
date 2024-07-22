@@ -227,22 +227,9 @@ export class SpendingComponent implements OnInit, AfterViewInit {
       type: 'bar',
       data: {
         labels: topSpendingData.map(d => d.label),
-        // datasets: [{
-        //   data: topSpendingData.map(d => d.amount.toFixed(2)),
-        //   backgroundColor: '#50c878',
-        //   label: 'Total Amount'
-        // }]
         datasets : topSpendingData.map((d, i) => {
           let data = Array(15).fill(0)
           data[i] = d.amount.toFixed(2)
-          // console.log(data)
-          // let category = 'Other'
-          // for (const [key, value] of nameToCategory.entries()) {
-          //   if (d.label.toLocaleLowerCase().includes(key)) {
-          //     category = value
-          //     break
-          //   }
-          // }
           return {
             data: data,
             backgroundColor: transactionCategories.get(d.category),
