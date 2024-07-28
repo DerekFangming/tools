@@ -257,7 +257,7 @@ export class SpendingComponent implements OnInit, AfterViewInit {
         tooltips: {
           callbacks: {
             label: function(tooltipItem, data) {
-                return `Spent $${data.datasets[0].data[tooltipItem.index]} on ${topSpendingData[tooltipItem.index].count} transactions`
+              return `Spent $${data.datasets[tooltipItem.index].data[tooltipItem.index]} on ${topSpendingData[tooltipItem.index].count} transactions`
             }
           }
         },

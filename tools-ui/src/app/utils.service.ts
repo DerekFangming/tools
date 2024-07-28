@@ -49,7 +49,9 @@ export class UtilsService {
 
     } else if (bank == 'BOA') {
       if (name.includes('uber')) transaction.category = 'Travel'
+      transaction.amount = transaction.amount.replace(/,/g, '')
     } else if (bank == 'BOA checking') {
+      transaction.amount = transaction.amount.replace(/,/g, '')
     }
 
 
