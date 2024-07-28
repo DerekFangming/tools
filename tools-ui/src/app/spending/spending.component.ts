@@ -9,7 +9,7 @@ import { SpendingTransaction } from '../model/spending-transaction'
 import { NotifierService } from 'angular-notifier'
 import { DOCUMENT } from '@angular/common'
 import { Chart } from 'chart.js'
-import { UtilsService, nameToCategory, transactionCategories } from '../utils.service'
+import { UtilsService, transactionCategories } from '../utils.service'
 
 enum Order { DATE_ASC='DATE_ASC', DATE_DESC='DATE_DESC', AMOUNT_ASC='AMOUNT_ASC', AMOUNT_DESC='AMOUNT_DESC' }
 
@@ -24,7 +24,7 @@ export class SpendingComponent implements OnInit, AfterViewInit {
   transactionPage = 0
   transactionTotal = 0
   transactionOrder = Order.DATE_ASC
-  transactionFilter = {keyword: null, category: null}
+  transactionFilter = {keyword: null, category: null, accountId: null}
   transactionRangeLabel = 'Last Year'
   filteredTransactions: SpendingTransaction[] = []
   loading = false
@@ -56,12 +56,16 @@ export class SpendingComponent implements OnInit, AfterViewInit {
 
   ngOnInit() { }
 
+  
+
   ngAfterViewInit() {
     if (this.router.url == '/spending/manage') {
       this.showTab('manage')
     } else {
       this.showTab('reports')
     }
+
+    
   }
 
   showTab(newTab: string) {
@@ -90,6 +94,10 @@ export class SpendingComponent implements OnInit, AfterViewInit {
     if (from - to == 1) return new Date(new Date().getFullYear(), new Date().getMonth() - from + 1, 1).toISOString().substring(0,7)
     else if (to == 0) return from==24 ? 'Last 2 Years' : from==12 ? 'Last Year' : from==6 ? 'Last 6 months' : from==3 ? 'Last Quarter' : `Last ${from} Months`
     else return 'Custom Range'
+  }
+
+  getSelectedAccountName() {
+    return this.accountList.find(a => a.id == this.transactionFilter.accountId).name
   }
 
   loadTransactions(from: number, to: number) {
@@ -265,11 +273,12 @@ export class SpendingComponent implements OnInit, AfterViewInit {
     })
   }
 
-  filterTransactions(keyword: string, category: string) {
+  filterTransactions(keyword: string, category: string, accountId: number) {
     keyword = keyword != null && keyword.length > 2 ? keyword.toLowerCase() : null
-    if (this.transactionFilter.keyword != keyword || this.transactionFilter.category != category) {
+    if (this.transactionFilter.keyword != keyword || this.transactionFilter.category != category || this.transactionFilter.accountId != accountId) {
       this.transactionFilter.keyword = keyword
       this.transactionFilter.category = category
+      this.transactionFilter.accountId = accountId
       this.filterAndPageTransactions(this.transactionPage, this.transactionOrder)
     }
   }
@@ -279,6 +288,7 @@ export class SpendingComponent implements OnInit, AfterViewInit {
 
     if (this.transactionFilter.keyword != null) transactions = transactions.filter(t => t.name.toLocaleLowerCase().includes(this.transactionFilter.keyword))
     if (this.transactionFilter.category != null) transactions = transactions.filter(t => t.category == this.transactionFilter.category)
+    if (this.transactionFilter.accountId != null) transactions = transactions.filter(t => t.accountId == this.transactionFilter.accountId)
 
     if (order != null) {
       this.transactionOrder = order

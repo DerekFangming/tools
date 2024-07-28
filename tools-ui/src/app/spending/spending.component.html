@@ -7,10 +7,10 @@
     <div class="collapse navbar-collapse" id="navbarNav">
       <ul class="navbar-nav mr-auto">
         <li class="nav-item" [ngClass]="{'active': tab == 'reports'}">
-          <a class="nav-link pointer" [routerLink]="'/spending'">Reports</a>
+          <a class="nav-link pointer" [routerLink]="'/spending'">Spending Reports</a>
         </li>
         <li class="nav-item" [ngClass]="{'active': tab == 'manage'}">
-          <a class="nav-link pointer" [routerLink]="'/spending/manage'">Manage</a>
+          <a class="nav-link pointer" [routerLink]="'/spending/manage'">Manage Accounts</a>
         </li>
       </ul>
       <form *ngIf="tab == 'manage'" class="form-inline my-2 my-lg-0">
@@ -34,13 +34,21 @@
       <div class="row">
         <div class="col mb-1">
           <div class="input-group">
-            <input type="text" class="form-control" placeholder="Search by keyword" (input)="filterTransactions($event.target.value, transactionFilter.category)">
+            <input type="text" class="form-control" placeholder="Search by keyword" (input)="filterTransactions($event.target.value, transactionFilter.category, transactionFilter.accountId)">
+            <div class="input-group-append">
+              <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{{transactionFilter.accountId == null ? 'All Accounts' : getSelectedAccountName()}}</button>
+              <div class="dropdown-menu">
+                <a class="dropdown-item pointer" (click)="filterTransactions(transactionFilter.keyword, null, null)">All Accounts</a>
+                <div role="separator" class="dropdown-divider"></div>
+                <a class="dropdown-item pointer" *ngFor="let a of accountList;" (click)="filterTransactions(transactionFilter.keyword, c, a.id)">{{a.name}} <small>({{a.owner}})</small></a>
+              </div>
+            </div>
             <div class="input-group-append">
               <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{{transactionFilter.category == null ? 'All Categories' : transactionFilter.category}}</button>
               <div class="dropdown-menu">
-                <a class="dropdown-item pointer" (click)="filterTransactions(transactionFilter.keyword, null)">All Categories</a>
+                <a class="dropdown-item pointer" (click)="filterTransactions(transactionFilter.keyword, null, transactionFilter.accountId)">All Categories</a>
                 <div role="separator" class="dropdown-divider"></div>
-                <a class="dropdown-item pointer" *ngFor="let c of categories;" (click)="filterTransactions(transactionFilter.keyword, c)">{{c}}</a>
+                <a class="dropdown-item pointer" *ngFor="let c of categories;" (click)="filterTransactions(transactionFilter.keyword, c, transactionFilter.accountId)">{{c}}</a>
               </div>
             </div>
             <div class="input-group-append">
