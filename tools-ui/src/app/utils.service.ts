@@ -105,7 +105,7 @@ export class UtilsService {
     else if (name.includes('alaska air')) this.updateTransactionName(transaction, 'Alaska Air')
     else if (name.includes('petsmart')) this.updateTransactionName(transaction, 'Petsmart')
     else if (name.includes('texaco')) this.updateTransactionName(transaction, 'Texaco')
-    else if (name.includes('austin-bergstrom')) this.updateTransactionName(transaction, 'Austin-Bergstrom')
+    else if (name.includes('austin-bergstr')) this.updateTransactionName(transaction, 'Austin-Bergstrom')
     else if (name.includes('love\'s')) this.updateTransactionName(transaction, 'Love\'s')
     else if (name.includes('pilot_')) this.updateTransactionName(transaction, 'Pilot')
     else if (name.includes('flying j')) this.updateTransactionName(transaction, 'Flying J')
@@ -121,6 +121,7 @@ export class UtilsService {
     else if (name.includes('walgreens')) this.updateTransactionName(transaction, 'Walgreens')
     else if (name.includes('shell oil')) this.updateTransactionName(transaction, 'Shell Oil')
     else if (name.includes('marriott')) this.updateTransactionName(transaction, 'Marriott')
+    else if (name.includes('sheraton')) this.updateTransactionName(transaction, 'Sheraton')
     else if (name.includes('burnet road animal')) this.updateTransactionName(transaction, 'Burnet Animal')
     else if (name.includes('vehreg')) this.updateTransactionName(transaction, 'VehReg')
     else if (name.includes('spirit airl')) this.updateTransactionName(transaction, 'Spirit Airl')
@@ -134,6 +135,14 @@ export class UtilsService {
     else if (name.includes('bellingham')) this.updateTransactionName(transaction, 'Bellingham HOA')
     else if (name.includes('atgpay online')) this.updateTransactionName(transaction, 'AtgPay HOA')
     else if (name.includes('airbnb')) this.updateTransactionName(transaction, 'Airbnb')
+    else if (name.includes('la fitness')) this.updateTransactionName(transaction, 'LA Fitness')
+    else if (name.includes('fooda')) this.updateTransactionName(transaction, 'Fooda')
+    else if (name.includes('best buy')) this.updateTransactionName(transaction, 'Best Buy')
+    else if (name.includes('austin family dentist')) this.updateTransactionName(transaction, 'AUSTIN FAMILY DENTIST')
+    else if (name.includes('ikea')) this.updateTransactionName(transaction, 'Ikea')
+    else if (name.includes('autozone')) this.updateTransactionName(transaction, 'Autozone')
+    else if (name.includes('mt supermarket')) this.updateTransactionName(transaction, 'MT Supermarket')
+      
 
     return transaction
   }
@@ -178,7 +187,12 @@ export const nameToCategory = new Map([
   ['76 - ', 'Transportation'],
   ['texaco', 'Transportation'],
   ['7-eleven', 'Transportation'],
+  ['circle k', 'Transportation'],
+  ['shell oil', 'Transportation'],
+  ['chevron', 'Transportation'],
   ['sheraton', 'Travel'],
+  ['marriott', 'Travel'],
+  ['austin-bergstrom', 'Travel'],
   ['vehreg', 'Government'],
   ['tx.gov', 'Government'],
   ['tpwd', 'Government'],
@@ -191,6 +205,7 @@ export const nameToCategory = new Map([
   ['apple', 'Subscription'],
   ['ring yearly plan', 'Subscription'],
   ['mesa rim', 'Subscription'],
+  ['la fitness', 'Subscription'],
   ['ownwell', 'Real Estate'],
   ['pennymac', 'Real Estate'],
   ['bellingham', 'Real Estate'],
@@ -206,19 +221,30 @@ export const nameToCategory = new Map([
   ['gucci', 'Shopping'],
   ['bakerty', 'Shopping'],
   ['alipay', 'Shopping'],
+  ['target', 'Shopping'],
+  ['walmart', 'Shopping'],
+  ['ikea', 'Shopping'],
   ['aliexpress', 'Shopping'],
   ['home depot', 'Shopping'],
   ['homedepot', 'Shopping'],
   ['paypal', 'Shopping'],
   ['venmo', 'Shopping'],
   ['ebay', 'Shopping'],
+  ['usps', 'Shopping'],
+  ['best buy', 'Shopping'],
   ['zelle', 'Shopping'],
   ['boa atm', 'Shopping'],
+  ['autozone', 'Shopping'],
   ['costco', 'Grocery'],
   ['h-e-b', 'Grocery'],
+  ['h-mart', 'Grocery'],
+  ['mt supermarket', 'Grocery'],
+  ['cvs', 'Healthcare'],
   ['pharmacy', 'Healthcare'],
   ['dermatology', 'Healthcare'],
   ['diagnostic', 'Healthcare'],
+  ['bswhealth', 'Healthcare'],
+  ['austin family dentist', 'Healthcare'],
 ])
 
 export const categoryConvertion = new Map([

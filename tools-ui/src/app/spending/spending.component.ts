@@ -513,7 +513,20 @@ export class SpendingComponent implements OnInit, AfterViewInit {
             amount: row[3].substring(1), date: row[1]})
           this.transactions.push(this.utils.processTransaction(transaction, 'BOA checking'))
         }
-     } else {
+      } else if (format == 'Status') {
+        console.log(`Processing "${key}" as citi`)
+        for (let i = 1; i < matrix.length; i ++) {
+          let row = matrix[i]
+          if (row.length <= 1 || row[3] == '') {
+            console.log('Skipping row: ' + row)
+            continue
+          }
+
+          let transaction = new SpendingTransaction({accountId: this.selectedAccount.id, name: row[2],
+            amount: row[3], date: row[1]})
+          this.transactions.push(this.utils.processTransaction(transaction, 'BOA'))
+        }
+      } else {
         console.log("Not processed due to unknown format: " + format)
       }
     }
