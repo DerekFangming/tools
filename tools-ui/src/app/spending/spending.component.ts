@@ -56,16 +56,12 @@ export class SpendingComponent implements OnInit, AfterViewInit {
 
   ngOnInit() { }
 
-  
-
   ngAfterViewInit() {
     if (this.router.url == '/spending/manage') {
       this.showTab('manage')
     } else {
       this.showTab('reports')
     }
-
-    
   }
 
   showTab(newTab: string) {
@@ -283,7 +279,7 @@ export class SpendingComponent implements OnInit, AfterViewInit {
     }
   }
 
-  filterAndPageTransactions(page: number, order: Order) {
+  filterAndPageTransactions(page: number, order: Order|string) {
     let transactions = this.transactions.slice()
 
     if (this.transactionFilter.keyword != null) transactions = transactions.filter(t => t.name.toLocaleLowerCase().includes(this.transactionFilter.keyword))
@@ -291,7 +287,7 @@ export class SpendingComponent implements OnInit, AfterViewInit {
     if (this.transactionFilter.accountId != null) transactions = transactions.filter(t => t.accountId == this.transactionFilter.accountId)
 
     if (order != null) {
-      this.transactionOrder = order
+      this.transactionOrder = Order[order]
       if (order == Order.DATE_ASC) transactions = transactions.sort((a, b) => new Date(a.date) > new Date(b.date) ? 1 : -1)
       else if (order == Order.DATE_DESC) transactions = transactions.sort((a, b) => new Date(a.date) < new Date(b.date) ? 1 : -1)
       else if (order == Order.AMOUNT_ASC) transactions = transactions.sort((a, b) => parseFloat(a.amount) - parseFloat(b.amount))

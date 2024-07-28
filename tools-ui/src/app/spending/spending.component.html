@@ -38,9 +38,9 @@
             <div class="input-group-append">
               <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{{transactionFilter.accountId == null ? 'All Accounts' : getSelectedAccountName()}}</button>
               <div class="dropdown-menu">
-                <a class="dropdown-item pointer" (click)="filterTransactions(transactionFilter.keyword, null, null)">All Accounts</a>
+                <a class="dropdown-item pointer" (click)="filterTransactions(transactionFilter.keyword, transactionFilter.category, null)">All Accounts</a>
                 <div role="separator" class="dropdown-divider"></div>
-                <a class="dropdown-item pointer" *ngFor="let a of accountList;" (click)="filterTransactions(transactionFilter.keyword, c, a.id)">{{a.name}} <small>({{a.owner}})</small></a>
+                <a class="dropdown-item pointer" *ngFor="let a of accountList;" (click)="filterTransactions(transactionFilter.keyword, transactionFilter.category, a.id)">{{a.name}} <small>({{a.owner}})</small></a>
               </div>
             </div>
             <div class="input-group-append">
@@ -269,7 +269,7 @@
         <div class="card">
           <img class="card-img-top img-preview" src="{{selectedAccount.icon}}">
         </div>
-        <p class="lead account-title">{{selectedAccount.originalName ? selectedAccount.originalName : selectedAccount.name}}</p>
+        <p class="lead account-title">{{selectedAccount.name}}</p>
         <p class="card-text mb-0"><i class="fa fa-credit-card mr-1" aria-hidden="true"></i>**** {{selectedAccount.identifier}}</p>
         <p class="card-text"><i class="fa fa-user-circle-o mr-2" aria-hidden="true"></i>{{selectedAccount.owner}}</p>
       </div>
