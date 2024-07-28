@@ -27,6 +27,7 @@ export class SpendingComponent implements OnInit, AfterViewInit {
   transactionFilter = {keyword: null, category: null, accountId: null}
   transactionRangeLabel = 'Last Year'
   filteredTransactions: SpendingTransaction[] = []
+  filteredTransactionsPage: SpendingTransaction[] = []
   loading = false
   dragOver = false
   hasDuplicatedTransactions = false
@@ -106,6 +107,7 @@ export class SpendingComponent implements OnInit, AfterViewInit {
     this.transactions = []
     this.http.get<SpendingTransaction[]>(environment.urlPrefix + 'api/spending/transactions', {params: params}).subscribe(res => {
       this.transactions = res.sort((a, b) => new Date(a.date) > new Date(b.date) ? 1 : -1)
+      this.filteredTransactions = this.transactions
       this.loading = false
       this.filterAndPageTransactions(0, Order.DATE_ASC)
       this.drawChart()
@@ -116,11 +118,11 @@ export class SpendingComponent implements OnInit, AfterViewInit {
   }
 
   drawChart() {
-    if (this.transactions.length == 0) return
-    let currentMonth = this.transactions[0].date.substring(0,7), currentInx = 0
+    if (this.filteredTransactions.length == 0) return
+    let currentMonth = this.filteredTransactions[0].date.substring(0,7), currentInx = 0
     let spendingByMerchant = new Map<string, any>()
     let monthlySpendingData = [{label: currentMonth}]
-    this.transactions.forEach(t => {
+    this.filteredTransactions.forEach(t => {
       if (spendingByMerchant.has(t.name)) {
         spendingByMerchant.get(t.name).count ++
         spendingByMerchant.get(t.name).amount += parseFloat(t.amount)
@@ -142,9 +144,9 @@ export class SpendingComponent implements OnInit, AfterViewInit {
 
     // If there is only one month, display day chart 2022-01-01
     if (currentInx == 0) {
-      let currentDay = this.transactions[0].date.substring(8,10)
+      let currentDay = this.filteredTransactions[0].date.substring(8,10)
       monthlySpendingData = [{label: currentDay}]
-      this.transactions.forEach(t => {
+      this.filteredTransactions.forEach(t => {
         let day = t.date.substring(8,10)
         if (day != currentDay) {
           currentDay = day
@@ -159,7 +161,7 @@ export class SpendingComponent implements OnInit, AfterViewInit {
       })
     }
 
-    let monthlySpendingCanvas: any = document.getElementById('monthlySpending') //TODO: rename?
+    let monthlySpendingCanvas: any = document.getElementById('monthlySpending')
     if (this.monthlySpendingChart != null) this.monthlySpendingChart.destroy()
     this.monthlySpendingChart = new Chart(monthlySpendingCanvas.getContext('2d'), {
       type: 'bar',
@@ -275,11 +277,11 @@ export class SpendingComponent implements OnInit, AfterViewInit {
       this.transactionFilter.keyword = keyword
       this.transactionFilter.category = category
       this.transactionFilter.accountId = accountId
-      this.filterAndPageTransactions(this.transactionPage, this.transactionOrder)
+      this.filterAndPageTransactions(this.transactionPage, this.transactionOrder, true)
     }
   }
 
-  filterAndPageTransactions(page: number, order: Order|string) {
+  filterAndPageTransactions(page: number, order: Order|string, reloadChart: boolean = false) {
     let transactions = this.transactions.slice()
 
     if (this.transactionFilter.keyword != null) transactions = transactions.filter(t => t.name.toLocaleLowerCase().includes(this.transactionFilter.keyword))
@@ -300,7 +302,10 @@ export class SpendingComponent implements OnInit, AfterViewInit {
     this.transactionPage = page
 
     this.transactionTotal = transactions.length
-    this.filteredTransactions = transactions.slice(page*20, (page+1)*20)
+    this.filteredTransactions = transactions
+    this.filteredTransactionsPage = transactions.slice(page*20, (page+1)*20)
+
+    if (reloadChart) this.drawChart()
   }
 
   showTransactionModal(transaction: SpendingTransaction) {
