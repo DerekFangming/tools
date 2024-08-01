@@ -7,8 +7,8 @@ import { SpendingTransaction } from "./model/spending-transaction"
 })
 export class UtilsService {
 
-  getCreatedTime(time: string) {
-    return new Date(time).toLocaleString()
+  getCreatedTime(time: string | undefined) {
+    return time ? new Date(time).toLocaleString() : new Date('0001-01-01')
   }
 
   getType(input: string) {
@@ -34,11 +34,11 @@ export class UtilsService {
   }
 
   processTransactionByBank(transaction: SpendingTransaction, bank: string) {
-    let name = transaction.name.toLocaleLowerCase()
+    let name = transaction.name!.toLocaleLowerCase()
     if (bank == 'AMEX') {
       if (transaction.category == 'Merchandise & Supplies-Groceries') transaction.category = 'Grocery'
-      if (transaction.location.includes('\n')) transaction.location = transaction.location.split('\n').join(', ')
-      if (transaction.name.startsWith('H-E-B')) this.updateTransactionName(transaction, 'H-E-B')
+      if (transaction.location?.includes('\n')) transaction.location = transaction.location.split('\n').join(', ')
+      if (transaction.name!.startsWith('H-E-B')) this.updateTransactionName(transaction, 'H-E-B')
     } else if (bank == 'Chase') {
       if (name.includes('costco')) transaction.category = 'Grocery'
       else if (name.includes('spotify') || name.includes('netflix') || name.includes('github') || name.includes('tesla') || name.includes('godaddy')) transaction.category = 'Subscription'
@@ -49,16 +49,16 @@ export class UtilsService {
 
     } else if (bank == 'BOA') {
       if (name.includes('uber')) transaction.category = 'Travel'
-      transaction.amount = transaction.amount.replace(/,/g, '')
+      transaction.amount = transaction.amount!.replace(/,/g, '')
     } else if (bank == 'BOA checking') {
-      transaction.amount = transaction.amount.replace(/,/g, '')
+      transaction.amount = transaction.amount!.replace(/,/g, '')
     }
 
 
 
     // Generic
-    if (name.includes('&amp;')) this.updateTransactionName(transaction, transaction.name.replace(/&amp;/g, '&'))
-    if (/(\+\d{1,2}\s)?\(?\d{3}\)?[\s.-]\d{3}[\s.-]\d{4}/.test(name)) this.updateTransactionName(transaction, transaction.name.replace(/(\+\d{1,2}\s)?\(?\d{3}\)?[\s.-]\d{3}[\s.-]\d{4}/g, ''))
+    if (name.includes('&amp;')) this.updateTransactionName(transaction, transaction.name!.replace(/&amp;/g, '&'))
+    if (/(\+\d{1,2}\s)?\(?\d{3}\)?[\s.-]\d{3}[\s.-]\d{4}/.test(name)) this.updateTransactionName(transaction, transaction.name!.replace(/(\+\d{1,2}\s)?\(?\d{3}\)?[\s.-]\d{3}[\s.-]\d{4}/g, ''))
 
       // Specific
     if (name.includes('costco')) this.updateTransactionName(transaction, 'Costco')
@@ -155,11 +155,11 @@ export class UtilsService {
   }
 
   processTransactionCategory(transaction: SpendingTransaction) {
-    transaction.date = new Date(transaction.date).toISOString().split('T')[0]
+    transaction.date = new Date(transaction.date!).toISOString().split('T')[0]
     transaction.identifier = `${transaction.accountId}#${transaction.date}#${transaction.amount}`
     if (transaction.category == null){
       for (const [key, value] of nameToCategory.entries()) {
-        if (transaction.name.toLocaleLowerCase().includes(key)) {
+        if (transaction.name!.toLocaleLowerCase().includes(key)) {
           transaction.category = value
           break
         }
@@ -173,7 +173,7 @@ export class UtilsService {
       }
       if (!transactionCategories.has(transaction.category)) {
         console.log(`${transaction.name} has category ${transaction.category}`)
-        transaction.category = null
+        transaction.category = undefined
       }
     }
 

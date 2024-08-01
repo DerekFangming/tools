@@ -32,3 +32,4 @@ out/
 .vscode/
 
 tools-server/src/main/resources/static/**
+/tools-ui/.angular

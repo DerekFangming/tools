@@ -1,16 +1,16 @@
 <nav class="navbar navbar-expand-lg navbar-light bg-light">
   <div class="container shows-up">
     <a class="navbar-brand" href="#">Spending</a>
-    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav">
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
       <span class="navbar-toggler-icon"></span>
     </button>
     <div class="collapse navbar-collapse" id="navbarNav">
-      <ul class="navbar-nav mr-auto">
-        <li class="nav-item" [ngClass]="{'active': tab == 'reports'}">
-          <a class="nav-link pointer" [routerLink]="'/spending'">Spending Reports</a>
+      <ul class="navbar-nav me-auto">
+        <li class="nav-item">
+          <a class="nav-link pointer" [ngClass]="{'active': tab == 'reports'}" [routerLink]="'/spending'">Spending Reports</a>
         </li>
-        <li class="nav-item" [ngClass]="{'active': tab == 'manage'}">
-          <a class="nav-link pointer" [routerLink]="'/spending/manage'">Manage Accounts</a>
+        <li class="nav-item">
+          <a class="nav-link pointer" [ngClass]="{'active': tab == 'manage'}" [routerLink]="'/spending/manage'">Manage Accounts</a>
         </li>
       </ul>
       <form *ngIf="tab == 'manage'" class="form-inline my-2 my-lg-0">
@@ -34,25 +34,25 @@
       <div class="row">
         <div class="col mb-1">
           <div class="input-group">
-            <input type="text" class="form-control" placeholder="Search by keyword" (input)="filterTransactions($event.target.value, transactionFilter.category, transactionFilter.accountId)">
+            <input type="text" class="form-control" placeholder="Search by keyword" (input)="filterTransactions(getInputValue($event.target), transactionFilter.category, transactionFilter.accountId)">
             <div class="input-group-append">
-              <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{{transactionFilter.accountId == null ? 'All Accounts' : getSelectedAccountName()}}</button>
+              <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{{transactionFilter.accountId == null ? 'All Accounts' : getSelectedAccountName()}}</button>
               <div class="dropdown-menu">
-                <a class="dropdown-item pointer" (click)="filterTransactions(transactionFilter.keyword, transactionFilter.category, null)">All Accounts</a>
+                <a class="dropdown-item pointer" (click)="filterTransactions(transactionFilter.keyword, transactionFilter.category, undefined)">All Accounts</a>
                 <div role="separator" class="dropdown-divider"></div>
                 <a class="dropdown-item pointer" *ngFor="let a of accountList;" (click)="filterTransactions(transactionFilter.keyword, transactionFilter.category, a.id)">{{a.name}} <small>({{a.owner}})</small></a>
               </div>
             </div>
             <div class="input-group-append">
-              <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{{transactionFilter.category == null ? 'All Categories' : transactionFilter.category}}</button>
+              <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{{transactionFilter.category == null ? 'All Categories' : transactionFilter.category}}</button>
               <div class="dropdown-menu">
-                <a class="dropdown-item pointer" (click)="filterTransactions(transactionFilter.keyword, null, transactionFilter.accountId)">All Categories</a>
+                <a class="dropdown-item pointer" (click)="filterTransactions(transactionFilter.keyword, undefined, transactionFilter.accountId)">All Categories</a>
                 <div role="separator" class="dropdown-divider"></div>
                 <a class="dropdown-item pointer" *ngFor="let c of categories;" (click)="filterTransactions(transactionFilter.keyword, c, transactionFilter.accountId)">{{c}}</a>
               </div>
             </div>
             <div class="input-group-append">
-              <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{{transactionRangeLabel}}</button>
+              <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{{transactionRangeLabel}}</button>
               <div class="dropdown-menu">
                 <a class="dropdown-item pointer" (click)="loadTransactions(3, 0)">{{ getTransactionRangeLabel(3, 0) }}</a>
                 <a class="dropdown-item pointer" (click)="loadTransactions(6, 0)">{{ getTransactionRangeLabel(6, 0) }}</a>
@@ -72,10 +72,10 @@
               <tr>
                 <th scope="col" style="width:60%">Name</th>
                 <th scope="col" class="pointer" (click)="transactionOrder.startsWith('AMOUNT') ? filterAndPageTransactions(0, 'DATE_ASC') : transactionOrder=='DATE_ASC' ? filterAndPageTransactions(0, 'DATE_DESC') : filterAndPageTransactions(0, 'DATE_ASC')">Date
-                  <i *ngIf="transactionOrder=='DATE_ASC'" class="fa fa-chevron-down pull-right mt-1" aria-hidden="true"></i><i *ngIf="transactionOrder=='DATE_DESC'" class="fa fa-chevron-up pull-right mt-1" aria-hidden="true"></i>
+                  <i *ngIf="transactionOrder=='DATE_ASC'" class="fa fa-chevron-down float-end mt-1" aria-hidden="true"></i><i *ngIf="transactionOrder=='DATE_DESC'" class="fa fa-chevron-up float-end mt-1" aria-hidden="true"></i>
                 </th>
                 <th scope="col" class="pointer" (click)="transactionOrder.startsWith('DATE') ? filterAndPageTransactions(0, 'AMOUNT_ASC') : transactionOrder=='AMOUNT_ASC' ? filterAndPageTransactions(0, 'AMOUNT_DESC') : filterAndPageTransactions(0, 'AMOUNT_ASC')">Amount
-                  <i *ngIf="transactionOrder=='AMOUNT_ASC'" class="fa fa-chevron-down pull-right mt-1" aria-hidden="true"></i><i *ngIf="transactionOrder=='AMOUNT_DESC'" class="fa fa-chevron-up pull-right mt-1" aria-hidden="true"></i>
+                  <i *ngIf="transactionOrder=='AMOUNT_ASC'" class="fa fa-chevron-down float-end mt-1" aria-hidden="true"></i><i *ngIf="transactionOrder=='AMOUNT_DESC'" class="fa fa-chevron-up float-end mt-1" aria-hidden="true"></i>
                 </th>
                 <th scope="col">Category</th>
               </tr>
@@ -123,8 +123,8 @@
         <img class="card-img-top img-preview" src="{{account.icon}}">
         <div class="card-body">
           <p class="lead account-title">{{account.name}}</p>
-          <p class="card-text mb-0"><i class="fa fa-credit-card mr-1" aria-hidden="true"></i>**** {{account.identifier}}</p>
-          <p class="card-text"><i class="fa fa-user-circle-o mr-2" aria-hidden="true"></i>{{account.owner}}</p>
+          <p class="card-text mb-0"><i class="fa fa-credit-card me-1" aria-hidden="true"></i>**** {{account.identifier}}</p>
+          <p class="card-text"><i class="fa fa-user-circle-o me-2" aria-hidden="true"></i>{{account.owner}}</p>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-success" [disabled]="loading" (click)="showTransactionUploadModal(account)">Add Transactions</button>
@@ -135,179 +135,185 @@
   </div>
 </div>
 
-<ng-template #accountModal let-modal>
-  <div class="modal-header">
-    <h4 class="modal-title">Account</h4>
-    <button type="button" class="close" (click)="modal.dismiss('Cross click')" [disabled]="loading">
-      <span aria-hidden="true">&times;</span>
-    </button>
-  </div>
-  <div class="modal-body">
-    <div class="row">
-      <div class="col">
-        <form>
-          <div class="form-group">
-            <label>Account name</label>
-            <input type="text" class="form-control" [(ngModel)]="selectedAccount.name" name="name" placeholder="Chase Sapphire Preferred">
-          </div>
-          <div class="form-group">
-            <label>Identifier</label>
-            <input type="text" class="form-control" [(ngModel)]="selectedAccount.identifier" name="identifier" placeholder="Last 4 digit of the account number">
-          </div>
-          <div class="form-group">
-            <label>Icon</label>
-            <input type="text" class="form-control" [(ngModel)]="selectedAccount.icon" name="icon" placeholder="Url of the account">
-          </div>
-          <div class="form-group">
-            <label>Owner</label>
-            <input type="text" class="form-control" [(ngModel)]="selectedAccount.owner" name="owner" placeholder="Name of the owner">
-          </div>
-        </form>
+<div class="modal fade" id="accountModal" tabindex="-1"  aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title">Account</h4>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
-    </div>
-
-  </div>
-  <div class="modal-footer">
-    <button type="button" class="btn btn-success" [disabled]="loading" (click)="saveAccount()">Save</button>
-    <button type="button" class="btn btn-secondary" [disabled]="loading" (click)="modal.dismiss('Cross click')">Close</button>
-  </div>
-</ng-template>
-
-<ng-template #transactionUploadModal let-modal>
-  <div class="modal-header">
-    <h4 class="modal-title">Upload transactions for {{selectedAccount.name}}</h4>
-    <button type="button" class="close" (click)="modal.dismiss('Cross click')" [disabled]="loading">
-      <span aria-hidden="true">&times;</span>
-    </button>
-  </div>
-  <div *ngIf="!transactionView" class="modal-body">
-    <div class="row">
-      <div class="col">
-        <div class="h-100 pointer" style="width: 100%;" (click)="fileSelect.click()">
-          <div class="mx-4 text-center" style="height:30vh;" [ngClass]="{'dotted-border': dragOver}" (drop)="onFilesDropped($event)" (dragover)="onDragOver($event)"
-            (dragenter)="onDragEnter($event)" (dragleave)="onDragLeave($event)">
-            <div *ngIf="!dragOver" style="top: 20%; left: 0; right: 0; position: absolute;">
-              <img src="{{'/assets/plus.png'}}" height="100px" width="100px">
-              <p class="display-4" style="font-size: 2rem;">Click here to select CSV files or drop them here.</p>
-            </div>
-            <div *ngIf="dragOver" style="top: 50%; left: 0; right: 0; position: absolute;">
-              <p class="display-4" style="font-size: 2rem;">Drop CSV files to upload them.</p>
-            </div>
-          </div>
-
-          <input type="file" class="d-none" multiple="multiple" #fileSelect (change)="onFilesSelected($event)">
-        </div>
-      </div>
-    </div>
-
-    <div class="row">
-      <div class="col">
-        <ul class="list-group">
-          <li class="list-group-item" *ngFor="let f of transactionFiles | keyvalue;">{{f.key}}
-            <button type="button" class="btn btn-outline-danger btn-sm pull-right" (click)="transactionFiles.delete(f.key)">Remove</button></li>
-        </ul>
-      </div>
-    </div>
-
-  </div>
-  <div *ngIf="transactionView" class="modal-body">
-    <table class="table">
-      <thead>
-        <tr>
-          <th scope="col">Name</th>
-          <th scope="col">Date</th>
-          <th scope="col">Amount</th>
-          <th scope="col">Category</th>
-          <th scope="col">Action</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let t of transactions; let i = index" [ngClass]="{'bg-danger': t.error}">
-          <th scope="row">{{t.name}}</th>
-          <td>{{t.date}}</td>
-          <td>{{t.amount}}</td>
-          <td [ngClass]="{'text-warning': t.category === 'Other'}">{{t.category}}</td>
-          <td>
-            <div class="row mx-0">
-              <div class="col-6 px-0">
-                <button type="button" class="btn btn btn-outline-danger" (click)="transactions.splice(i, 1)" [ngClass]="{'text-white': t.error}">
-                  <i class="fa fa-trash-o" aria-hidden="true"></i>
-                </button>
+      <div class="modal-body">
+        <div class="row">
+          <div class="col">
+            <form>
+              <div class="form-group">
+                <label>Account name</label>
+                <input type="text" class="form-control" [(ngModel)]="selectedAccount.name" name="name" placeholder="Chase Sapphire Preferred">
               </div>
-              <div *ngIf="t.category === 'Other'" class="col-6 dropdown px-0">
-                <button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                  <i class="fa fa-chevron-down" aria-hidden="true"></i>
-                </button>
-                <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                  <a class="dropdown-item" *ngFor="let c of categories;" (click)="t.category = c">{{c}}</a>
+              <div class="form-group">
+                <label>Identifier</label>
+                <input type="text" class="form-control" [(ngModel)]="selectedAccount.identifier" name="identifier" placeholder="Last 4 digit of the account number">
+              </div>
+              <div class="form-group">
+                <label>Icon</label>
+                <input type="text" class="form-control" [(ngModel)]="selectedAccount.icon" name="icon" placeholder="Url of the account">
+              </div>
+              <div class="form-group">
+                <label>Owner</label>
+                <input type="text" class="form-control" [(ngModel)]="selectedAccount.owner" name="owner" placeholder="Name of the owner">
+              </div>
+            </form>
+          </div>
+        </div>
+
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-success" [disabled]="loading" (click)="saveAccount()">Save</button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="transactionUploadModal" tabindex="-1"  data-bs-backdrop="static" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-xl">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title">Upload transactions for {{selectedAccount?.name}}</h4>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div *ngIf="!transactionView" class="modal-body">
+        <div class="row">
+          <div class="col">
+            <div class="h-100 pointer" style="width: 100%;" (click)="fileSelect.click()">
+              <div class="mx-4 text-center" style="height:30vh;" [ngClass]="{'dotted-border': dragOver}" (drop)="onFilesDropped($event)" (dragover)="onDragOver($event)"
+                (dragenter)="onDragEnter($event)" (dragleave)="onDragLeave($event)">
+                <div *ngIf="!dragOver" style="top: 20%; left: 0; right: 0; position: absolute;">
+                  <img src="{{'/assets/plus.png'}}" height="100px" width="100px">
+                  <p class="display-4" style="font-size: 2rem;">Click here to select CSV files or drop them here.</p>
+                </div>
+                <div *ngIf="dragOver" style="top: 50%; left: 0; right: 0; position: absolute;">
+                  <p class="display-4" style="font-size: 2rem;">Drop CSV files to upload them.</p>
                 </div>
               </div>
-            </div>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-  <div class="modal-footer">
-    <button *ngIf="hasDuplicatedTransactions" type="button" class="btn btn-warning" [disabled]="loading" (click)="forceDedupTransactions()">Dedup</button>
-    <button *ngIf="transactionView" type="button" class="btn btn-success" [disabled]="loading" (click)="uploadTransactions()">Upload</button>
-    <button *ngIf="!transactionView" type="button" class="btn btn-success" [disabled]="loading" (click)="processTransactions()">Process Files</button>
-    <button type="button" class="btn btn-secondary" [disabled]="loading" (click)="modal.dismiss('Cross click')">Close</button>
-  </div>
-</ng-template>
 
-<ng-template #transactionModal let-modal>
-  <div class="modal-header">
-    <h4 class="modal-title">Transaction Details</h4>
-    <button type="button" class="close" (click)="modal.dismiss('Cross click')" [disabled]="loading">
-      <span aria-hidden="true">&times;</span>
-    </button>
-  </div>
-  <div class="modal-body">
-    <div class="row">
-      <div class="col-4">
-        <div class="card">
-          <img class="card-img-top img-preview" src="{{selectedAccount.icon}}">
+              <input type="file" class="d-none" multiple="multiple" #fileSelect (change)="onFilesSelected($event)">
+            </div>
+          </div>
         </div>
-        <p class="lead account-title">{{selectedAccount.name}}</p>
-        <p class="card-text mb-0"><i class="fa fa-credit-card mr-1" aria-hidden="true"></i>**** {{selectedAccount.identifier}}</p>
-        <p class="card-text"><i class="fa fa-user-circle-o mr-2" aria-hidden="true"></i>{{selectedAccount.owner}}</p>
+
+        <div class="row">
+          <div class="col">
+            <ul class="list-group">
+              <li class="list-group-item" *ngFor="let f of transactionFiles | keyvalue;">{{f.key}}
+                <button type="button" class="btn btn-outline-danger btn-sm float-end" (click)="transactionFiles.delete(f.key)">Remove</button></li>
+            </ul>
+          </div>
+        </div>
+
       </div>
-      <div class="col-8">
-        <div class="row">
-          <div class="col">
-            <label><b>Identifier</b></label>
-            <p>{{selectedTransaction.identifier}}</p>
-          </div>
-          <div class="col">
-            <label><b>Date</b></label>
-            <p>{{selectedTransaction.date}}</p>
-          </div>
-        </div>
-        <div class="row">
-          <div class="col">
-            <label><b>Name</b></label>
-            <p>{{selectedTransaction.originalName ? selectedTransaction.originalName : selectedTransaction.name}}</p>
-          </div>
-          <div class="col">
-            <label><b>Amount</b></label>
-            <p>$ {{selectedTransaction.amount}}</p>
-          </div>
-        </div>
-        <div class="row">
-          <div class="col">
-            <label><b>Category</b></label>
-            <p>{{selectedTransaction.category}}</p>
-          </div>
-          <div class="col">
-            <label><b>Location</b></label>
-            <p>{{selectedTransaction.location}}</p>
-          </div>
-        </div>
+      <div *ngIf="transactionView" class="modal-body">
+        <table class="table">
+          <thead>
+            <tr>
+              <th scope="col">Name</th>
+              <th scope="col">Date</th>
+              <th scope="col">Amount</th>
+              <th scope="col">Category</th>
+              <th scope="col">Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let t of transactions; let i = index" [ngClass]="{'bg-danger': t.error}">
+              <th scope="row">{{t.name}}</th>
+              <td>{{t.date}}</td>
+              <td>{{t.amount}}</td>
+              <td [ngClass]="{'text-warning': t.category === 'Other'}">{{t.category}}</td>
+              <td>
+                <div class="row mx-0">
+                  <div class="col-6 px-0">
+                    <button type="button" class="btn btn btn-outline-danger" (click)="transactions.splice(i, 1)" [ngClass]="{'text-white': t.error}">
+                      <i class="fa fa-trash-o" aria-hidden="true"></i>
+                    </button>
+                  </div>
+                  <div *ngIf="t.category === 'Other'" class="col-6 dropdown px-0">
+                    <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                      <i class="fa fa-chevron-down" aria-hidden="true"></i>
+                    </button>
+                    <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                      <a class="dropdown-item" *ngFor="let c of categories;" (click)="t.category = c">{{c}}</a>
+                    </div>
+                  </div>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="modal-footer">
+        <button *ngIf="hasDuplicatedTransactions" type="button" class="btn btn-warning" [disabled]="loading" (click)="forceDedupTransactions()">Dedup</button>
+        <button *ngIf="transactionView" type="button" class="btn btn-success" [disabled]="loading" (click)="uploadTransactions()">Upload</button>
+        <button *ngIf="!transactionView" type="button" class="btn btn-success" [disabled]="loading" (click)="processTransactions()">Process Files</button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
       </div>
     </div>
   </div>
-  <div class="modal-footer">
-    <button type="button" class="btn btn-secondary" [disabled]="loading" (click)="modal.dismiss('Cross click')">Close</button>
+</div>
+
+<div class="modal fade" id="transactionModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title">Transaction Details</h4>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+          <div class="col-4">
+            <div class="card">
+              <img class="card-img-top img-preview" src="{{selectedAccount?.icon}}">
+            </div>
+            <p class="lead account-title">{{selectedAccount?.name}}</p>
+            <p class="card-text mb-0"><i class="fa fa-credit-card me-1" aria-hidden="true"></i>**** {{selectedAccount?.identifier}}</p>
+            <p class="card-text"><i class="fa fa-user-circle-o me-2" aria-hidden="true"></i>{{selectedAccount?.owner}}</p>
+          </div>
+          <div class="col-8">
+            <div class="row">
+              <div class="col">
+                <label><b>Identifier</b></label>
+                <p>{{selectedTransaction?.identifier}}</p>
+              </div>
+              <div class="col">
+                <label><b>Date</b></label>
+                <p>{{selectedTransaction?.date}}</p>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col">
+                <label><b>Name</b></label>
+                <p>{{selectedTransaction?.originalName ? selectedTransaction?.originalName : selectedTransaction?.name}}</p>
+              </div>
+              <div class="col">
+                <label><b>Amount</b></label>
+                <p>$ {{selectedTransaction?.amount}}</p>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col">
+                <label><b>Category</b></label>
+                <p>{{selectedTransaction?.category}}</p>
+              </div>
+              <div class="col">
+                <label><b>Location</b></label>
+                <p>{{selectedTransaction?.location}}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
   </div>
-</ng-template>
+</div>

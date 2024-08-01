@@ -1,11 +1,12 @@
 export class Image {
-  id: number;
-  url: string;
-  data: string;
-  status: ImageStatus;
+  id: number | undefined
+  url: string | undefined
+  data: string | undefined
+  created: string | undefined
+  status: ImageStatus | undefined
 
   public constructor(init?:Partial<Image>) {
-    Object.assign(this, init);
+    Object.assign(this, init)
   }
 }
 

@@ -1,56 +1,60 @@
 <nav class="navbar navbar-light bg-light">
   <div class="container-fluid">
-    <a class="navbar-brand ml-2" href="#">Logs</a>
+    <a class="navbar-brand ms-2" href="#">Logs</a>
   </div>
 </nav>
 
 <div class="container-fluid">
-  <div class="form-row mt-3">
+  <div class="row mt-3">
     <div class="col-sm-12 col-md-5 mb-3">
       <label>Message</label>
-      <input type="text" class="form-control" [(ngModel)]="message" (keyup.enter)="loadLogs(0)">
+      <input type="text" class="form-control mt-2" [(ngModel)]="message" (keyup.enter)="loadLogs(0)">
     </div>
     <div class="col-6 col-sm-6 col-md-2 mb-3">
       <label>From date</label>
-      <input type="text" class="form-control" ngbDatepicker #df="ngbDatepicker" (click)="df.toggle()" [(ngModel)]="fromDate" (ngModelChange)="loadLogs(0)">
+      <input type="text" class="form-control mt-2" [(ngModel)]="fromDate" (ngModelChange)="loadLogs(0)">
     </div>
     <div class="col-6 col-sm-6 col-md-2 mb-3">
       <label>To date</label>
-      <input type="text" class="form-control" ngbDatepicker #dt="ngbDatepicker" (click)="dt.toggle()" [(ngModel)]="toDate" (ngModelChange)="loadLogs(0)">
+      <input type="text" class="form-control mt-2" [(ngModel)]="toDate" (ngModelChange)="loadLogs(0)">
     </div>
     <div class="col-6 col-sm-6 col-md-1 mb-3">
       <label for="validationCustom02">Service</label>
-      <div class="input-group">
-        <button class="btn btn-outline-secondary btn-block dropdown-toggle text-capitalize" type="button" data-toggle="dropdown">{{ service == '' ? 'All' : service}}</button>
-        <div class="dropdown-menu">
-          <a class="dropdown-item pointer" (click)="onServiceSelected('')">All</a>
-          <div role="separator" class="dropdown-divider"></div>
-          <a class="dropdown-item pointer" (click)="onServiceSelected('yaofeng')">Yaofeng</a>
-          <a class="dropdown-item pointer" (click)="onServiceSelected('tools')">Tools</a>
-          <a class="dropdown-item pointer" (click)="onServiceSelected('drive')">Share Drive</a>
-          <a class="dropdown-item pointer" (click)="onServiceSelected('sso')">SSO</a>
-          <a class="dropdown-item pointer" (click)="onServiceSelected('hold-violation')">Hold Violation</a>
+      <div class="dropdown mt-2">
+        <div class="d-grid">
+          <button class="btn btn-outline-secondary dropdown-toggle text-capitalize" type="button" data-bs-toggle="dropdown">{{ service == '' ? 'All' : service}}</button>
+          <div class="dropdown-menu">
+            <a class="dropdown-item pointer" (click)="onServiceSelected('')">All</a>
+            <div role="separator" class="dropdown-divider"></div>
+            <a class="dropdown-item pointer" (click)="onServiceSelected('yaofeng')">Yaofeng</a>
+            <a class="dropdown-item pointer" (click)="onServiceSelected('tools')">Tools</a>
+            <a class="dropdown-item pointer" (click)="onServiceSelected('drive')">Share Drive</a>
+            <a class="dropdown-item pointer" (click)="onServiceSelected('sso')">SSO</a>
+            <a class="dropdown-item pointer" (click)="onServiceSelected('hold-violation')">Hold Violation</a>
+          </div>
         </div>
       </div>
     </div>
     <div class="col-6 col-sm-6 col-md-1 mb-3">
       <label for="validationCustom02">Log Level</label>
-      <div class="input-group">
-        <button class="btn btn-outline-secondary btn-block dropdown-toggle text-capitalize" type="button" data-toggle="dropdown">{{ level == '' ? 'All' : level}}</button>
-        <div class="dropdown-menu">
-          <a class="dropdown-item pointer" (click)="onLevelSelected('')">All</a>
-          <div role="separator" class="dropdown-divider"></div>
-          <a class="dropdown-item pointer" (click)="onLevelSelected('DEBUG')">DEBUG</a>
-          <a class="dropdown-item pointer" (click)="onLevelSelected('INFO')">INFO</a>
-          <a class="dropdown-item pointer" (click)="onLevelSelected('WARN')">WARN</a>
-          <a class="dropdown-item pointer" (click)="onLevelSelected('ERROR')">ERROR</a>
+      <div class="dropdown mt-2">
+        <div class="d-grid">
+          <button class="btn btn-outline-secondary dropdown-toggle text-capitalize" type="button" data-bs-toggle="dropdown">{{ level == '' ? 'All' : level}}</button>
+          <div class="dropdown-menu">
+            <a class="dropdown-item pointer" (click)="onLevelSelected('')">All</a>
+            <div role="separator" class="dropdown-divider"></div>
+            <a class="dropdown-item pointer" (click)="onLevelSelected('DEBUG')">DEBUG</a>
+            <a class="dropdown-item pointer" (click)="onLevelSelected('INFO')">INFO</a>
+            <a class="dropdown-item pointer" (click)="onLevelSelected('WARN')">WARN</a>
+            <a class="dropdown-item pointer" (click)="onLevelSelected('ERROR')">ERROR</a>
+          </div>
         </div>
       </div>
     </div>
     <div class="col-6 col-sm-6 col-md-1 mb-3">
       <label></label>
-      <div class="input-group">
-        <button class="btn btn-outline-secondary btn-block mt-2" type="button" (click)="loadLogs(0)">Search</button>
+      <div class="d-grid">
+        <button class="btn btn-outline-secondary mt-2" type="button" (click)="loadLogs(0)">Search</button>
       </div>
     </div>
   </div>
@@ -67,8 +71,8 @@
 <div *ngIf="!loadingLogs" class="container-fluid">
   <div class="row">
     <div class="col mt-4">
-      <table class="table table-sm the-table">
-        <thead>
+      <table class="table table-sm table-striped the-table">
+        <thead class="table-light">
           <tr>
             <th style="width: 10%" scope="col">Service</th>
             <th style="width: 10%" scope="col">Level</th>
@@ -78,7 +82,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let log of logList;" (click)="openDetailsWindow(log)" class="pointer">
+          <tr *ngFor="let log of logList;" (click)="openDetailsWindow(log)" class="pointer" data-bs-target="#logDetailsModal">
             <th scope="row" class="pointer"> {{ log.service }} </th>
             <th> {{ log.level }} </th>
             <td class="text-truncate"> {{ log.message }} </td>
@@ -91,11 +95,11 @@
   </div>
   <div class="row">
     <div class="col-sm-12 col-md-3 mt-4">
-      <p class="ml-2">Showing {{totalLogs == 0 ? '0' : currentPage * resultPerPage + 1}} - {{math.min((currentPage + 1) * resultPerPage, totalLogs)}} of {{totalLogs}} results</p>
+      <p class="ms-2">Showing {{totalLogs == 0 ? '0' : currentPage * resultPerPage + 1}} - {{math.min((currentPage + 1) * resultPerPage, totalLogs)}} of {{totalLogs}} results</p>
     </div>
     <div class="col-sm-12 col-md-9 mt-4">
-      <div class="btn-toolbar mb-3 pull-right" role="toolbar">
-        <div class="btn-group mr-2" role="group">
+      <div class="btn-toolbar mb-3 float-end" role="toolbar">
+        <div class="btn-group me-2" role="group">
           <button type="button" class="btn btn-outline-secondary" (click)="loadLogs(0)"><i class="fa fa-angle-double-left" aria-hidden="true"></i></button>
           <button type="button" class="btn btn-outline-secondary" (click)="loadLogs(currentPage - 1)"><i class="fa fa-angle-left" aria-hidden="true"></i></button>
           <button type="button" class="btn btn-secondary">{{ currentPage + 1 }}</button>
@@ -107,42 +111,44 @@
   </div>
 </div>
 
-<ng-template #logDetailsModal let-modal>
-  <div class="modal-header">
-    <h4 class="modal-title">Email details</h4>
-    <button type="button" class="close" (click)="modal.dismiss('Cross click')">
-      <span aria-hidden="true">&times;</span>
-    </button>
-  </div>
-  <div class="modal-body">
-    <div class="row">
-      <div class="col">
-        <label><b>Service</b></label>
-        <p>{{selectedLog.service}}</p>
+<div class="modal fade" id="logDetailsModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title">Email details</h4>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
-      <div class="col">
-        <label><b>Level</b></label>
-        <p>{{selectedLog.level}}</p>
+      <div class="modal-body">
+        <div class="row">
+          <div class="col">
+            <label><b>Service</b></label>
+            <p>{{selectedLog?.service}}</p>
+          </div>
+          <div class="col">
+            <label><b>Level</b></label>
+            <p>{{selectedLog?.level}}</p>
+          </div>
+          <div class="col">
+            <label><b>Timestamp</b></label>
+            <p>{{utils.getCreatedTime(selectedLog?.created)}}</p>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col">
+            <label><b>Message</b></label>
+            <p>{{selectedLog?.message}}</p>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col">
+            <label><b>Stacktrace</b></label>
+            <p>{{selectedLog?.stacktrace}}</p>
+          </div>
+        </div>
       </div>
-      <div class="col">
-        <label><b>Timestamp</b></label>
-        <p>{{utils.getCreatedTime(selectedLog.created)}}</p>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
       </div>
     </div>
-    <div class="row">
-      <div class="col">
-        <label><b>Message</b></label>
-        <p>{{selectedLog.message}}</p>
-      </div>
-    </div>
-    <div class="row">
-      <div class="col">
-        <label><b>Stacktrace</b></label>
-        <p>{{selectedLog.stacktrace}}</p>
-      </div>
-    </div>
   </div>
-  <div class="modal-footer">
-    <button type="button" class="btn btn-secondary" (click)="modal.dismiss('Cross click')">Close</button>
-  </div>
-</ng-template>
+</div>

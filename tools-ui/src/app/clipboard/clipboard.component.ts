@@ -1,29 +1,27 @@
-import { Component, OnInit, Inject, TemplateRef, ViewChild } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { environment } from 'src/environments/environment';
-import { Clipboard } from '../model/clipboard';
-import { Title } from '@angular/platform-browser';
-import { DOCUMENT } from '@angular/common';
-import { NgbModalRef, NgbModal, NgbModalOptions } from '@ng-bootstrap/ng-bootstrap'
+import { Component, OnInit, Inject } from '@angular/core'
+import { HttpClient } from '@angular/common/http'
+import { Clipboard } from '../model/clipboard'
+import { Title } from '@angular/platform-browser'
+import { CommonModule, DOCUMENT } from '@angular/common'
+import { environment } from '../../environments/environment'
+import { FormsModule } from '@angular/forms'
+import { RouterOutlet } from '@angular/router'
+
+declare var $: any
 
 @Component({
   selector: 'app-clipboard',
+  standalone: true,
+  imports: [RouterOutlet, FormsModule, CommonModule],
   templateUrl: './clipboard.component.html',
-  styleUrls: ['./clipboard.component.css']
+  styleUrl: './clipboard.component.css'
 })
 export class ClipboardComponent implements OnInit {
 
   value = ''
-  links = []
-  modalRef: NgbModalRef
-  @ViewChild('linksModal', { static: true}) linksModal: TemplateRef<any>
-  ngbModalOptions: NgbModalOptions = {
-    backdrop : 'static',
-    keyboard : false,
-    centered: true
-  }
+  links: string[] = []
 
-  constructor(private http: HttpClient, private title: Title, @Inject(DOCUMENT) private document: Document, private modalService: NgbModal) {
+  constructor(private http: HttpClient, private title: Title, @Inject(DOCUMENT) private document: Document) {
     this.title.setTitle("Clipboard");
     this.http.get<Clipboard>(environment.urlPrefix + 'api/clipboard').subscribe(cb => {
       this.value = cb.content;
@@ -38,33 +36,23 @@ export class ClipboardComponent implements OnInit {
   }
 
   undo() {
-    document.execCommand('undo');
+    document.execCommand('undo')
   }
 
   redo() {
-    document.execCommand('redo');
+    document.execCommand('redo')
   }
 
   clear() {
-    this.value = '';
+    this.value = ''
   }
 
   copyAllToClipboard() {
     this.copyToClipboard(this.value)
   }
 
-  copyToClipboard(value){
-    const selBox = document.createElement('textarea');
-    selBox.style.position = 'fixed';
-    selBox.style.left = '0';
-    selBox.style.top = '0';
-    selBox.style.opacity = '0';
-    selBox.value = value;
-    document.body.appendChild(selBox);
-    selBox.focus();
-    selBox.select();
-    document.execCommand('copy');
-    document.body.removeChild(selBox);
+  copyToClipboard(value: any){
+    navigator.clipboard.writeText(value).then().catch(e => console.error(e))
   }
 
   showLinksModal() {
@@ -75,10 +63,10 @@ export class ClipboardComponent implements OnInit {
       this.links.push(m[1])
     }
 
-    this.modalRef = this.modalService.open(this.linksModal, this.ngbModalOptions)
+    $("#linksModal").modal('show')
   }
 
-  goToLink(url){
+  goToLink(url: any){
       window.open(url, "_blank");
   }
 

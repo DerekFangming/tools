@@ -1,22 +1,28 @@
-import { HttpClient, HttpParams } from '@angular/common/http';
-import { Component, OnInit, TemplateRef, ViewChild } from '@angular/core';
-import { Title } from '@angular/platform-browser';
-import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
-import { NotifierService } from 'angular-notifier';
-import { environment } from 'src/environments/environment';
-import { Log } from '../model/log';
-import { UtilsService } from '../utils.service';
+import { HttpClient, HttpParams } from '@angular/common/http'
+import { Component, OnInit } from '@angular/core'
+import { Title } from '@angular/platform-browser'
+import { Log } from '../model/log'
+import { UtilsService } from '../utils.service'
+import { NotificationsService } from 'angular2-notifications'
+import { environment } from '../../environments/environment'
+import { CommonModule } from '@angular/common'
+import { FormsModule } from '@angular/forms'
+import { RouterOutlet } from '@angular/router'
+
+declare var $: any
 
 @Component({
   selector: 'app-log',
+  standalone: true,
+  imports: [RouterOutlet, FormsModule, CommonModule],
   templateUrl: './log.component.html',
-  styleUrls: ['./log.component.css']
+  styleUrl: './log.component.css'
 })
 export class LogComponent implements OnInit {
 
   loadingLogs = true
-  selectedLog: Log
-  logList: Log[]
+  selectedLog: Log | undefined
+  logList: Log[] = []
 
   message = ''
   fromDate: any
@@ -30,11 +36,8 @@ export class LogComponent implements OnInit {
   resultPerPage = 50
   math = Math
 
-  modalRef: NgbModalRef;
-  @ViewChild('logDetailsModal', { static: true}) logDetailsModal: TemplateRef<any>;
-
-  constructor(private http: HttpClient, private title: Title, private notifierService: NotifierService,
-    private modalService: NgbModal, public utils: UtilsService) {
+  constructor(private http: HttpClient, private title: Title, private notifierService: NotificationsService,
+    public utils: UtilsService) {
     this.title.setTitle('Logs')
   }
 
@@ -62,15 +65,19 @@ export class LogComponent implements OnInit {
       params: queryParam,
       observe: 'response' as 'response'
     }
-    this.http.get<Log[]>(environment.urlPrefix + 'api/logs', httpOptions).subscribe(res => {
-      this.logList = res.body
-      this.totalLogs = Number(res.headers.get('X-Total-Count'))
-      this.totalPages = Math.ceil(Number(res.headers.get('X-Total-Count')) / this.resultPerPage - 1)
-      this.loadingLogs = false
-    }, error => {
-      this.loadingLogs = false
-      this.notifierService.notify('error', error.message);
-    });
+    this.http.get<Log[]>(environment.urlPrefix + 'api/logs', httpOptions).subscribe({
+      next: (res: any) => {
+        console.log(res.headers.keys())
+        this.logList = res.body
+        this.totalLogs = Number(res.headers.get('X-Total-Count'))
+        this.totalPages = Math.ceil(Number(res.headers.get('X-Total-Count')) / this.resultPerPage - 1)
+        this.loadingLogs = false
+      },
+      error: (error: any) => {
+        this.loadingLogs = false
+        console.log(error)
+      }
+    })
   }
 
   onLevelSelected(level: string) {
@@ -85,10 +92,7 @@ export class LogComponent implements OnInit {
 
   openDetailsWindow(log: Log) {
     this.selectedLog = log
-    this.modalRef = this.modalService.open(this.logDetailsModal, {
-      size: 'lg',
-      centered: true
-    });
+    $("#logDetailsModal").modal('show')
   }
 
 }

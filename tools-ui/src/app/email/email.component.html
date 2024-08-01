@@ -1,13 +1,13 @@
 <nav class="navbar navbar-light bg-light">
   <div class="container">
-    <a class="navbar-brand ml-2" href="#">Email</a>
+    <a class="navbar-brand ms-2" href="#">Email</a>
   </div>
 </nav>
 <div class="container">
   <div *ngIf="!loadingEmails" class="row">
     <div class="col mt-4">
-      <table class="table">
-        <thead>
+      <table class="table table-striped">
+        <thead class="table-light">
           <tr>
             <th scope="col">Subject</th>
             <th scope="col">From</th>
@@ -17,11 +17,11 @@
           </tr>
         </thead>
         <tbody>
-          <tr class="pointer" *ngFor="let email of emailList;" (click)=onEmailClicked(email.id)>
+          <tr class="pointer" *ngFor="let email of emailList;" (click)=onEmailClicked(email.id!)>
             <th scope="row"> {{ email.subject }} </th>
             <td> {{ email.from }} </td>
             <td> {{ email.to }} </td>
-            <td> {{ utils.getType(email.senderType) }} </td>
+            <td> {{ utils.getType(email.senderType!) }} </td>
             <td> {{ utils.getCreatedTime(email.created) }} </td>
           </tr>
         </tbody>
@@ -29,7 +29,7 @@
     </div>
     <div class="col-12 mt-4">
       <div class="btn-toolbar mb-3 justify-content-center" role="toolbar" aria-label="Toolbar with button groups">
-        <div class="btn-group mr-2" role="group" aria-label="First group">
+        <div class="btn-group me-2" role="group" aria-label="First group">
           <button *ngFor='let key of [].constructor(totalPages); let i = index' type="button" class="btn"
             [ngClass]="i + 1 == currentPage ? 'btn-secondary' : 'btn-outline-secondary'" (click)="onPageIndexSelected(i + 1)">
             {{ i + 1 }}
@@ -45,48 +45,50 @@
   </div>
 </div>
 
-<ng-template #emailDetailsModal let-modal>
-  <div class="modal-header">
-    <h4 class="modal-title">Email details</h4>
-    <button type="button" class="close" (click)="modal.dismiss('Cross click')">
-      <span aria-hidden="true">&times;</span>
-    </button>
+<div class="modal fade" id="emailDetailsModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title">Email details</h4>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+          <div class="col">
+            <label><b>Subject</b></label>
+            <p>{{selectedEmail?.subject}}</p>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col">
+            <label><b>From</b></label>
+            <p>{{selectedEmail?.from}}</p>
+          </div>
+          <div class="col">
+            <label><b>To</b></label>
+            <p>{{selectedEmail?.to}}</p>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col">
+            <label><b>Content</b></label>
+            <div>{{ selectedEmail?.content}}</div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col">
+            <label><b>Type</b></label>
+            <p>{{utils.getType(selectedEmail?.senderType!)}}</p>
+          </div>
+          <div class="col">
+            <label><b>Sent at</b></label>
+            <p>{{utils.getCreatedTime(selectedEmail?.created)}}</p>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
   </div>
-  <div class="modal-body">
-    <div class="row">
-      <div class="col">
-        <label><b>Subject</b></label>
-        <p>{{selectedEmail.subject}}</p>
-      </div>
-    </div>
-    <div class="row">
-      <div class="col">
-        <label><b>From</b></label>
-        <p>{{selectedEmail.from}}</p>
-      </div>
-      <div class="col">
-        <label><b>To</b></label>
-        <p>{{selectedEmail.to}}</p>
-      </div>
-    </div>
-    <div class="row">
-      <div class="col">
-        <label><b>Content</b></label>
-        <div>{{ selectedEmail.content}}</div>
-      </div>
-    </div>
-    <div class="row">
-      <div class="col">
-        <label><b>Type</b></label>
-        <p>{{utils.getType(selectedEmail.senderType)}}</p>
-      </div>
-      <div class="col">
-        <label><b>Sent at</b></label>
-        <p>{{utils.getCreatedTime(selectedEmail.created)}}</p>
-      </div>
-    </div>
-  </div>
-  <div class="modal-footer">
-    <button type="button" class="btn btn-secondary" (click)="modal.dismiss('Cross click')">Close</button>
-  </div>
-</ng-template>
+</div>

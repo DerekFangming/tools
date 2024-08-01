@@ -1,32 +1,32 @@
 <nav class="navbar navbar-expand-lg navbar-light bg-light navbar-fixed-top">
   <div class="container-fluid">
-      <a class="navbar-brand ml-2" href="#">Images</a>
-      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+      <a class="navbar-brand ms-2" href="#">Images</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
       </button>
       <div class="collapse navbar-collapse" id="navbarNav">
         <ul class="navbar-nav">
-          <li class="nav-item" [ngClass]="mode == 'all' ? 'active' : ''">
-            <a class="nav-link pointer" (click)="modeChanged('all')">Home</a>
+          <li class="nav-item">
+            <a class="nav-link pointer" [ngClass]="mode == 'all' ? 'active' : ''" (click)="modeChanged('all')">Home</a>
           </li>
           <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle active" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            <a class="nav-link dropdown-toggle active" href="#" id="navbarDropdownMenuLink" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
               Category: {{ getCategory(category) }}
             </a>
             <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-              <a class="dropdown-item" (click)="categoryChanged(newCategory)" *ngFor="let newCategory of categories;"> {{ newCategory }}</a>
+              <a class="dropdown-item pointer" (click)="categoryChanged(c[1])" *ngFor="let c of categories;"> {{ c[0] }}</a>
             </div>
           </li>
-          <li class="nav-item" [ngClass]="mode == 'flagged' ? 'active' : ''">
-            <a class="nav-link pointer" (click)="modeChanged('flagged')">Flagged</a>
+          <li class="nav-item">
+            <a class="nav-link pointer" [ngClass]="mode == 'flagged' ? 'active' : ''" (click)="modeChanged('flagged')">Flagged</a>
           </li>
-          <li class="nav-item" [ngClass]="mode == 'ranked' ? 'active' : ''">
-            <a class="nav-link pointer" (click)="modeChanged('ranked')">Ranked</a>
+          <li class="nav-item">
+            <a class="nav-link pointer" [ngClass]="mode == 'ranked' ? 'active' : ''" (click)="modeChanged('ranked')">Ranked</a>
           </li>
-          <li class="nav-item" [ngClass]="mode == 'saved' ? 'active' : ''">
-            <a class="nav-link pointer" (click)="modeChanged('saved')">Saved</a>
+          <li class="nav-item">
+            <a class="nav-link pointer" [ngClass]="mode == 'saved' ? 'active' : ''" (click)="modeChanged('saved')">Saved</a>
           </li>
-          <li class="nav-item ml-4">
+          <li class="nav-item ms-4">
             <a class="nav-link disabled" href="#">Remaining: {{ remainingPosts }} </a>
           </li>
         </ul>
@@ -37,24 +37,24 @@
 </nav>
 
 <div class="fixed-bottom">
-  <button class="btn btn-primary my-2 my-sm-0 pull-right ml-2" (click)="nextPostBtnClicked()">{{ nextBtnText }}</button>
-  <button type="button" class="btn btn-success primary ml-2  pull-right" (click)="nextPageBtnClicked()" [disabled]="loadingNextPage">
+  <button class="btn btn-primary my-2 my-sm-0 float-end ms-2" (click)="nextPostBtnClicked()">{{ nextBtnText }}</button>
+  <button type="button" class="btn btn-success my-2 my-sm-0 float-end ms-2" (click)="nextPageBtnClicked()" [disabled]="loadingNextPage">
     {{ loadingNextPage ? 'Loading' : 'Next Page' }}
   </button>
-  <button class="btn btn-success my-2 my-sm-0 pull-right" (click)="reloadBtnClicked()">{{ reloadBtnText }}</button>
+  <button class="btn btn-success my-2 my-sm-0 float-end" (click)="reloadBtnClicked()">{{ reloadBtnText }}</button>
 </div>
 
 <div [hidden]="showingIFrame" class="container-fluid mt-2">
 
   <div class="card mt-4" [id]="'post-' + i" *ngFor="let post of posts;let i = index;">
-    <div class="card-header" [style.background-color]="post.rank > 0 || post.flagged ? '#00AA9E' : '#FFFFFF'">
+    <div class="card-header" [style.background-color]="post.rank! > 0 || post.flagged ? '#00AA9E' : '#FFFFFF'">
       <h4 class="my-0">{{ post.title }}</h4>
-      <span class="badge badge-secondary">Catigory: {{ getCategory(post.category) }}</span>
-      <span class="badge ml-2 badge-secondary">{{ getCreatedTime(post.created) }}</span>
-      <span class="badge ml-2" [ngClass]="getRankTheme(post.rank)">Rank: {{ getRankName(post.rank) }}</span>
-      <span class="badge ml-2" [ngClass]="post.flagged ? 'badge-danger' : 'badge-secondary'">{{ post.flagged ? 'Flagged' : 'No flag' }}</span>
-      <a class="ml-3" target="_blank" href="{{ post.attachment }}">Torrent</a>
-      <a class="ml-3" target="_blank" href="{{ post.url }}">View Original</a>
+      <span class="badge bg-secondary">Catigory: {{ getCategory(post.category!) }}</span>
+      <span class="badge ms-2 bg-secondary">{{ getCreatedTime(post.created!) }}</span>
+      <span class="badge ms-2" [ngClass]="getRankTheme(post.rank!)">Rank: {{ getRankName(post.rank!) }}</span>
+      <span class="badge ms-2" [ngClass]="post.flagged ? 'bg-danger' : 'bg-secondary'">{{ post.flagged ? 'Flagged' : 'No flag' }}</span>
+      <a class="ms-3" target="_blank" href="{{ post.attachment }}">Torrent</a>
+      <a class="ms-3" target="_blank" href="{{ post.url }}">View Original</a>
       <button *ngIf="!post.saved" type="button" class="btn btn-link pt-1" (click)="saveBtnClicked(post)">Save</button>
     </div>
     <div class="card-body">
@@ -64,9 +64,11 @@
           (click)="openPreview(imgName)">
         </div>
       </div>
-      <div *ngIf="!post.expanded && (post.imageNames.length > imgLimit || post.imageUrls.length > imgLimit)" class="row mt-2 mb-0">
+      <div class="row mt-2 mb-0">
         <div class="col text-center">
-          <button type="button" class="btn btn-outline-primary btn-block" (click)="post.expanded = true">Expand</button>
+          <div class="d-grid" *ngIf="!post.expanded && (post.imageNames.length > imgLimit || post.imageUrls.length > imgLimit)" >
+            <button type="button" class="btn btn-outline-primary" (click)="post.expanded = true">Expand</button>
+          </div>
         </div>
       </div>
     </div>
@@ -122,7 +124,7 @@
       </div>
 
 	  <div class="modal-body">
-      <img class="aspect-fill" [src]="domSanitizer.bypassSecurityTrustUrl(previewedImgSrc)">
+      <img class="aspect-fill" [src]="domSanitizer.bypassSecurityTrustUrl(previewedImgSrc!)">
 	  </div>
 
     </div>

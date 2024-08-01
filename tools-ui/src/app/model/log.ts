@@ -1,11 +1,11 @@
 export class Log {
-  id: number
-  service: string
-  level: string
-  source: string
-  message: string
-  stacktrace: number
-  created: string
+  id: number | undefined
+  service: string | undefined
+  level: string | undefined
+  source: string | undefined
+  message: string | undefined
+  stacktrace: number | undefined
+  created: string | undefined
 
   constructor() {}
 }

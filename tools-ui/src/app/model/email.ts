@@ -1,15 +1,15 @@
 export class Email {
-  id: number;
-  from: string;
-  to: string;
-  subject: string;
-  content: string;
+  id: number | undefined
+  from: string | undefined
+  to: string | undefined
+  subject: string | undefined
+  content: string | undefined
 
-  senderType: string;
-  attachment: string;
-  html: boolean;
+  senderType: string | undefined
+  attachment: string | undefined
+  html: boolean | undefined
 
-  created: string;
-  read: boolean;
-  error: string;
+  created: string | undefined
+  read: boolean | undefined
+  error: string | undefined
 }
