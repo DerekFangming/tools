@@ -8,13 +8,14 @@ import { environment } from '../../environments/environment'
 import { CommonModule } from '@angular/common'
 import { FormsModule } from '@angular/forms'
 import { RouterOutlet } from '@angular/router'
+import { NgbDatepickerModule } from '@ng-bootstrap/ng-bootstrap'
 
 declare var $: any
 
 @Component({
   selector: 'app-log',
   standalone: true,
-  imports: [RouterOutlet, FormsModule, CommonModule],
+  imports: [RouterOutlet, FormsModule, CommonModule, NgbDatepickerModule],
   templateUrl: './log.component.html',
   styleUrl: './log.component.css'
 })

@@ -12,7 +12,7 @@ export class AuthenticationInterceptor implements HttpInterceptor {
     if (request.url != 'https://api.imgur.com/3/image') {
       request = request.clone({
 			  withCredentials: true
-      });
+      })
     }
 
     return next.handle(request).pipe(

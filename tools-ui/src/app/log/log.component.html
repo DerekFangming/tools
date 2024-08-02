@@ -12,11 +12,11 @@
     </div>
     <div class="col-6 col-sm-6 col-md-2 mb-3">
       <label>From date</label>
-      <input type="text" class="form-control mt-2" [(ngModel)]="fromDate" (ngModelChange)="loadLogs(0)">
+      <input type="text" class="form-control mt-2" [(ngModel)]="fromDate" (ngModelChange)="loadLogs(0)" ngbDatepicker #d1="ngbDatepicker" (click)="d1.toggle()">
     </div>
     <div class="col-6 col-sm-6 col-md-2 mb-3">
       <label>To date</label>
-      <input type="text" class="form-control mt-2" [(ngModel)]="toDate" (ngModelChange)="loadLogs(0)">
+      <input type="text" class="form-control mt-2" [(ngModel)]="toDate" (ngModelChange)="loadLogs(0)" ngbDatepicker #d2="ngbDatepicker" (click)="d2.toggle()">
     </div>
     <div class="col-6 col-sm-6 col-md-1 mb-3">
       <label for="validationCustom02">Service</label>
