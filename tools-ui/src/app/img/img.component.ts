@@ -2,16 +2,18 @@ import { Component, OnInit, HostListener } from '@angular/core'
 import { Title } from '@angular/platform-browser'
 import { HttpClient, HttpParams } from '@angular/common/http'
 import { Post, PostCatMap } from '../model/post'
-import { ActivatedRoute, Router, RouterOutlet } from '@angular/router'
+import { ActivatedRoute, Router, RouterModule, RouterOutlet } from '@angular/router'
 import { DomSanitizer } from '@angular/platform-browser'
 import { environment } from '../../environments/environment'
 import { CommonModule } from '@angular/common'
 import { FormsModule } from '@angular/forms'
 
+declare var $: any
+
 @Component({
   selector: 'app-img',
   standalone: true,
-  imports: [RouterOutlet, FormsModule, CommonModule],
+  imports: [RouterOutlet, FormsModule, CommonModule, RouterModule],
   templateUrl: './img.component.html',
   styleUrl: './img.component.css'
 })
@@ -62,8 +64,7 @@ export class ImgComponent implements OnInit {
         this.router.navigate([], {
           relativeTo: this.activatedRoute,
           queryParams: { mode: this.mode },
-          queryParamsHandling: 'merge',
-          fragment: 'post-0'
+          queryParamsHandling: 'merge'
         })
       },
       error: (error: any) => {
@@ -84,12 +85,9 @@ export class ImgComponent implements OnInit {
 
     this.postSection = forward ? this.postSection + 1 : this.postSection - 1
 
-    this.router.navigate([], {
-      relativeTo: this.activatedRoute,
-      queryParams: { mode: this.mode },
-      queryParamsHandling: 'merge',
-      fragment: 'post-' + this.postSection
-    })
+    
+    let el = document.getElementById(`post-${this.postSection}`)
+    el?.scrollIntoView()
   }
 
   nextPageBtnClicked() {
@@ -131,17 +129,14 @@ export class ImgComponent implements OnInit {
       },
       error: (error: any) => {
         console.log(error)
-      }
+      } 
     })
   }
 
   @HostListener('document:keydown.escape', ['$event'])
   onEscapeClicked(event: KeyboardEvent) {
-    if (this.showingPreview) {
-      this.closePreview();
-    } else {
-      this.showingIFrame = !this.showingIFrame;
-    }
+    $("#s8Preview").modal('hide')
+    this.showingIFrame = !this.showingIFrame;
   }
 
   @HostListener('document:keydown.f1', ['$event'])
@@ -161,14 +156,8 @@ export class ImgComponent implements OnInit {
 
 
   openPreview(src: string) {
-    this.previewedImgSrc = src;
-    document.getElementById('s8ShowPreviewButton')!.click();
-    this.showingPreview = true;
-  }
-
-  closePreview() {
-    document.getElementById('s8HidePreviewButton')!.click();
-    this.showingPreview = false;
+    this.previewedImgSrc = src
+    $("#s8Preview").modal('show')
   }
 
   getCategory(forumId: number) {
@@ -236,7 +225,8 @@ export class ImgComponent implements OnInit {
   }
 
   getImageNames(post: Post) {
-    let imgs = post.imageNames.length == 0 ? post.imageUrls : post.imageNames.map(n => 'https://simg.fmning.com/images/' + post.id + '/' + n)
+    let host = environment.production ? 'https://simg.fmning.com/images/' : 'http://10.0.1.50:9102/images/'
+    let imgs = post.imageNames.length == 0 ? post.imageUrls : post.imageNames.map(n => host + post.id + '/' + n)
 
 	  return post.expanded ? imgs : imgs.slice(0, this.imgLimit)
 	}
