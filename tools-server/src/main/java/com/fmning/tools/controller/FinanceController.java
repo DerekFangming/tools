@@ -18,28 +18,28 @@ import java.util.regex.Pattern;
 
 @CommonsLog
 @RestController
-@RequestMapping(value = "/api/spending")
+@RequestMapping(value = "/api/finance")
 @RequiredArgsConstructor(onConstructor_={@Autowired})
-public class SpendingController {
+public class FinanceController {
 
     private final SpendingAccountRepo accountRepo;
     private final SpendingTransactionRepo transactionRepo;
 
-    @RequestMapping(value = "/accounts", method = RequestMethod.GET)
-    @PreAuthorize("hasAnyAuthority('ADMIN', 'SPENDING')")
+    @RequestMapping(value = "/spending/accounts", method = RequestMethod.GET)
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'FIN')")
     public List<SpendingAccount> getAccounts() {
         return accountRepo.findAll();
     }
 
-    @RequestMapping(value = "/accounts", method = RequestMethod.POST)
-    @PreAuthorize("hasAnyAuthority('ADMIN', 'SPENDING')")
+    @RequestMapping(value = "/spending/accounts", method = RequestMethod.POST)
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'FIN')")
     public SpendingAccount createAccount(@RequestBody SpendingAccount account) {
         account.setId(0);
         return accountRepo.save(account);
     }
 
-    @RequestMapping(value = "/accounts/{id}", method = RequestMethod.PUT)
-    @PreAuthorize("hasAnyAuthority('ADMIN', 'SPENDING')")
+    @RequestMapping(value = "/spending/accounts/{id}", method = RequestMethod.PUT)
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'FIN')")
     public SpendingAccount updateAccount(@PathVariable int id, @RequestBody SpendingAccount account) {
         SpendingAccount spendingAccount = accountRepo.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Not found"));
@@ -50,14 +50,14 @@ public class SpendingController {
         return accountRepo.save(spendingAccount);
     }
 
-    @RequestMapping(value = "/accounts/{id}", method = RequestMethod.DELETE)
-    @PreAuthorize("hasAnyAuthority('ADMIN', 'SPENDING')")
+    @RequestMapping(value = "/spending/accounts/{id}", method = RequestMethod.DELETE)
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'FIN')")
     public void deleteAccount(@PathVariable int id) {
         accountRepo.deleteById(id);
     }
 
-    @RequestMapping(value = "/transactions", method = RequestMethod.GET)
-    @PreAuthorize("hasAnyAuthority('ADMIN', 'SPENDING')")
+    @RequestMapping(value = "/spending/transactions", method = RequestMethod.GET)
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'FIN')")
     public List<SpendingTransaction> getTransactions(@RequestParam(required=false) Date from,
                                                      @RequestParam(required=false) Date to) {
         if (from == null) {
@@ -71,8 +71,8 @@ public class SpendingController {
         }
     }
 
-    @RequestMapping(value = "/transactions", method = RequestMethod.POST)
-    @PreAuthorize("hasAnyAuthority('ADMIN', 'SPENDING')")
+    @RequestMapping(value = "/spending/transactions", method = RequestMethod.POST)
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'FIN')")
     public void uploadTransactions(@RequestBody List<SpendingTransaction> transactions) {
         try {
             transactionRepo.saveAll(transactions);

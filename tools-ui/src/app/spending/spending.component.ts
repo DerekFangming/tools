@@ -5,7 +5,7 @@ import { HttpClient, HttpParams } from '@angular/common/http'
 import { Title } from '@angular/platform-browser'
 import { environment } from '../../environments/environment'
 import { SpendingTransaction } from '../model/spending-transaction'
-import { CommonModule, DOCUMENT } from '@angular/common'
+import { CommonModule } from '@angular/common'
 import { Chart, registerables } from 'chart.js'
 import { UtilsService, transactionCategories } from '../utils.service'
 import { NotificationsService } from 'angular2-notifications'
@@ -49,7 +49,7 @@ export class SpendingComponent implements OnInit, AfterViewInit {
   categories: string[]= []
 
   constructor(private http: HttpClient, private title: Title, private notifierService: NotificationsService,
-    @Inject(DOCUMENT) private document: any, public utils: UtilsService, private router: Router) {
+    public utils: UtilsService, private router: Router) {
     this.title.setTitle('Spending')
     this.categories = Array.from( transactionCategories.keys() )
     Chart.register(...registerables)
@@ -70,14 +70,14 @@ export class SpendingComponent implements OnInit, AfterViewInit {
     if (newTab == 'reports') {
       this.loadTransactions(12, 0)
 
-      this.http.get<SpendingAccount[]>(environment.urlPrefix + 'api/spending/accounts').subscribe(res => {
+      this.http.get<SpendingAccount[]>(environment.urlPrefix + 'api/finance/spending/accounts').subscribe(res => {
         this.accountList = res
       }, error => {
         console.log(error.error)
       })
     } else if (newTab == 'manage') {
       this.loading = true
-      this.http.get<SpendingAccount[]>(environment.urlPrefix + 'api/spending/accounts').subscribe(res => {
+      this.http.get<SpendingAccount[]>(environment.urlPrefix + 'api/finance/spending/accounts').subscribe(res => {
         this.accountList = res.sort((a, b) => a.owner!.localeCompare(b.owner!))
         this.loading = false
       }, error => {
@@ -107,7 +107,7 @@ export class SpendingComponent implements OnInit, AfterViewInit {
       params = params.set('to', new Date(new Date().getFullYear(), new Date().getMonth() - to + 1, 1).toISOString().split('T')[0])
     }
 
-    this.http.get<SpendingTransaction[]>(environment.urlPrefix + 'api/spending/transactions', {params: params}).subscribe({
+    this.http.get<SpendingTransaction[]>(environment.urlPrefix + 'api/finance/spending/transactions', {params: params}).subscribe({
       next: (res: SpendingTransaction[]) => {
         this.transactions = res.sort((a, b) => new Date(a.date!) > new Date(b.date!) ? 1 : -1)
         this.filteredTransactions = this.transactions
@@ -166,7 +166,7 @@ export class SpendingComponent implements OnInit, AfterViewInit {
       })
     }
 
-    let monthlySpendingCanvas: any = document.getElementById('monthlySpending')
+    let monthlySpendingCanvas: any = $("#monthlySpending")[0]
     console.log(monthlySpendingCanvas)
     if (this.monthlySpendingChart != null) this.monthlySpendingChart.destroy()
     this.monthlySpendingChart = new Chart(monthlySpendingCanvas.getContext('2d'), {
@@ -232,7 +232,7 @@ export class SpendingComponent implements OnInit, AfterViewInit {
 
     let topSpendingData = Array.from( spendingByMerchant.values()).sort((a, b) => b.amount - a.amount).slice(0, 15)
 
-    let topSpendingCanvas: any = document.getElementById('topSpending')
+    let topSpendingCanvas: any = $("#topSpending")[0]
     if (this.topSpendingChart != null) this.topSpendingChart.destroy()
     this.topSpendingChart = new Chart(topSpendingCanvas.getContext('2d'), {
       type: 'bar',
@@ -329,8 +329,8 @@ export class SpendingComponent implements OnInit, AfterViewInit {
 
   saveAccount() {
     this.loading = true
-    let request = this.selectedAccount!.id == null ?  this.http.post<SpendingAccount>(environment.urlPrefix + 'api/spending/accounts', this.selectedAccount)
-      : this.http.put<SpendingAccount>(environment.urlPrefix + 'api/spending/accounts/' + this.selectedAccount!.id, this.selectedAccount)
+    let request = this.selectedAccount!.id == null ?  this.http.post<SpendingAccount>(environment.urlPrefix + 'api/finance/spending/accounts', this.selectedAccount)
+      : this.http.put<SpendingAccount>(environment.urlPrefix + 'api/finance/spending/accounts/' + this.selectedAccount!.id, this.selectedAccount)
 
     request.subscribe({
       next: (res: SpendingAccount) => {
@@ -387,7 +387,7 @@ export class SpendingComponent implements OnInit, AfterViewInit {
     }
 
     this.loading = true
-    this.http.post<any>(environment.urlPrefix + `api/spending/transactions`, this.transactions).subscribe({
+    this.http.post<any>(environment.urlPrefix + `api/finance/spending/transactions`, this.transactions).subscribe({
       next: (res: any) => {
         this.loading = false
         $("#transactionUploadModal").modal('hide')
@@ -448,7 +448,7 @@ export class SpendingComponent implements OnInit, AfterViewInit {
   }
 
   processTransactions() {
-    let format = null
+    let format: string | null = null
     for (const [key, value] of this.transactionFiles.entries()) {
       let matrix = this.csvToArray(value)
       if (format == null) {

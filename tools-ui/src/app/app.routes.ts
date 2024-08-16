@@ -7,6 +7,7 @@ import { EmailComponent } from './email/email.component'
 import { ImgUploadComponent } from './img-upload/img-upload.component'
 import { LogComponent } from './log/log.component'
 import { SpendingComponent } from './spending/spending.component'
+import { RealEstateComponent } from './real-estate/real-estate.component'
 
 export const routes: Routes = [
   { path: 'home', component: HomeComponent },
@@ -16,6 +17,7 @@ export const routes: Routes = [
   { path: 'email', component: EmailComponent },
   { path: 'image-upload', component: ImgUploadComponent },
   { path: 'logs', component: LogComponent },
+  { path: 'real-estate', component: RealEstateComponent },
   { path: 'spending', component: SpendingComponent },
   { path: 'spending/manage', component: SpendingComponent },
   { path: '**', redirectTo: '/home', pathMatch: 'full' }
