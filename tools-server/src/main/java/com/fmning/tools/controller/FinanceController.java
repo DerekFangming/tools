@@ -1,9 +1,15 @@
 package com.fmning.tools.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fmning.tools.domain.SpendingAccount;
 import com.fmning.tools.domain.SpendingTransaction;
+import com.fmning.tools.dto.RealEstateDto;
+import com.fmning.tools.repository.ConfigRepo;
 import com.fmning.tools.repository.SpendingAccountRepo;
 import com.fmning.tools.repository.SpendingTransactionRepo;
+import com.fmning.tools.service.RealEstateService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.apachecommons.CommonsLog;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +28,9 @@ import java.util.regex.Pattern;
 @RequiredArgsConstructor(onConstructor_={@Autowired})
 public class FinanceController {
 
+    private final ConfigRepo configRepo;
+    private final ObjectMapper objectMapper;
+    private final RealEstateService realEstateService;
     private final SpendingAccountRepo accountRepo;
     private final SpendingTransactionRepo transactionRepo;
 
@@ -85,6 +94,35 @@ public class FinanceController {
                 throw new IllegalArgumentException(m.group(1));
             }
             throw e;
+        }
+    }
+
+    @RequestMapping(value = "/real-estates", method = RequestMethod.GET)
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'FIN')")
+    public List<RealEstateDto> listRealEstates() throws JsonProcessingException {
+
+        String realEstate = configRepo.findById("REAL_ESTATE")
+                .orElseThrow(() -> new IllegalStateException("Failed to get real estate")).getValue();
+
+
+        List<RealEstateDto> realStates = objectMapper.readValue(realEstate, new TypeReference<>() {});
+
+//        for (RealStateDto r : realStates) {
+//            System.out.println(2);
+//        }
+//        System.out.println(1);
+
+
+        return realStates;
+    }
+
+    @RequestMapping(value = "/reload-real-estates", method = RequestMethod.GET)
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'FIN')")
+    public void reloadRealEstates() {
+        try {
+            realEstateService.processCurrentMonth();
+        } catch (Exception e) {
+            throw new IllegalArgumentException("Failed to reload", e);
         }
     }
 

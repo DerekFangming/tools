@@ -30,7 +30,7 @@ create table tl_emails (
 	attachment text,
 	sender_type text,
 	replacement_sender_type text,
-	request_address  text,
+	request_address	text,
 	request_headers jsonb,
 	request_params jsonb,
 	created timestamp without time zone not null,
@@ -39,19 +39,19 @@ create table tl_emails (
 );
 
 create table tl_images (
-    id serial primary key,
+	id serial primary key,
 	url text,
 	created timestamp without time zone not null
 );
 
 create table tl_ktv_songs (
-    id serial primary key,
+	id serial primary key,
 	title text,
 	requested boolean
 );
 
 create table tl_spending_accounts (
-    id serial primary key,
+	id serial primary key,
 	name text,
 	identifier text,
 	icon text,
@@ -59,9 +59,9 @@ create table tl_spending_accounts (
 );
 
 create table tl_spending_transactions (
-    id serial primary key,
-    account_id integer references tl_spending_accounts,
-    identifier text UNIQUE not null,
+	id serial primary key,
+	account_id integer references tl_spending_accounts,
+	identifier text UNIQUE not null,
 	name text,
 	original_name text,
 	amount text,
@@ -70,19 +70,27 @@ create table tl_spending_transactions (
 	date date
 );
 
+create table tl_real_estates(
+	zid text,
+	date date,
+	value integer,
+	balance integer,
+	PRIMARY KEY (zid, date)
+);
+
 CREATE TABLE logs (
-  id serial primary key,
-  service text not null,
-  level text not null,
-  source text,
-  message text not null,
-  stacktrace text,
-  created timestamp without time zone not null
+	id serial primary key,
+	service text not null,
+	level text not null,
+	source text,
+	message text not null,
+	stacktrace text,
+	created timestamp without time zone not null
 );
 
 CREATE TABLE configurations (
-  key text primary key,
-  value text not null
+	key text primary key,
+	value text not null
 );
 
 CREATE INDEX logs_service_index ON logs (service);
