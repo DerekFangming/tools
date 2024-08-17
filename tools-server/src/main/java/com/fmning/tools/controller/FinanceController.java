@@ -3,10 +3,12 @@ package com.fmning.tools.controller;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fmning.tools.domain.RealEstate;
 import com.fmning.tools.domain.SpendingAccount;
 import com.fmning.tools.domain.SpendingTransaction;
 import com.fmning.tools.dto.RealEstateDto;
 import com.fmning.tools.repository.ConfigRepo;
+import com.fmning.tools.repository.RealEstateRepo;
 import com.fmning.tools.repository.SpendingAccountRepo;
 import com.fmning.tools.repository.SpendingTransactionRepo;
 import com.fmning.tools.service.RealEstateService;
@@ -18,6 +20,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.sql.Date;
+import java.util.Collections;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -31,6 +34,7 @@ public class FinanceController {
     private final ConfigRepo configRepo;
     private final ObjectMapper objectMapper;
     private final RealEstateService realEstateService;
+    private final RealEstateRepo realEstateRepo;
     private final SpendingAccountRepo accountRepo;
     private final SpendingTransactionRepo transactionRepo;
 
@@ -105,15 +109,15 @@ public class FinanceController {
                 .orElseThrow(() -> new IllegalStateException("Failed to get real estate")).getValue();
 
 
-        List<RealEstateDto> realStates = objectMapper.readValue(realEstate, new TypeReference<>() {});
+        List<RealEstateDto> realEstates = objectMapper.readValue(realEstate, new TypeReference<>() {});
 
-//        for (RealStateDto r : realStates) {
-//            System.out.println(2);
-//        }
-//        System.out.println(1);
+        for (RealEstateDto r : realEstates) {
+            List<RealEstate> history = realEstateRepo.findTop12ByZidOrderByDateDesc(r.getZid());
+            Collections.reverse(history);
+            r.setHistory(history);
+        }
 
-
-        return realStates;
+        return realEstates;
     }
 
     @RequestMapping(value = "/reload-real-estates", method = RequestMethod.GET)

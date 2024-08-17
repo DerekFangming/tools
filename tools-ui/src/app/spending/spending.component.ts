@@ -50,7 +50,7 @@ export class SpendingComponent implements OnInit, AfterViewInit {
 
   constructor(private http: HttpClient, private title: Title, private notifierService: NotificationsService,
     public utils: UtilsService, private router: Router) {
-    this.title.setTitle('Spending')
+    this.title.setTitle('Finance')
     this.categories = Array.from( transactionCategories.keys() )
     Chart.register(...registerables)
   }
@@ -70,19 +70,25 @@ export class SpendingComponent implements OnInit, AfterViewInit {
     if (newTab == 'reports') {
       this.loadTransactions(12, 0)
 
-      this.http.get<SpendingAccount[]>(environment.urlPrefix + 'api/finance/spending/accounts').subscribe(res => {
-        this.accountList = res
-      }, error => {
-        console.log(error.error)
+      this.http.get<SpendingAccount[]>(environment.urlPrefix + 'api/finance/spending/accounts').subscribe({
+        next: (res: SpendingAccount[]) => {
+          this.accountList = res
+        },
+        error: (error: any) => {
+          console.log(error.error)
+        }
       })
     } else if (newTab == 'manage') {
       this.loading = true
-      this.http.get<SpendingAccount[]>(environment.urlPrefix + 'api/finance/spending/accounts').subscribe(res => {
-        this.accountList = res.sort((a, b) => a.owner!.localeCompare(b.owner!))
-        this.loading = false
-      }, error => {
-        this.loading = false
-        console.log(error.error)
+      this.http.get<SpendingAccount[]>(environment.urlPrefix + 'api/finance/spending/accounts').subscribe({
+        next: (res: SpendingAccount[]) => {
+          this.accountList = res.sort((a, b) => a.owner!.localeCompare(b.owner!))
+          this.loading = false
+        },
+        error: (error: any) => {
+          this.loading = false
+          console.log(error.error)
+        }
       })
     }
   }

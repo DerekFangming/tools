@@ -19,3 +19,20 @@
     </div>
   </div>
 </nav>
+
+<div class="container-fluid">
+  <div *ngIf="loading" class="row my-5">
+    <div class="col text-center my-5">
+      <i class="fa fa-refresh fa-spin fa-3x" aria-hidden="true"></i>
+    </div>
+  </div>
+
+  <div class="row mt-2">
+    <div class="col-4" *ngFor="let r of realEstateList; let i = index">
+      <div class="row">
+        <div class="col px-0"><div style="height: 400px"><canvas [id]="'realEstate-' + i"></canvas></div></div>
+      </div>
+    </div>
+  </div>
+
+</div>
