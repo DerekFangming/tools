@@ -113,7 +113,8 @@
   <div class="modal-dialog modal-lg">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="exampleModalCenterTitle">Preview</h5>
+        <h5 class="modal-title" id="exampleModalCenterTitle">Preview 
+          <small><a [href]="domSanitizer.bypassSecurityTrustUrl(previewedImgSrc!)" target="_blank">link</a></small></h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
 
