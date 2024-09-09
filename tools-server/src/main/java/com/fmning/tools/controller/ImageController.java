@@ -29,7 +29,7 @@ public class ImageController {
 
     @GetMapping
     public ResponseEntity<List<Image>> getImages(){
-        return ResponseEntity.ok(imageRepo.findAllByOrderByIdDesc());
+        return ResponseEntity.ok(imageRepo.findAllByTypeIsNullOrderByIdDesc());
     }
 
     @PostMapping
@@ -53,32 +53,33 @@ public class ImageController {
         image.setId(0);
         image.setCreated(Instant.now());
 
-        if (image.getData() != null) {
-            String[] parts = image.getData().split(",");
-            String data = parts.length == 2 ? parts[1] : parts[0];
-            try {
-                JSONObject payload = new JSONObject();
-                payload.put("image", data);
+        if (image.getType() == null) {
+            if (image.getData() != null) {
+                String[] parts = image.getData().split(",");
+                String data = parts.length == 2 ? parts[1] : parts[0];
+                try {
+                    JSONObject payload = new JSONObject();
+                    payload.put("image", data);
 
-                Request request = new Request.Builder()
-                        .url("https://api.imgur.com/3/image")
-                        .post(okhttp3.RequestBody.create(payload.toString(), MediaType.parse("application/json; charset=utf-8")))
-                        .addHeader("authorization", "Client-ID " + toolsProperties.getImgurClientId())
-                        .build();
+                    Request request = new Request.Builder()
+                            .url("https://api.imgur.com/3/image")
+                            .post(okhttp3.RequestBody.create(payload.toString(), MediaType.parse("application/json; charset=utf-8")))
+                            .addHeader("authorization", "Client-ID " + toolsProperties.getImgurClientId())
+                            .build();
 
-                Call call = client.newCall(request);
-                Response response = call.execute();
-                JSONObject json = new JSONObject(Objects.requireNonNull(response.body()).string());
-                String link = json.getJSONObject("data").getString("link");
-                image.setUrl(link);
-            } catch (Exception e) {
-                image.setUrl(null);
-                log.error("Failed to upload images", e);
-                e.printStackTrace();
+                    Call call = client.newCall(request);
+                    Response response = call.execute();
+                    JSONObject json = new JSONObject(Objects.requireNonNull(response.body()).string());
+                    String link = json.getJSONObject("data").getString("link");
+                    image.setUrl(link);
+                    image.setData(null);
+                } catch (Exception e) {
+                    image.setUrl(null);
+                    log.error("Failed to upload images", e);
+                    e.printStackTrace();
+                }
             }
         }
-
-        image.setData(null);
         return image;
     }
 

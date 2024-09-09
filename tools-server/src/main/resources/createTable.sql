@@ -41,7 +41,9 @@ create table tl_emails (
 create table tl_images (
 	id serial primary key,
 	url text,
-	created timestamp without time zone not null
+	created timestamp without time zone not null,
+	type text,
+	data text
 );
 
 create table tl_ktv_songs (

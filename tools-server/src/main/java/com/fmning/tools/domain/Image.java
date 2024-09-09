@@ -25,12 +25,15 @@ public class Image {
     @GeneratedValue(strategy=GenerationType.IDENTITY)
     private int id;
 
+    @Column(name="type")
+    private String type;
+
     @Column(name="url")
     private String url;
 
+    @Column(name="data")
+    private String data;
+
     @Column(name="created")
     private Instant created;
-
-    @Transient
-    private String data;
 }

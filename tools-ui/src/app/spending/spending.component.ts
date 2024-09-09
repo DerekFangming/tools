@@ -526,7 +526,7 @@ export class SpendingComponent implements OnInit, AfterViewInit {
         for (let i = 1; i < matrix.length; i ++) {
           let row = matrix[i]
           let description = row[2] == null ? null : row[2].toLocaleLowerCase()
-          if (description == null || (!row[0].startsWith('1') && !row[1].startsWith('1')) || !row[3].startsWith('-')
+          if (description == null || !row[3].startsWith('-')
             || description.includes('autopay') || description.includes('auto pay')) {
             console.log('Skipping row: ' + row)
             continue

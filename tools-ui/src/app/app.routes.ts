@@ -8,6 +8,7 @@ import { ImgUploadComponent } from './img-upload/img-upload.component'
 import { LogComponent } from './log/log.component'
 import { SpendingComponent } from './spending/spending.component'
 import { RealEstateComponent } from './real-estate/real-estate.component'
+import { DocumentComponent } from './document/document.component'
 
 export const routes: Routes = [
   { path: 'home', component: HomeComponent },
@@ -20,5 +21,7 @@ export const routes: Routes = [
   { path: 'real-estate', component: RealEstateComponent },
   { path: 'spending', component: SpendingComponent },
   { path: 'spending/manage', component: SpendingComponent },
+  { path: 'document', component: DocumentComponent },
+  { path: 'document/manage', component: DocumentComponent },
   { path: '**', redirectTo: '/home', pathMatch: 'full' }
 ]

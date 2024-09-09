@@ -7,5 +7,5 @@ import java.util.List;
 
 public interface ImageRepo extends CrudRepository<Image, Integer> {
 
-    List<Image> findAllByOrderByIdDesc();
+    List<Image> findAllByTypeIsNullOrderByIdDesc();
 }
