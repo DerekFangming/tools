@@ -1,0 +1,16 @@
+.pointer {
+  cursor: pointer;
+}
+
+.dotted-border {
+  border-style: dashed;
+}
+
+.img-preview {
+  height: 100px
+}
+
+.img-delete {
+  position:absolute;
+  right: 0px;
+}

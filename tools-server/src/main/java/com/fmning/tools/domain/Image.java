@@ -1,6 +1,7 @@
 package com.fmning.tools.domain;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fmning.tools.type.ImageType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -26,7 +27,8 @@ public class Image {
     private int id;
 
     @Column(name="type")
-    private String type;
+    @Enumerated(EnumType.STRING)
+    private ImageType type;
 
     @Column(name="url")
     private String url;

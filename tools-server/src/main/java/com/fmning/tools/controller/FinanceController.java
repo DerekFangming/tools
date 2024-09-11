@@ -39,20 +39,20 @@ public class FinanceController {
     private final SpendingTransactionRepo transactionRepo;
 
     @RequestMapping(value = "/spending/accounts", method = RequestMethod.GET)
-    @PreAuthorize("hasAnyAuthority('ADMIN', 'FIN')")
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'TL')")
     public List<SpendingAccount> getAccounts() {
         return accountRepo.findAll();
     }
 
     @RequestMapping(value = "/spending/accounts", method = RequestMethod.POST)
-    @PreAuthorize("hasAnyAuthority('ADMIN', 'FIN')")
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'TL')")
     public SpendingAccount createAccount(@RequestBody SpendingAccount account) {
         account.setId(0);
         return accountRepo.save(account);
     }
 
     @RequestMapping(value = "/spending/accounts/{id}", method = RequestMethod.PUT)
-    @PreAuthorize("hasAnyAuthority('ADMIN', 'FIN')")
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'TL')")
     public SpendingAccount updateAccount(@PathVariable int id, @RequestBody SpendingAccount account) {
         SpendingAccount spendingAccount = accountRepo.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Not found"));
@@ -64,13 +64,13 @@ public class FinanceController {
     }
 
     @RequestMapping(value = "/spending/accounts/{id}", method = RequestMethod.DELETE)
-    @PreAuthorize("hasAnyAuthority('ADMIN', 'FIN')")
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'TL')")
     public void deleteAccount(@PathVariable int id) {
         accountRepo.deleteById(id);
     }
 
     @RequestMapping(value = "/spending/transactions", method = RequestMethod.GET)
-    @PreAuthorize("hasAnyAuthority('ADMIN', 'FIN')")
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'TL')")
     public List<SpendingTransaction> getTransactions(@RequestParam(required=false) Date from,
                                                      @RequestParam(required=false) Date to) {
         if (from == null) {
@@ -85,7 +85,7 @@ public class FinanceController {
     }
 
     @RequestMapping(value = "/spending/transactions", method = RequestMethod.POST)
-    @PreAuthorize("hasAnyAuthority('ADMIN', 'FIN')")
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'TL')")
     public void uploadTransactions(@RequestBody List<SpendingTransaction> transactions) {
         try {
             transactionRepo.saveAll(transactions);
@@ -102,7 +102,7 @@ public class FinanceController {
     }
 
     @RequestMapping(value = "/real-estates", method = RequestMethod.GET)
-    @PreAuthorize("hasAnyAuthority('ADMIN', 'FIN')")
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'TL')")
     public List<RealEstateDto> listRealEstates() throws JsonProcessingException {
 
         String realEstate = configRepo.findById("REAL_ESTATE")
@@ -121,7 +121,7 @@ public class FinanceController {
     }
 
     @RequestMapping(value = "/reload-real-estates", method = RequestMethod.GET)
-    @PreAuthorize("hasAnyAuthority('ADMIN', 'FIN')")
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'TL')")
     public void reloadRealEstates() {
         try {
             realEstateService.processCurrentMonth();

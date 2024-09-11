@@ -80,6 +80,14 @@ create table tl_real_estates(
 	PRIMARY KEY (zid, date)
 );
 
+create table tl_documents (
+	id serial primary key,
+	name text,
+	owner text,
+	expiration_date date,
+	images text
+);
+
 CREATE TABLE logs (
 	id serial primary key,
 	service text not null,
