@@ -10,14 +10,18 @@ import com.fmning.tools.repository.*;
 import com.fmning.tools.service.RealEstateService;
 import com.fmning.tools.type.ImageType;
 import jakarta.persistence.Column;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.apachecommons.CommonsLog;
+import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.sql.Date;
@@ -29,6 +33,8 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+
+import static org.springframework.core.codec.ResourceEncoder.DEFAULT_BUFFER_SIZE;
 
 @CommonsLog
 @RestController
@@ -74,6 +80,25 @@ public class DocumentController {
     @PreAuthorize("hasAnyAuthority('ADMIN', 'TL')")
     public List<DocumentDto> getDocuments() {
         return documentRepo.findAll().stream().map(this::domainToDto).collect(Collectors.toList());
+    }
+
+    @RequestMapping(value = "/images/{id}", method = RequestMethod.GET)
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'TL')")
+    public void getDocumentImage(@PathVariable int id, HttpServletResponse response) {
+        Image image = imageRepo.findById(id).orElseThrow(() -> new IllegalArgumentException("Image ID " + id + " not found"));
+        if (image.getType() != ImageType.DOCUMENT) throw new IllegalArgumentException("Image ID " + id + " is not the right type");
+
+
+        byte[] file = Base64.decodeBase64(image.getData());
+        response.reset();
+        response.setBufferSize(DEFAULT_BUFFER_SIZE);
+        response.setContentType("image/png");
+        response.addHeader("Cache-Control", "max-age=30692876");
+        try {
+            response.getOutputStream().write(file);
+        } catch (IOException e) {
+            throw new IllegalArgumentException("Failed to write data", e);
+        }
     }
 
     private DocumentDto domainToDto(Document document) {

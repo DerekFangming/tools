@@ -26,6 +26,7 @@ export class DocumentComponent implements AfterViewInit {
 
   expirationDate: any
   selectedDocument = new Document()
+  documentList: Document[] = []
 
   constructor(private http: HttpClient, private title: Title, private notifierService: NotificationsService,
     public utils: UtilsService, private router: Router) {
@@ -42,6 +43,19 @@ export class DocumentComponent implements AfterViewInit {
 
   showTab(newTab: string) {
     this.tab = newTab
+    if (newTab == 'document') {
+      this.loading = true
+      this.http.get<Document[]>(environment.urlPrefix + `api/documents`).subscribe({
+        next: (res: Document[]) => {
+          this.loading = false
+          this.documentList = res
+        },
+        error: (error: any) => {
+          this.loading = false
+          this.notifierService.error('Error', 'Failed to list')
+        }
+      })
+    }
   }
 
   showDocumentModal() {
@@ -112,8 +126,13 @@ export class DocumentComponent implements AfterViewInit {
       }
     })
 
-    
+  }
 
+  getImageUrl(images: string[] | undefined) {
+    if (images == undefined || images.length == 0) {
+      return ''
+    }
+    return environment.urlPrefix + 'api/documents/images/' + images[0]
   }
 
 }

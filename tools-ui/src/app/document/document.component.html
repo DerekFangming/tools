@@ -1,6 +1,6 @@
 <nav class="navbar navbar-expand-lg navbar-light bg-light">
   <div class="container shows-up">
-    <a class="navbar-brand" href="#">Finance</a>
+    <a class="navbar-brand" href="#">Document</a>
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
       <span class="navbar-toggler-icon"></span>
     </button>
@@ -28,7 +28,28 @@
   </div>
 </div>
 
+<div class="container">
+  <div *ngIf="!loading && tab=='document'" class="row">
 
+    <div class="col-12 pointer" *ngFor="let d of documentList">
+      <div class="card mb-3">
+        <div class="row g-0">
+          <div class="col-4" style="height: 120px;overflow:hidden">
+            <img src="{{ getImageUrl(d.images) }}" class="img-fluid rounded-start">
+          </div>
+          <div class="col-8">
+            <div class="card-body">
+              <h5 class="card-title">{{ d.name }}</h5>
+              <p class="card-text mb-0">{{ d.owner }}</p>
+              <p class="card-text"><small class="text-muted">{{ d.expirationDate }}</small></p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
 
 <div class="modal fade" id="documentModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
   <div class="modal-dialog">
