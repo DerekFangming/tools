@@ -204,4 +204,9 @@ export class DocumentComponent implements AfterViewInit {
     return image
   }
 
+  isDocumentExpired(date: string | undefined) {
+    if (date == undefined) return false
+    return new Date(date) < new Date()
+  }
+
 }
