@@ -13,6 +13,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.time.Instant;
@@ -29,6 +33,8 @@ import static org.springframework.core.codec.ResourceEncoder.DEFAULT_BUFFER_SIZE
 @RequestMapping(value = "/api/documents")
 @RequiredArgsConstructor(onConstructor_={@Autowired})
 public class DocumentController {
+
+    private static final int TARGET_PREVIEW_SIZE = 120;
 
     private final ImageRepo imageRepo;
     private final DocumentRepo documentRepo;
@@ -115,13 +121,57 @@ public class DocumentController {
         if (image.getType() != ImageType.DOCUMENT) throw new IllegalArgumentException("Image ID " + id + " is not the right type");
 
 
-        byte[] file = Base64.decodeBase64(image.getData());
+        byte[] data = Base64.decodeBase64(image.getData());
         response.reset();
         response.setBufferSize(DEFAULT_BUFFER_SIZE);
         response.setContentType("image/png");
         response.addHeader("Cache-Control", "max-age=30692876");
         try {
-            response.getOutputStream().write(file);
+            response.getOutputStream().write(data);
+        } catch (IOException e) {
+            throw new IllegalArgumentException("Failed to write data", e);
+        }
+    }
+
+    @RequestMapping(value = "/images/{id}/preview", method = RequestMethod.GET)
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'TL')")
+    public void getDocumentImagePreview(@PathVariable int id, HttpServletResponse response) throws IOException {
+        Image image = imageRepo.findById(id).orElseThrow(() -> new IllegalArgumentException("Image ID " + id + " not found"));
+        if (image.getType() != ImageType.DOCUMENT) throw new IllegalArgumentException("Image ID " + id + " is not the right type");
+
+        byte[] data = Base64.decodeBase64(image.getData());
+        BufferedImage img = ImageIO.read(new ByteArrayInputStream(data));
+        int width = img.getWidth();
+        int height = img.getHeight();
+
+        // Crop image to square
+        if (width > height) {
+            int x = (width - height) / 2;
+            img = img.getSubimage(x, 0, height, height);
+        } else if (height > width) {
+            int y = (height - width) / 2;
+            img = img.getSubimage(0, y, width, width);
+        }
+
+        // Resize image to target size
+        if (Math.min(width, height) > TARGET_PREVIEW_SIZE) {
+            java.awt.Image resultingImage = img.getScaledInstance(TARGET_PREVIEW_SIZE, TARGET_PREVIEW_SIZE, java.awt.Image.SCALE_DEFAULT);
+            BufferedImage outputImage = new BufferedImage(TARGET_PREVIEW_SIZE, TARGET_PREVIEW_SIZE, BufferedImage.TYPE_INT_RGB);
+            outputImage.getGraphics().drawImage(resultingImage, 0, 0, null);
+            img = outputImage;
+        }
+
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        ImageIO.write(img, "png", baos);
+        data = baos.toByteArray();
+
+
+        response.reset();
+        response.setBufferSize(DEFAULT_BUFFER_SIZE);
+        response.setContentType("image/png");
+//        response.addHeader("Cache-Control", "max-age=30692876");
+        try {
+            response.getOutputStream().write(data);
         } catch (IOException e) {
             throw new IllegalArgumentException("Failed to write data", e);
         }

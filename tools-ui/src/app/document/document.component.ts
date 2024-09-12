@@ -190,7 +190,7 @@ export class DocumentComponent implements AfterViewInit {
     if (images == undefined || images.length == 0) {
       return ''
     }
-    return this.getImageUrl(images[0])
+    return this.getImageUrl(images[0]) + '/preview'
   }
 
   getImageUrl(image: string | undefined) {
