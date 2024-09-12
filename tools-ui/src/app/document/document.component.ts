@@ -168,7 +168,6 @@ export class DocumentComponent implements AfterViewInit {
       this.http.post<Document>(environment.urlPrefix + `api/documents`, this.selectedDocument).subscribe({
         next: (res: Document) => {
           this.loading = false
-          this.documentList.push(res)
           this.filteredDocumentList.push(res)
           $('#documentModal').modal('hide')
         },
