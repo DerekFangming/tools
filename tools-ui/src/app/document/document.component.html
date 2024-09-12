@@ -1,27 +1,40 @@
-<nav class="navbar navbar-expand-lg navbar-light bg-light">
-  <div class="container shows-up">
-    <a class="navbar-brand" href="#">Document</a>
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-      <span class="navbar-toggler-icon"></span>
-    </button>
-    <div class="collapse navbar-collapse" id="navbarNav">
-      <ul class="navbar-nav me-auto">
-        <li class="nav-item">
-          <a class="nav-link pointer" [ngClass]="{'active': tab == 'document'}" [routerLink]="'/document'">Documents</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link pointer" [ngClass]="{'active': tab == 'manage'}" [routerLink]="'/document/manage'">Manage</a>
-        </li>
-      </ul>
-      <form *ngIf="tab == 'manage'" class="form-inline my-2 my-lg-0">
-        <button type="button" class="btn btn-outline-success" [disabled]="loading" (click)="showDocumentModal(undefined)">Add</button>
+<div class="sticky-top bg-light">
+  <nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <div class="container shows-up">
+      <a class="navbar-brand" href="#">Document</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav me-auto">
+          <li class="nav-item">
+            <a class="nav-link pointer" [ngClass]="{'active': tab == 'document'}" [routerLink]="'/document'">Documents</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link pointer" [ngClass]="{'active': tab == 'manage'}" [routerLink]="'/document/manage'">Manage</a>
+          </li>
+        </ul>
+        <form *ngIf="tab == 'manage'" class="form-inline my-2 my-lg-0">
+          <button type="button" class="btn btn-outline-success" [disabled]="loading" (click)="showDocumentModal(undefined)">Add</button>
+        </form>
+      </div>
+    </div>
+  </nav>
+  
+  <div class="container">
+    <div class="rol">
+      <form>
+        <div class="input-group">  
+          <span class="input-group-text" id="basic-addon1"><i class="fa fa-search" aria-hidden="true"></i></span>
+          <input type="text" class="form-control" placeholder="Search" name="search" (input)="searchValue($event)" >
+        </div>
       </form>
     </div>
   </div>
-</nav>
+</div>
 
 <div class="container">
-  <div *ngIf="loading" class="row my-5">
+  <div *ngIf="loading" class="row my-4">
     <div class="col text-center my-5">
       <i class="fa fa-refresh fa-spin fa-3x" aria-hidden="true"></i>
     </div>
@@ -31,7 +44,7 @@
 <div class="container">
   <div *ngIf="!loading" class="row">
 
-    <div class="col-md-6 col-sm-12" *ngFor="let d of documentList" (click)="showDocumentDetailsModal(d)" [ngClass]="{'pointer': tab == 'document'}">
+    <div class="col-md-6 col-sm-12" *ngFor="let d of filteredDocumentList" (click)="showDocumentDetailsModal(d)" [ngClass]="{'pointer': tab == 'document'}">
       <div class="card mt-3">
         <div class="row g-0">
           <div class="col-4" style="height:120px;overflow:hidden">

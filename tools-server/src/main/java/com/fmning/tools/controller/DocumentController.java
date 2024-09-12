@@ -169,7 +169,7 @@ public class DocumentController {
         response.reset();
         response.setBufferSize(DEFAULT_BUFFER_SIZE);
         response.setContentType("image/png");
-//        response.addHeader("Cache-Control", "max-age=30692876");
+        response.addHeader("Cache-Control", "max-age=30692876");
         try {
             response.getOutputStream().write(data);
         } catch (IOException e) {

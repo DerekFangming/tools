@@ -27,6 +27,7 @@ export class DocumentComponent implements AfterViewInit {
   expirationDate: any
   selectedDocument = new Document()
   documentList: Document[] = []
+  filteredDocumentList: Document[] = []
 
   constructor(private http: HttpClient, private title: Title, private notifierService: NotificationsService,
     public utils: UtilsService, private router: Router) {
@@ -49,6 +50,7 @@ export class DocumentComponent implements AfterViewInit {
       next: (res: Document[]) => {
         this.loading = false
         this.documentList = res
+        this.filteredDocumentList = res
       },
       error: (error: any) => {
         this.loading = false
@@ -96,6 +98,10 @@ export class DocumentComponent implements AfterViewInit {
         var index = this.documentList.indexOf(this.selectedDocument);
         if (index !== -1) {
           this.documentList.splice(index, 1)
+        }
+        var index = this.filteredDocumentList.indexOf(this.selectedDocument);
+        if (index !== -1) {
+          this.filteredDocumentList.splice(index, 1)
         }
         $('#documentDeleteModal').modal('hide')
       },
@@ -163,6 +169,7 @@ export class DocumentComponent implements AfterViewInit {
         next: (res: Document) => {
           this.loading = false
           this.documentList.push(res)
+          this.filteredDocumentList.push(res)
           $('#documentModal').modal('hide')
         },
         error: (error: any) => {
@@ -207,6 +214,11 @@ export class DocumentComponent implements AfterViewInit {
   isDocumentExpired(date: string | undefined) {
     if (date == undefined) return false
     return new Date(date) < new Date()
+  }
+
+  searchValue(event: any){
+    let value = event.target.value.trim().toLowerCase()
+    this.filteredDocumentList = this.documentList.filter(d => d.name?.toLowerCase().includes(value))
   }
 
 }
