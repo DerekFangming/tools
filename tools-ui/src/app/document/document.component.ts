@@ -43,24 +43,67 @@ export class DocumentComponent implements AfterViewInit {
 
   showTab(newTab: string) {
     this.tab = newTab
-    if (newTab == 'document') {
-      this.loading = true
-      this.http.get<Document[]>(environment.urlPrefix + `api/documents`).subscribe({
-        next: (res: Document[]) => {
-          this.loading = false
-          this.documentList = res
-        },
-        error: (error: any) => {
-          this.loading = false
-          this.notifierService.error('Error', 'Failed to list')
+    
+    this.loading = true
+    this.http.get<Document[]>(environment.urlPrefix + `api/documents`).subscribe({
+      next: (res: Document[]) => {
+        this.loading = false
+        this.documentList = res
+      },
+      error: (error: any) => {
+        this.loading = false
+        this.notifierService.error('Error', 'Failed to list')
+      }
+    })
+  }
+
+  showDocumentModal(doc: Document | undefined) {
+    if (doc == null) {
+      this.selectedDocument = new Document()
+    } else {
+      this.selectedDocument = doc
+      if (doc.expirationDate != null) {
+        let dates = doc.expirationDate.split('-')
+        this.expirationDate = {
+          year: parseInt(dates[0]),
+          month: parseInt(dates[1]),
+          day: parseInt(dates[2])
         }
-      })
+      } else {
+        this.expirationDate = null
+      }
+    }
+    $('#documentModal').modal('show')
+  }
+
+  showDocumentDetailsModal(d: Document) {
+    if (this.tab == 'document') {
+      this.selectedDocument = d
+      $('#documentDetailsModal').modal('show')
     }
   }
 
-  showDocumentModal() {
-    this.selectedDocument = new Document()
-    $('#documentModal').modal('show')
+  showDocumentDeleteModal(d: Document) {
+    this.selectedDocument = d
+    $('#documentDeleteModal').modal('show')
+  }
+
+  deleteDocument() {
+    this.loading = true
+    this.http.delete<any>(environment.urlPrefix + `api/documents/${this.selectedDocument.id}`).subscribe({
+      next: (res: any) => {
+        this.loading = false
+        var index = this.documentList.indexOf(this.selectedDocument);
+        if (index !== -1) {
+          this.documentList.splice(index, 1)
+        }
+        $('#documentDeleteModal').modal('hide')
+      },
+      error: (error: any) => {
+        this.loading = false
+        this.notifierService.error('Error', 'Failed to delete')
+      }
+    })
   }
 
   onImagesSelected(event: any) {
@@ -85,7 +128,7 @@ export class DocumentComponent implements AfterViewInit {
     
           this.selectedDocument.images?.push(fileReader.result!.toString())
         }
-        reader.readAsDataURL(file);
+        reader.readAsDataURL(file)
       }
     }
   }
@@ -114,25 +157,51 @@ export class DocumentComponent implements AfterViewInit {
       return
     }
 
-    this.loading = true
-    this.http.post<any>(environment.urlPrefix + `api/documents`, this.selectedDocument).subscribe({
-      next: (res: any) => {
-        this.loading = false
-        $('#documentModal').modal('hide')
-      },
-      error: (error: any) => {
-        this.loading = false
-        this.notifierService.error('Error', 'Failed to create')
-      }
-    })
+    if (this.selectedDocument.id == null) {
+      this.loading = true
+      this.http.post<Document>(environment.urlPrefix + `api/documents`, this.selectedDocument).subscribe({
+        next: (res: Document) => {
+          this.loading = false
+          this.documentList.push(res)
+          $('#documentModal').modal('hide')
+        },
+        error: (error: any) => {
+          this.loading = false
+          this.notifierService.error('Error', 'Failed to create')
+        }
+      })
+    } else {
+      this.loading = true
+      this.http.put<Document>(environment.urlPrefix + `api/documents/${this.selectedDocument.id}`, this.selectedDocument).subscribe({
+        next: (res: Document) => {
+          this.loading = false
+          $('#documentModal').modal('hide')
+        },
+        error: (error: any) => {
+          this.loading = false
+          this.notifierService.error('Error', 'Failed to create')
+        }
+      })
+    }
 
   }
 
-  getImageUrl(images: string[] | undefined) {
+  getImagePreviewUrl(images: string[] | undefined) {
     if (images == undefined || images.length == 0) {
       return ''
     }
-    return environment.urlPrefix + 'api/documents/images/' + images[0]
+    return this.getImageUrl(images[0])
+  }
+
+  getImageUrl(image: string | undefined) {
+    if (image == undefined) {
+      return ''
+    }
+    if ( /^-?\d+$/.test(image)) {
+      return environment.urlPrefix + 'api/documents/images/' + image
+    }
+
+    return image
   }
 
 }

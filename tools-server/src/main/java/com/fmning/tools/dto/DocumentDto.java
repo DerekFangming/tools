@@ -9,7 +9,7 @@ import java.util.List;
 @Data
 @Builder
 public class DocumentDto {
-    private String id;
+    private int id;
     private String name;
     private String owner;
     private Date expirationDate;

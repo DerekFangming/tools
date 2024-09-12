@@ -1,5 +1,5 @@
 export class Document {
-  id: string | undefined
+  id: number | undefined
   name: string | undefined
   owner: string | undefined
   expirationDate: string | undefined

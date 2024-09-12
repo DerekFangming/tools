@@ -14,7 +14,7 @@
         </li>
       </ul>
       <form *ngIf="tab == 'manage'" class="form-inline my-2 my-lg-0">
-        <button type="button" class="btn btn-outline-success" [disabled]="loading" (click)="showDocumentModal()">Add</button>
+        <button type="button" class="btn btn-outline-success" [disabled]="loading" (click)="showDocumentModal(undefined)">Add</button>
       </form>
     </div>
   </div>
@@ -29,19 +29,23 @@
 </div>
 
 <div class="container">
-  <div *ngIf="!loading && tab=='document'" class="row">
+  <div *ngIf="!loading" class="row">
 
-    <div class="col-12 pointer" *ngFor="let d of documentList">
+    <div class="col-12" *ngFor="let d of documentList" (click)="showDocumentDetailsModal(d)" [ngClass]="{'pointer': tab == 'document'}">
       <div class="card mb-3">
         <div class="row g-0">
           <div class="col-4" style="height: 120px;overflow:hidden">
-            <img src="{{ getImageUrl(d.images) }}" class="img-fluid rounded-start">
+            <img src="{{ getImagePreviewUrl(d.images) }}" class="img-fluid rounded-start">
           </div>
           <div class="col-8">
             <div class="card-body">
               <h5 class="card-title">{{ d.name }}</h5>
               <p class="card-text mb-0">{{ d.owner }}</p>
               <p class="card-text"><small class="text-muted">{{ d.expirationDate }}</small></p>
+              <div *ngIf="tab=='manage'">
+                <button type="button" class="btn btn-secondary" (click)="showDocumentModal(d)">Edit</button>
+                <button type="button" class="btn btn-danger ms-2" (click)="showDocumentDeleteModal(d)">Delete</button>
+              </div>
             </div>
           </div>
         </div>
@@ -55,7 +59,7 @@
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
-        <h4 class="modal-title">Account</h4>
+        <h4 class="modal-title">Document</h4>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
@@ -80,7 +84,7 @@
                   <div class="col-3" *ngFor="let image of selectedDocument.images;">
                     <div class="card mt-2">
                       <button type="button" class="btn btn-danger img-delete" (click)="removeImage(image)"><i class="fa fa-times" aria-hidden="true"></i></button>
-                      <img class="card-img-top img-preview" [src]="image">
+                      <img class="card-img-top img-preview" src="{{ getImageUrl(image) }}">
                     </div>
                   </div>
                   <div class="col-3">
@@ -105,3 +109,51 @@
     </div>
   </div>
 </div>
+
+<div class="modal fade" id="documentDetailsModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <div>
+          <h4 class="modal-title">{{ selectedDocument.name }}</h4>
+          <p class="card-text">{{ selectedDocument.owner }}<small class="text-muted ms-2" *ngIf="selectedDocument.expirationDate">{{ selectedDocument.expirationDate }}</small></p>
+        </div>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+          <div class="col-12 my-1" *ngFor="let image of selectedDocument.images;">
+            <img src="{{ getImageUrl(image) }}" class="img-fluid rounded-start">
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="documentDeleteModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <div>
+          <h4 class="modal-title">{{ selectedDocument.name }}</h4>
+          <p class="card-text">{{ selectedDocument.owner }}<small class="text-muted ms-2" *ngIf="selectedDocument.expirationDate">{{ selectedDocument.expirationDate }}</small></p>
+        </div>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+          <p class="lead">Are you sure about deleting this document?</p>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-danger" (click)="deleteDocument()">Delete</button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
