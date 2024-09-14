@@ -47,10 +47,10 @@
     <div class="col-md-6 col-sm-12" *ngFor="let d of filteredDocumentList" (click)="showDocumentDetailsModal(d)" [ngClass]="{'pointer': tab == 'document'}">
       <div class="card mt-3">
         <div class="row g-0">
-          <div class="col-4" style="height:120px;overflow:hidden">
+          <div style="width: 120px;height:120px;overflow:hidden">
             <img src="{{ getImagePreviewUrl(d.images) }}" class="img-fluid rounded-start">
           </div>
-          <div class="col-8">
+          <div class="col">
             <div class="card-body">
               <h5 class="card-title">{{ d.name }} <span class="badge bg-danger" *ngIf="isDocumentExpired(d.expirationDate)">Expired</span></h5>
               <p class="card-text mb-0"><i class="fa fa-user" aria-hidden="true"></i> {{ d.owner }}</p>

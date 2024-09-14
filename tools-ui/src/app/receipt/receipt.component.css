@@ -1,0 +1,16 @@
+.pointer {
+  cursor: pointer;
+}
+
+
+.thumb {
+  height: 120px;
+  width: 120px;
+}
+
+.thumb-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+

@@ -1,1 +1,70 @@
-<p>receipt works!</p>
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+  <div class="container shows-up">
+    <a class="navbar-brand" href="#">Receipts</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav me-auto">
+        <li class="nav-item">
+          <a class="nav-link pointer"  [routerLink]="'/receipts/categories/chinese-wheaten'">中式面食</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link pointer"  [routerLink]="'/receipts/categories/chinese'">中餐</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link pointer"  [routerLink]="'/receipts/1'">韩餐</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link pointer"  [routerLink]="'/receipts/2'">西餐</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link pointer"  [routerLink]="'/receipts/3'">其他</a>
+        </li>
+      </ul>
+      <!-- <form *ngIf="tab == 'manage'" class="form-inline my-2 my-lg-0">
+        <button type="button" class="btn btn-outline-success" [disabled]="loading" (click)="showDocumentModal(undefined)">Add</button>
+      </form> -->
+
+    </div>
+  </div>
+</nav>
+
+<div class="container">
+  <div *ngIf="loading" class="row my-4">
+    <div class="col text-center my-5">
+      <i class="fa fa-refresh fa-spin fa-3x" aria-hidden="true"></i>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+  <div *ngIf="!loading" class="row">
+
+    <div class="col-md-6 col-sm-12 pointer" *ngFor="let r of receiptList">
+      <div class="card mt-3">
+        <div class="row g-0">
+          <!-- <div style="width: 120px;height:120px;overflow:hidden"> -->
+          <div class="thumb">
+            <img class="thumb-img" src="{{r.thumbnail}}" >
+          </div>
+          <div class="col">
+            <div class="card-body">
+              <h5 class="card-title">{{ r.name }}</h5>
+              <!-- <p class="card-text mb-0"><i class="fa fa-user" aria-hidden="true"></i> {{ r.content }}</p> -->
+              <!-- <p class="card-text"><i class="fa fa-calendar" aria-hidden="true"></i>
+                <small class="text-muted" *ngIf="d.expirationDate"> Valid until {{ d.expirationDate }}</small>
+                <small class="text-muted" *ngIf="!d.expirationDate"> No expiration date</small>
+              </p>
+              <div *ngIf="tab=='manage'">
+                <button type="button" class="btn btn-secondary" (click)="showDocumentModal(d)">Edit</button>
+                <button type="button" class="btn btn-danger ms-2" (click)="showDocumentDeleteModal(d)">Delete</button>
+              </div> -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>

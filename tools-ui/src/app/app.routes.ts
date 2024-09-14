@@ -9,6 +9,7 @@ import { LogComponent } from './log/log.component'
 import { SpendingComponent } from './spending/spending.component'
 import { RealEstateComponent } from './real-estate/real-estate.component'
 import { DocumentComponent } from './document/document.component'
+import { ReceiptComponent } from './receipt/receipt.component'
 
 export const routes: Routes = [
   { path: 'home', component: HomeComponent },
@@ -23,5 +24,8 @@ export const routes: Routes = [
   { path: 'spending/manage', component: SpendingComponent },
   { path: 'document', component: DocumentComponent },
   { path: 'document/manage', component: DocumentComponent },
+  { path: 'receipts', redirectTo: 'receipts/categories/chinese-wheaten'},
+  { path: 'receipts/categories/:category', component: ReceiptComponent },
+  { path: 'receipts/:id', component: ReceiptComponent },
   { path: '**', redirectTo: '/home', pathMatch: 'full' }
 ]
