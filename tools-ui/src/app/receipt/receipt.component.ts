@@ -9,11 +9,12 @@ import { UtilsService } from '../utils.service';
 import { Subscription } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { Receipt } from '../model/receipt';
+import { MarkdownModule } from 'ngx-markdown';
 
 @Component({
   selector: 'app-receipt',
   standalone: true,
-  imports: [RouterOutlet, FormsModule, CommonModule, RouterModule],
+  imports: [RouterOutlet, FormsModule, CommonModule, RouterModule, MarkdownModule],
   templateUrl: './receipt.component.html',
   styleUrl: './receipt.component.css'
 })
@@ -25,6 +26,8 @@ export class ReceiptComponent implements OnDestroy, AfterViewInit {
   receiptId: string | null = null
   
   receiptList: Receipt[] = []
+  receipt: Receipt = new Receipt()
+  content = 'This is an **example** where we bind a variable to the `markdown` component that is also bind to the editor.'
 
   constructor(private http: HttpClient, private title: Title, private notifierService: NotificationsService,
     public utils: UtilsService, private route: ActivatedRoute, private router: Router) {
@@ -65,6 +68,10 @@ export class ReceiptComponent implements OnDestroy, AfterViewInit {
     } else if (this.receiptId) {
       console.log('Loading receipt with ID ' + this.receiptId)
     }
+  }
+
+  getCreatedTime(time: string | undefined) {
+    return new Date(time ?? '').toLocaleString()
   }
 
 }

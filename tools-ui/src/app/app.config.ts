@@ -6,6 +6,7 @@ import { provideAnimations } from '@angular/platform-browser/animations'
 import { provideRouter } from '@angular/router'
 import { SimpleNotificationsModule } from 'angular2-notifications'
 import { routes } from './app.routes'
+import { provideMarkdown } from 'ngx-markdown'
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -21,6 +22,7 @@ export const appConfig: ApplicationConfig = {
     importProvidersFrom(SimpleNotificationsModule.forRoot({
       position: ['bottom', 'left'],
       timeOut: 5000,
-    }))
+    })),
+    provideMarkdown()
   ]
 }
