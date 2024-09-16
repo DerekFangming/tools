@@ -27,7 +27,6 @@ export class ReceiptComponent implements OnDestroy, AfterViewInit {
   
   receiptList: Receipt[] = []
   receipt: Receipt = new Receipt()
-  content = 'This is an **example** where we bind a variable to the `markdown` component that is also bind to the editor.'
 
   constructor(private http: HttpClient, private title: Title, private notifierService: NotificationsService,
     public utils: UtilsService, private route: ActivatedRoute, private router: Router) {
@@ -66,7 +65,20 @@ export class ReceiptComponent implements OnDestroy, AfterViewInit {
       })
 
     } else if (this.receiptId) {
-      console.log('Loading receipt with ID ' + this.receiptId)
+      this.loading = true
+      this.http.get<Receipt>(environment.urlPrefix + `api/receipts/${this.receiptId}`).subscribe({
+        next: (res: Receipt) => {
+          this.loading = false
+          this.receipt = res
+          console.log(this.receipt.content)
+        },
+        error: (error: any) => {
+          this.loading = false
+          this.notifierService.error('Error', 'Failed to get')
+        }
+      })
+
+      
     }
   }
 

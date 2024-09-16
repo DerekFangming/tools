@@ -113,7 +113,6 @@ public class ReceiptController {
 //    }
 
     @RequestMapping(value = "", method = RequestMethod.GET)
-    @PreAuthorize("hasAnyAuthority('ADMIN', 'TL')")
     public List<Receipt> getReceipts() {
         return List.of(Receipt.builder()
                 .id(1)
@@ -139,6 +138,25 @@ public class ReceiptController {
                         .content("content 123")
                         .created(Instant.now())
                         .build());
+    }
+
+    @RequestMapping(value = "/{id}", method = RequestMethod.GET)
+    public Receipt getReceipt(@PathVariable int id) {
+        return Receipt.builder()
+                .id(1)
+                .name("烤火鸡")
+                .category(ReceiptCategory.CHINESE)
+                .thumbnail("https://i.imgur.com/umFvSun.png")
+                .content("*Markdown example*\n" +
+                        "This is an **example** where we bind a variable to the `markdown` component that is also bind to the editor.\n" +
+                        "#### example.component.ts\n" +
+                        "```\n" +
+                        "function hello() {\n" +
+                        "  alert('Hello World');\n" +
+                        "}\n" +
+                        "```\n ")
+                .created(Instant.now())
+                .build();
     }
 
     @RequestMapping(value = "/images/{id}", method = RequestMethod.GET)

@@ -27,21 +27,21 @@
   </div>
 </nav>
 
-<div class="container">
-  <div *ngIf="loading" class="row my-4">
+<div *ngIf="loading" class="container">
+  <div class="row my-4">
     <div class="col text-center my-5">
       <i class="fa fa-refresh fa-spin fa-3x" aria-hidden="true"></i>
     </div>
   </div>
 </div>
 
-<div class="container">
-  <div *ngIf="!loading && category" class="row">
+<div *ngIf="!loading && category" class="container">
+  <div class="row">
     <div class="col-md-6 col-sm-12" *ngFor="let r of receiptList">
       <div class="card mt-3">
         <div class="row g-0 pointer" [routerLink]="'/receipts/' + r.id">
-          <div class="thumb">
-            <img class="thumb-img" src="{{r.thumbnail}}" >
+          <div class="thumbnail">
+            <img class="fill-img" src="{{r.thumbnail}}" >
           </div>
           <div class="col">
             <div class="card-body">
@@ -55,10 +55,22 @@
   </div>
 </div>
 
-<div class="container">
-  <div *ngIf="!loading && receiptId" class="row">
-    <div class="col2">
-      <markdown [data]="content"></markdown>
+<div *ngIf="!loading && receiptId" class="container mt-4">
+  <div class="row g-0">
+    <div class="thumbnail-title">
+      <img class="fill-img" src="{{receipt.thumbnail}}" >
+    </div>
+    <div class="col">
+      <p class="display-6 ms-2">{{ receipt.name }}</p>
+      <p class="card-text ms-2">
+        <small class="text-muted">Created at {{getCreatedTime(receipt.created)}}</small>
+        <button type="button" class="btn btn-link py-0 px-0 ms-2">Edit</button><button type="button" class="btn btn-link text-danger py-0 px-0 ms-2">Delete</button>
+      </p>
+    </div>
+  </div>
+  <div class="row mt-3">
+    <div class="col">
+      <markdown [data]="receipt.content"></markdown>
     </div>
   </div>
 </div>
