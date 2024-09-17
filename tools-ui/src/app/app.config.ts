@@ -7,6 +7,7 @@ import { provideRouter } from '@angular/router'
 import { SimpleNotificationsModule } from 'angular2-notifications'
 import { routes } from './app.routes'
 import { MARKED_OPTIONS, provideMarkdown } from 'ngx-markdown'
+import { AngularMarkdownEditorModule } from 'angular-markdown-editor'
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -34,6 +35,7 @@ export const appConfig: ApplicationConfig = {
           smartypants: false,
         },
       },
-    })
+    }),
+    importProvidersFrom(AngularMarkdownEditorModule.forRoot({}))
   ]
 }

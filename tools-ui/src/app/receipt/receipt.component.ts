@@ -9,18 +9,20 @@ import { UtilsService } from '../utils.service';
 import { Subscription } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { Receipt } from '../model/receipt';
-import { MarkdownModule } from 'ngx-markdown';
+import { MarkdownModule, MarkdownService } from 'ngx-markdown';
+import { AngularMarkdownEditorModule, EditorInstance, EditorOption } from 'angular-markdown-editor';
 
 @Component({
   selector: 'app-receipt',
   standalone: true,
-  imports: [RouterOutlet, FormsModule, CommonModule, RouterModule, MarkdownModule],
+  imports: [RouterOutlet, FormsModule, CommonModule, RouterModule, MarkdownModule, AngularMarkdownEditorModule],
   templateUrl: './receipt.component.html',
   styleUrl: './receipt.component.css'
 })
 export class ReceiptComponent implements OnDestroy, AfterViewInit {
 
   loading = false
+  editing = false
   routerSubscription: Subscription | undefined
   category: string | null = null
   receiptId: string | null = null
@@ -28,8 +30,21 @@ export class ReceiptComponent implements OnDestroy, AfterViewInit {
   receiptList: Receipt[] = []
   receipt: Receipt = new Receipt()
 
+  editorOptions: EditorOption = {
+    autofocus: false,
+    iconlibrary: 'fa',
+    savable: false,
+    height: '700',
+    // onFullscreenExit: (e) => this.hidePreview(),
+    // onShow: (e) => this.bsEditorInstance = e,
+    parser: (val) => this.parse(val),
+    onChange: (e) => {
+      this.receipt.content = e.getContent()
+    }
+  }
+
   constructor(private http: HttpClient, private title: Title, private notifierService: NotificationsService,
-    public utils: UtilsService, private route: ActivatedRoute, private router: Router) {
+    public utils: UtilsService, private route: ActivatedRoute, private router: Router, private markdownService: MarkdownService) {
     this.title.setTitle('Receipts')
 
     this.routerSubscription = this.router.events.subscribe((val) => {
@@ -84,6 +99,27 @@ export class ReceiptComponent implements OnDestroy, AfterViewInit {
 
   getCreatedTime(time: string | undefined) {
     return new Date(time ?? '').toLocaleString()
+  }
+
+  addReceipt() {
+    this.receipt = new Receipt()
+    this.category = null
+    this.receiptId = null
+    this.editing = true
+  }
+
+  parse(inputValue: string) {
+    console.log('parsing ===============')
+    const markedOutput = this.markdownService.parse(inputValue.trim())
+    this.highlight()
+
+    return markedOutput;
+  }
+
+  highlight() {
+    setTimeout(() => {
+      this.markdownService.highlight();
+    });
   }
 
 }
