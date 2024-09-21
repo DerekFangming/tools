@@ -1,6 +1,6 @@
 package com.fmning.tools.type;
 
-public enum ReceiptCategory {
+public enum RecipeCategory {
     CHINESE_WHEATEN,
     CHINESE,
     KOREAN,

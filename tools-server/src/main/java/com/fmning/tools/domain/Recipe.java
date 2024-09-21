@@ -1,6 +1,6 @@
 package com.fmning.tools.domain;
 
-import com.fmning.tools.type.ReceiptCategory;
+import com.fmning.tools.type.RecipeCategory;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -11,13 +11,13 @@ import org.hibernate.annotations.DynamicUpdate;
 import java.time.Instant;
 
 @Entity
-@Table(name="tl_receipts")
+@Table(name="tl_recipes")
 @DynamicUpdate
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Receipt {
+public class Recipe {
 
     @Id
     @Column(name="id")
@@ -29,7 +29,7 @@ public class Receipt {
 
     @Column(name="category")
     @Enumerated(EnumType.STRING)
-    private ReceiptCategory category;
+    private RecipeCategory category;
 
     @Column(name="content")
     private String content;

@@ -2,17 +2,16 @@ package com.fmning.tools.controller;
 
 import com.fmning.tools.domain.Document;
 import com.fmning.tools.domain.Image;
-import com.fmning.tools.domain.Receipt;
+import com.fmning.tools.domain.Recipe;
 import com.fmning.tools.dto.DocumentDto;
 import com.fmning.tools.repository.DocumentRepo;
 import com.fmning.tools.repository.ImageRepo;
 import com.fmning.tools.type.ImageType;
-import com.fmning.tools.type.ReceiptCategory;
+import com.fmning.tools.type.RecipeCategory;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.apachecommons.CommonsLog;
 import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -22,21 +21,17 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.time.Instant;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 import static org.springframework.core.codec.ResourceEncoder.DEFAULT_BUFFER_SIZE;
 
 @CommonsLog
 @RestController
-@RequestMapping(value = "/api/receipts")
+@RequestMapping(value = "/api/recipes")
 @RequiredArgsConstructor(onConstructor_={@Autowired})
-public class ReceiptController {
+public class RecipeController {
 
     private static final int TARGET_PREVIEW_SIZE = 120;
 
@@ -113,11 +108,11 @@ public class ReceiptController {
 //    }
 
     @RequestMapping(value = "", method = RequestMethod.GET)
-    public List<Receipt> getReceipts() {
-        return List.of(Receipt.builder()
+    public List<Recipe> getRecipes() {
+        return List.of(Recipe.builder()
                 .id(1)
                 .name("烤火鸡")
-                .category(ReceiptCategory.CHINESE)
+                .category(RecipeCategory.CHINESE)
                 .thumbnail("https://i.imgur.com/umFvSun.png")
                 .content("### Markdown example\n" +
                         "---\n" +
@@ -130,10 +125,10 @@ public class ReceiptController {
                         "```")
                 .created(Instant.now())
                 .build(),
-                Receipt.builder()
+                Recipe.builder()
                         .id(2)
                         .name("Great Pasta")
-                        .category(ReceiptCategory.WESTERN)
+                        .category(RecipeCategory.WESTERN)
                         .thumbnail("https://i.imgur.com/lSMsffo.png")
                         .content("content 123")
                         .created(Instant.now())
@@ -141,11 +136,11 @@ public class ReceiptController {
     }
 
     @RequestMapping(value = "/{id}", method = RequestMethod.GET)
-    public Receipt getReceipt(@PathVariable int id) {
-        return Receipt.builder()
+    public Recipe getRecipe(@PathVariable int id) {
+        return Recipe.builder()
                 .id(1)
                 .name("烤火鸡")
-                .category(ReceiptCategory.CHINESE)
+                .category(RecipeCategory.CHINESE)
                 .thumbnail("https://i.imgur.com/umFvSun.png")
                 .content("*Markdown example*\n" +
                         "This is an **example** where we bind a variable to the `markdown` component that is also bind to the editor.\n" +

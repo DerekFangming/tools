@@ -1,29 +1,29 @@
 <nav class="navbar navbar-expand-lg navbar-light bg-light">
   <div class="container shows-up">
-    <a class="navbar-brand" href="#">Receipts</a>
+    <a class="navbar-brand" href="#">Recipes</a>
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
       <span class="navbar-toggler-icon"></span>
     </button>
     <div class="collapse navbar-collapse" id="navbarNav">
       <ul class="navbar-nav me-auto">
         <li class="nav-item">
-          <a class="nav-link pointer" [ngClass]="{'active': category=='chinese-wheaten'}" [routerLink]="'/receipts/categories/chinese-wheaten'">中式面食</a>
+          <a class="nav-link pointer" [ngClass]="{'active': category=='chinese-wheaten'}" [routerLink]="'/recipes/categories/chinese-wheaten'">中式面食</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link pointer" [ngClass]="{'active': category=='chinese'}" [routerLink]="'/receipts/categories/chinese'">中餐</a>
+          <a class="nav-link pointer" [ngClass]="{'active': category=='chinese'}" [routerLink]="'/recipes/categories/chinese'">中餐</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link pointer" [ngClass]="{'active': category=='korean'}" [routerLink]="'/receipts/categories/korean'">韩餐</a>
+          <a class="nav-link pointer" [ngClass]="{'active': category=='korean'}" [routerLink]="'/recipes/categories/korean'">韩餐</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link pointer" [ngClass]="{'active': category=='western'}" [routerLink]="'/receipts/categories/western'">西餐</a>
+          <a class="nav-link pointer" [ngClass]="{'active': category=='western'}" [routerLink]="'/recipes/categories/western'">西餐</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link pointer" [ngClass]="{'active': category=='other'}" [routerLink]="'/receipts/categories/other'">其他</a>
+          <a class="nav-link pointer" [ngClass]="{'active': category=='other'}" [routerLink]="'/recipes/categories/other'">其他</a>
         </li>
       </ul>
       <form *ngIf="category" class="form-inline my-2 my-lg-0">
-        <button type="button" class="btn btn-outline-success" [disabled]="loading" (click)="addReceipt()">Add</button>
+        <button type="button" class="btn btn-outline-success" [disabled]="loading" (click)="addRecipe()">Add</button>
       </form>
     </div>
   </div>
@@ -39,9 +39,9 @@
 
 <div *ngIf="!loading && category" class="container">
   <div class="row">
-    <div class="col-md-6 col-sm-12" *ngFor="let r of receiptList">
+    <div class="col-md-6 col-sm-12" *ngFor="let r of recipeList">
       <div class="card mt-3">
-        <div class="row g-0 pointer" [routerLink]="'/receipts/' + r.id">
+        <div class="row g-0 pointer" [routerLink]="'/recipes/' + r.id">
           <div class="thumbnail">
             <img class="fill-img" src="{{r.thumbnail}}" >
           </div>
@@ -57,22 +57,22 @@
   </div>
 </div>
 
-<div *ngIf="!loading && receiptId" class="container mt-4">
+<div *ngIf="!loading && recipeId" class="container mt-4">
   <div class="row g-0">
     <div class="thumbnail-title">
-      <img class="fill-img" src="{{receipt.thumbnail}}" >
+      <img class="fill-img" src="{{recipe.thumbnail}}" >
     </div>
     <div class="col">
-      <p class="display-6 ms-2">{{ receipt.name }}</p>
+      <p class="display-6 ms-2">{{ recipe.name }}</p>
       <p class="card-text ms-2">
-        <small class="text-muted">Created at {{getCreatedTime(receipt.created)}}</small>
+        <small class="text-muted">Created at {{getCreatedTime(recipe.created)}}</small>
         <button type="button" class="btn btn-link py-0 px-0 ms-2">Edit</button><button type="button" class="btn btn-link text-danger py-0 px-0 ms-2">Delete</button>
       </p>
     </div>
   </div>
   <div class="row mt-3">
     <div class="col">
-      <markdown [data]="receipt.content"></markdown>
+      <markdown [data]="recipe.content"></markdown>
     </div>
   </div>
 </div>
@@ -81,13 +81,13 @@
   <div class="container">
     <div class="row g-0">
       <div class="thumbnail-title">
-        <img class="fill-img" src="{{receipt.thumbnail}}" >
+        <img class="fill-img" src="{{recipe.thumbnail}}" >
       </div>
       <div class="col">
         <form>
           <div class="form-group ms-3">
-            <label class="lead">Receipt Title</label>
-            <input type="text" class="form-control mt-2" name="name" placeholder="Receipt Title">
+            <label class="lead">recipe Title</label>
+            <input type="text" class="form-control mt-2" name="name" placeholder="recipe Title">
           </div>
         </form>
       </div>
@@ -103,7 +103,7 @@
         <div class="card-header">
           Preview
         </div>
-        <markdown [data]="receipt.content"></markdown>
+        <markdown [data]="recipe.content"></markdown>
       </div>
     </div>
   </div>

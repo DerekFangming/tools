@@ -1,4 +1,4 @@
-export class Receipt {
+export class Recipe {
   id: number | undefined
   name: string | undefined
   category: string | undefined
