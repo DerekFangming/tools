@@ -99,7 +99,12 @@
       </angular-markdown-editor>
     </div>
     <div class="col">
-      <markdown [data]="receipt.content"></markdown>
+      <div class="card" style="height:700px;overflow: scroll;">
+        <div class="card-header">
+          Preview
+        </div>
+        <markdown [data]="receipt.content"></markdown>
+      </div>
     </div>
   </div>
 </div>

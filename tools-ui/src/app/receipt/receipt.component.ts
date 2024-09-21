@@ -35,11 +35,43 @@ export class ReceiptComponent implements OnDestroy, AfterViewInit {
     iconlibrary: 'fa',
     savable: false,
     height: '700',
-    // onFullscreenExit: (e) => this.hidePreview(),
-    // onShow: (e) => this.bsEditorInstance = e,
+    enableDropDataUri: true,
+    dropZoneOptions: {
+      dictDefaultMessage: 'Drop Here!',
+      paramName: 'file',
+      maxFilesize: 2, // MB
+      addRemoveLinks: true,
+      init: function () {
+          this.on('success', function (file: any) {
+              console.log('success > ' + file.name);
+          });
+      }
+    },
     parser: (val) => this.parse(val),
     onChange: (e) => {
-      this.receipt.content = e.getContent()
+      
+      let content = this.parseContent(e.getContent())
+      if (content == null) {
+        this.receipt.content = e.getContent()
+      } else {
+        this.receipt.content = content
+        e.setContent(content)
+      }
+      // console.log('Changed')
+      // this.receipt.content = e.getContent()
+
+      // console.log(e.getContent())
+
+      // e.setContent(e.getContent().replace('', ''))
+    },
+    onFocus: (e) => {
+      let content = this.parseContent(e.getContent())
+      if (content == null) {
+        this.receipt.content = e.getContent()
+      } else {
+        this.receipt.content = content
+        e.setContent(content)
+      }
     }
   }
 
@@ -109,17 +141,21 @@ export class ReceiptComponent implements OnDestroy, AfterViewInit {
   }
 
   parse(inputValue: string) {
-    console.log('parsing ===============')
     const markedOutput = this.markdownService.parse(inputValue.trim())
-    this.highlight()
+    setTimeout(() => {
+      this.markdownService.highlight()
+    })
 
-    return markedOutput;
+    return markedOutput
   }
 
-  highlight() {
-    setTimeout(() => {
-      this.markdownService.highlight();
-    });
+  parseContent(content: string) {
+    if (/<img src="(.*?)" \/>/gm.test(content)) {
+      console.log('Has image')
+      return content.replace(/<img src="(.*?)" \/>/gm, '<IMAGE IS REPLACED HERE />');
+    }
+    
+    return null
   }
 
 }
