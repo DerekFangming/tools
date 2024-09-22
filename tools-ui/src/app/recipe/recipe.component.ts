@@ -12,6 +12,8 @@ import { Recipe } from '../model/recipe'
 import { MarkdownModule, MarkdownService } from 'ngx-markdown'
 import { AngularMarkdownEditorModule, EditorOption } from 'angular-markdown-editor'
 
+declare var $: any
+
 @Component({
   selector: 'app-recipe',
   standalone: true,
@@ -23,6 +25,7 @@ export class RecipeComponent implements OnDestroy, AfterViewInit {
 
   loading = false
   editing = false
+  isDirty = false
   routerSubscription: Subscription | undefined
   category: string | null = null
   recipeId: string | null = null
@@ -36,43 +39,9 @@ export class RecipeComponent implements OnDestroy, AfterViewInit {
     savable: false,
     height: '700',
     enableDropDataUri: true,
-    dropZoneOptions: {
-      dictDefaultMessage: 'Drop Here!',
-      paramName: 'file',
-      maxFilesize: 2, // MB
-      addRemoveLinks: true,
-      init: function () {
-          this.on('success', function (file: any) {
-              console.log('success > ' + file.name);
-          });
-      }
-    },
     parser: (val) => this.parse(val),
-    onChange: (e) => {
-      
-      let content = this.parseContent(e.getContent())
-      if (content == null) {
-        this.recipe.content = e.getContent()
-      } else {
-        this.recipe.content = content
-        e.setContent(content)
-      }
-      // console.log('Changed')
-      // this.recipe.content = e.getContent()
-
-      // console.log(e.getContent())
-
-      // e.setContent(e.getContent().replace('', ''))
-    },
-    onFocus: (e) => {
-      let content = this.parseContent(e.getContent())
-      if (content == null) {
-        this.recipe.content = e.getContent()
-      } else {
-        this.recipe.content = content
-        e.setContent(content)
-      }
-    }
+    onChange: (e) => this.processContent(e),
+    onFocus: (e) => this.processContent(e)
   }
 
   constructor(private http: HttpClient, private title: Title, private notifierService: NotificationsService,
@@ -95,6 +64,8 @@ export class RecipeComponent implements OnDestroy, AfterViewInit {
   }
 
   loadData() {
+    this.editing = false
+    this.isDirty = false
     this.category = this.route.snapshot.paramMap.get('category')
     this.recipeId = this.route.snapshot.paramMap.get('id')
     if (this.category) {
@@ -148,14 +119,47 @@ export class RecipeComponent implements OnDestroy, AfterViewInit {
 
     return markedOutput
   }
-
-  parseContent(content: string) {
-    if (/<img src="(.*?)" \/>/gm.test(content)) {
-      console.log('Has image')
-      return content.replace(/<img src="(.*?)" \/>/gm, '<IMAGE IS REPLACED HERE />');
+  
+  processContent(e: any) {
+    this.isDirty = true
+    let content = e.getContent()
+    if (!/<img src="(.*?)" \/>/gm.test(content)) {
+      this.recipe.content = content
+      return
     }
-    
-    return null
+
+    content = content.replace(/<img src="(.*?)" \/>/gm, '<IMAGE IS REPLACED HERE />')
+    this.recipe.content = content
+    e.setContent(content)
+  }
+
+  onImagesSelected(event: any) {
+    event.preventDefault()
+    this.isDirty = true
+    for (let file of event.target.files) {
+      let fileName = file.name.toLowerCase()
+      if (fileName.endsWith('jpg') || fileName.endsWith('jpeg') || fileName.endsWith('png') || fileName.endsWith('gif')) {
+        var reader = new FileReader()
+        reader.onload = (event) =>{
+          var fileReader = event.target as FileReader
+          this.recipe.thumbnail = fileReader.result!.toString()
+        }
+        reader.readAsDataURL(file)
+      }
+    }
+  }
+
+  cancelRecipe() {
+    if (this.isDirty) {
+      $('#cancelConfirmationModal').modal('show')
+    } else {
+      this.confirmCancelRecipe()
+    }
+  }
+
+  confirmCancelRecipe() {
+    this.category = 'chinese-wheaten'
+    this.loadData()
   }
 
 }

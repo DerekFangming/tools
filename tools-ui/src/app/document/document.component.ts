@@ -113,7 +113,7 @@ export class DocumentComponent implements AfterViewInit {
   }
 
   onImagesSelected(event: any) {
-    event.preventDefault();
+    event.preventDefault()
     this.loadImages(event.target.files);
   }
 

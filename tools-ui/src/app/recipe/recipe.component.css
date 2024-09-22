@@ -18,3 +18,7 @@
   object-fit: cover;
 }
 
+.dotted-border {
+  border-style: dashed;
+}
+
