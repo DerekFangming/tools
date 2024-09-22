@@ -6,20 +6,8 @@
     </button>
     <div class="collapse navbar-collapse" id="navbarNav">
       <ul class="navbar-nav me-auto">
-        <li class="nav-item">
-          <a class="nav-link pointer" [ngClass]="{'active': category=='chinese-wheaten', 'disabled': editing}" [routerLink]="'/recipes/categories/chinese-wheaten'">中式面食</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link pointer" [ngClass]="{'active': category=='chinese', 'disabled': editing}" [routerLink]="'/recipes/categories/chinese'">中餐</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link pointer" [ngClass]="{'active': category=='korean', 'disabled': editing}" [routerLink]="'/recipes/categories/korean'">韩餐</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link pointer" [ngClass]="{'active': category=='western', 'disabled': editing}" [routerLink]="'/recipes/categories/western'">西餐</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link pointer" [ngClass]="{'active': category=='other', 'disabled': editing}" [routerLink]="'/recipes/categories/other'">其他</a>
+        <li class="nav-item" *ngFor="let r of recipeCategories">
+          <a class="nav-link pointer" [ngClass]="{'active': category==r.url, 'disabled': editing}" [routerLink]="'/recipes/categories/' + r.url">{{r.label}}</a>
         </li>
       </ul>
       <form *ngIf="category" class="form-inline my-2 my-lg-0">
@@ -27,7 +15,7 @@
       </form>
       <form *ngIf="editing" class="form-inline my-2 my-lg-0">
         <button type="button" class="btn btn-outline-danger me-2" [disabled]="loading" (click)="cancelRecipe()">Cancel</button>
-        <button type="button" class="btn btn-primary" [disabled]="loading" (click)="addRecipe()">Save</button>
+        <button type="button" class="btn btn-primary" [disabled]="loading" (click)="saveRecipe()">Save</button>
       </form>
     </div>
   </div>
@@ -47,7 +35,7 @@
       <div class="card mt-3">
         <div class="row g-0 pointer" [routerLink]="'/recipes/' + r.id">
           <div class="thumbnail">
-            <img class="fill-img" src="{{r.thumbnail}}" >
+            <img class="fill-img" src="{{r.thumbnail ?? 'https://i.imgur.com/zJhEsI7.jpeg'}}" >
           </div>
           <div class="col">
             <div class="card-body">
@@ -57,6 +45,11 @@
           </div>
         </div>
       </div>
+    </div>
+  </div>
+  <div class="row" *ngIf="recipeList.length == 0">
+    <div class="col text-center mt-4">
+      <p class="lead mt-4" style="font-size: 1.5rem">No recipe found</p>
     </div>
   </div>
 </div>
@@ -94,12 +87,25 @@
         <input type="file" class="d-none" #fileSelect (change)="onImagesSelected($event)">
       </div>
       <div class="col">
-        <form>
-          <div class="form-group ms-3">
-            <label class="lead">Recipe Title</label>
-            <input type="text" class="form-control mt-2" name="name" placeholder="Recipe Title">
+        <div class="row ms-3">
+          <label class="col-sm-1 lead px-0">Recipe Title</label>
+          <div class="col-sm-11">
+            <input type="text" class="form-control" name="name" placeholder="Recipe Title" [(ngModel)]="recipe.name">
           </div>
-        </form>
+        </div>
+        <div class="row ms-3 mt-2">
+          <label class="col-sm-1 lead px-0">Category</label>
+          <div class="col-sm-11">
+            <div class="dropdown">
+              <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                {{ recipe.category == null ? 'Select Category' : getCategoryLabel()}}
+              </button>
+              <ul class="dropdown-menu">
+                <li *ngFor="let r of recipeCategories"><a class="dropdown-item pointer" (click)="onCategorySelected(r)">{{r.label}}</a></li>
+              </ul>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -134,7 +140,7 @@
         </div>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-danger" data-bs-dismiss="modal" (click)="confirmCancelRecipe()">Cancel Editing</button>
+        <button type="button" class="btn btn-danger" data-bs-dismiss="modal" (click)="reloadMainPage()">Cancel Editing</button>
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
       </div>
     </div>

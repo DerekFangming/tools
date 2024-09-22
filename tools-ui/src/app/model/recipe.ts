@@ -6,3 +6,9 @@ export class Recipe {
   content: string | undefined
   created: string | undefined
 }
+
+export class RecipeCategory {
+  url!: string
+  label!: string
+  value!: string
+}

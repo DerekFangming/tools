@@ -1,31 +1,18 @@
 package com.fmning.tools.controller;
 
-import com.fmning.tools.domain.Document;
-import com.fmning.tools.domain.Image;
 import com.fmning.tools.domain.Recipe;
-import com.fmning.tools.dto.DocumentDto;
-import com.fmning.tools.repository.DocumentRepo;
-import com.fmning.tools.repository.ImageRepo;
-import com.fmning.tools.type.ImageType;
+import com.fmning.tools.repository.RecipeRepo;
 import com.fmning.tools.type.RecipeCategory;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.apachecommons.CommonsLog;
-import org.apache.commons.codec.binary.Base64;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import javax.imageio.ImageIO;
-import java.awt.image.BufferedImage;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.time.Instant;
-import java.util.Arrays;
-import java.util.List;
 
-import static org.springframework.core.codec.ResourceEncoder.DEFAULT_BUFFER_SIZE;
+import java.time.Instant;
+import java.util.List;
 
 @CommonsLog
 @RestController
@@ -33,211 +20,38 @@ import static org.springframework.core.codec.ResourceEncoder.DEFAULT_BUFFER_SIZE
 @RequiredArgsConstructor(onConstructor_={@Autowired})
 public class RecipeController {
 
-    private static final int TARGET_PREVIEW_SIZE = 120;
+    private final RecipeRepo recipeRepo;
 
-    private final ImageRepo imageRepo;
-    private final DocumentRepo documentRepo;
+    @RequestMapping(value = "", method = RequestMethod.POST)
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'TL')")
+    public Recipe create(@RequestBody Recipe recipe) {
+        recipe.setId(0);
+        recipe.setCreated(Instant.now());
 
-//    @RequestMapping(value = "", method = RequestMethod.POST)
-//    @PreAuthorize("hasAnyAuthority('ADMIN', 'TL')")
-//    public DocumentDto create(@RequestBody DocumentDto dto) throws MalformedURLException {
-//        Document document = Document.builder()
-//                .name(dto.getName())
-//                .owner(dto.getOwner())
-//                .expirationDate(dto.getExpirationDate())
-//                .build();
-//
-//        List<String> imageList = dto.getImages().stream().map(i -> {
-//            if (StringUtils.isNumeric(i)) return i;
-//
-//            Image image = Image.builder()
-//                    .type(ImageType.DOCUMENT)
-//                    .data(i.split(",")[1])
-//                    .created(Instant.now())
-//                    .build();
-//
-//            imageRepo.save(image);
-//
-//            return "" + image.getId();
-//        }).collect(Collectors.toList());
-//
-//        document.setImages(String.join(",", imageList));
-//        documentRepo.save(document);
-//
-//        return domainToDto(document);
-//    }
-//
-//
-//    @RequestMapping(value = "/{id}", method = RequestMethod.PUT)
-//    @PreAuthorize("hasAnyAuthority('ADMIN', 'TL')")
-//    public DocumentDto update(@PathVariable int id, @RequestBody DocumentDto dto) throws MalformedURLException {
-//        Document document = documentRepo.findById(id).orElseThrow(() -> new IllegalArgumentException("Not found"));
-//        document.setName(dto.getName());
-//        document.setOwner(dto.getOwner());
-//        document.setExpirationDate(dto.getExpirationDate());
-//
-//        Set<String> existing = new HashSet<>(Arrays.asList(document.getImages().split(",")));
-//        Set<String> incoming = new HashSet<>(dto.getImages());
-//
-//        // Delete images if not included from the updated document
-//        for (String imgId : existing) {
-//            if (!incoming.contains(imgId)) {
-//                imageRepo.deleteById(Integer.parseInt(imgId));
-//            }
-//        }
-//
-//        // Save new images from the updated document
-//        List<String> imageList = dto.getImages().stream().map(i -> {
-//            if (StringUtils.isNumeric(i)) return i;
-//
-//            Image image = Image.builder()
-//                    .type(ImageType.DOCUMENT)
-//                    .data(i.split(",")[1])
-//                    .created(Instant.now())
-//                    .build();
-//
-//            imageRepo.save(image);
-//
-//            return "" + image.getId();
-//        }).collect(Collectors.toList());
-//
-//        document.setImages(String.join(",", imageList));
-//        documentRepo.save(document);
-//
-//        return domainToDto(document);
-//    }
+        return recipeRepo.save(recipe);
+    }
+
+    @RequestMapping(value = "/{id}", method = RequestMethod.PUT)
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'TL')")
+    public Recipe update(@PathVariable int id, Recipe recipe)  {
+        recipe.setId(id);
+        return recipeRepo.save(recipe);
+    }
 
     @RequestMapping(value = "", method = RequestMethod.GET)
-    public List<Recipe> getRecipes() {
-        return List.of(Recipe.builder()
-                .id(1)
-                .name("烤火鸡")
-                .category(RecipeCategory.CHINESE)
-                .thumbnail("https://i.imgur.com/umFvSun.png")
-                .content("### Markdown example\n" +
-                        "---\n" +
-                        "This is an **example** where we bind a variable to the `markdown` component that is also bind to the editor.\n" +
-                        "#### example.component.ts\n" +
-                        "```javascript\n" +
-                        "function hello() {\n" +
-                        "  alert('Hello World');\n" +
-                        "}\n" +
-                        "```")
-                .created(Instant.now())
-                .build(),
-                Recipe.builder()
-                        .id(2)
-                        .name("Great Pasta")
-                        .category(RecipeCategory.WESTERN)
-                        .thumbnail("https://i.imgur.com/lSMsffo.png")
-                        .content("content 123")
-                        .created(Instant.now())
-                        .build());
+    public List<Recipe> getRecipes(@RequestParam("category") RecipeCategory category) {
+        return recipeRepo.findAllByCategory(category);
     }
 
     @RequestMapping(value = "/{id}", method = RequestMethod.GET)
     public Recipe getRecipe(@PathVariable int id) {
-        return Recipe.builder()
-                .id(1)
-                .name("烤火鸡")
-                .category(RecipeCategory.CHINESE)
-                .thumbnail("https://i.imgur.com/umFvSun.png")
-                .content("*Markdown example*\n" +
-                        "This is an **example** where we bind a variable to the `markdown` component that is also bind to the editor.\n" +
-                        "#### example.component.ts\n" +
-                        "```\n" +
-                        "function hello() {\n" +
-                        "  alert('Hello World');\n" +
-                        "}\n" +
-                        "```\n ")
-                .created(Instant.now())
-                .build();
+        return recipeRepo.findById(id).orElseThrow(() -> new IllegalArgumentException("Recipe with ID " + id + " is not found."));
     }
 
-    @RequestMapping(value = "/images/{id}", method = RequestMethod.GET)
+    @RequestMapping(value = "/editing", method = RequestMethod.POST)
     @PreAuthorize("hasAnyAuthority('ADMIN', 'TL')")
-    public void getDocumentImage(@PathVariable int id, HttpServletResponse response) {
-        Image image = imageRepo.findById(id).orElseThrow(() -> new IllegalArgumentException("Image ID " + id + " not found"));
-        if (image.getType() != ImageType.DOCUMENT) throw new IllegalArgumentException("Image ID " + id + " is not the right type");
-
-
-        byte[] data = Base64.decodeBase64(image.getData());
-        response.reset();
-        response.setBufferSize(DEFAULT_BUFFER_SIZE);
-        response.setContentType("image/png");
-        response.addHeader("Cache-Control", "max-age=30692876");
-        try {
-            response.getOutputStream().write(data);
-        } catch (IOException e) {
-            throw new IllegalArgumentException("Failed to write data", e);
-        }
-    }
-
-    @RequestMapping(value = "/images/{id}/preview", method = RequestMethod.GET)
-    @PreAuthorize("hasAnyAuthority('ADMIN', 'TL')")
-    public void getDocumentImagePreview(@PathVariable int id, HttpServletResponse response) throws IOException {
-        Image image = imageRepo.findById(id).orElseThrow(() -> new IllegalArgumentException("Image ID " + id + " not found"));
-        if (image.getType() != ImageType.DOCUMENT) throw new IllegalArgumentException("Image ID " + id + " is not the right type");
-
-        byte[] data = Base64.decodeBase64(image.getData());
-        BufferedImage img = ImageIO.read(new ByteArrayInputStream(data));
-        int width = img.getWidth();
-        int height = img.getHeight();
-
-        // Crop image to square
-        if (width > height) {
-            int x = (width - height) / 2;
-            img = img.getSubimage(x, 0, height, height);
-        } else if (height > width) {
-            int y = (height - width) / 2;
-            img = img.getSubimage(0, y, width, width);
-        }
-
-        // Resize image to target size
-        if (Math.min(width, height) > TARGET_PREVIEW_SIZE) {
-            java.awt.Image resultingImage = img.getScaledInstance(TARGET_PREVIEW_SIZE, TARGET_PREVIEW_SIZE, java.awt.Image.SCALE_DEFAULT);
-            BufferedImage outputImage = new BufferedImage(TARGET_PREVIEW_SIZE, TARGET_PREVIEW_SIZE, BufferedImage.TYPE_INT_RGB);
-            outputImage.getGraphics().drawImage(resultingImage, 0, 0, null);
-            img = outputImage;
-        }
-
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        ImageIO.write(img, "png", baos);
-        data = baos.toByteArray();
-
-
-        response.reset();
-        response.setBufferSize(DEFAULT_BUFFER_SIZE);
-        response.setContentType("image/png");
-        response.addHeader("Cache-Control", "max-age=30692876");
-        try {
-            response.getOutputStream().write(data);
-        } catch (IOException e) {
-            throw new IllegalArgumentException("Failed to write data", e);
-        }
-    }
-
-    @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
-    @PreAuthorize("hasAnyAuthority('ADMIN', 'TL')")
-    public void delete(@PathVariable int id) {
-        Document document = documentRepo.findById(id).orElseThrow(() -> new IllegalArgumentException("Not found"));
-        if (document.getImages() != null) {
-            String[] images = document.getImages().split(",");
-            for (String img : images) {
-                imageRepo.deleteById(Integer.parseInt(img));
-            }
-        }
-        documentRepo.delete(document);
-    }
-
-    private DocumentDto domainToDto(Document document) {
-        return DocumentDto.builder()
-                .id(document.getId())
-                .name(document.getName())
-                .owner(document.getOwner())
-                .expirationDate(document.getExpirationDate())
-                .images(Arrays.asList(document.getImages().split(",")))
-                .build();
+    public ResponseEntity<Void> editing() {
+        return ResponseEntity.ok().build();
     }
 
 }

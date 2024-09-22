@@ -88,6 +88,15 @@ create table tl_documents (
 	images text
 );
 
+create table tl_recipes (
+	id serial primary key,
+	name text,
+	category text,
+	content text,
+	thumbnail text,
+	created timestamp without time zone not null
+);
+
 CREATE TABLE logs (
 	id serial primary key,
 	service text not null,

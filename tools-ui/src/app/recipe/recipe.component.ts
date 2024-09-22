@@ -8,7 +8,7 @@ import { NotificationsService } from 'angular2-notifications'
 import { UtilsService } from '../utils.service'
 import { Subscription } from 'rxjs'
 import { environment } from '../../environments/environment'
-import { Recipe } from '../model/recipe'
+import { Recipe, RecipeCategory } from '../model/recipe'
 import { MarkdownModule, MarkdownService } from 'ngx-markdown'
 import { AngularMarkdownEditorModule, EditorOption } from 'angular-markdown-editor'
 
@@ -32,6 +32,8 @@ export class RecipeComponent implements OnDestroy, AfterViewInit {
   
   recipeList: Recipe[] = []
   recipe: Recipe = new Recipe()
+  recipeCategories: RecipeCategory[] = [{url: 'chinese-wheaten', label: '中式面食', value: 'CHINESE_WHEATEN'}, {url: 'chinese', label: '中餐', value: 'CHINESE'},
+    {url: 'korean', label: '韩餐', value: 'KOREAN'}, {url: 'western', label: '西餐', value: 'WESTERN'}, {url: 'other', label: '其他', value: 'OTHER'}]
 
   editorOptions: EditorOption = {
     autofocus: false,
@@ -69,7 +71,7 @@ export class RecipeComponent implements OnDestroy, AfterViewInit {
     this.category = this.route.snapshot.paramMap.get('category')
     this.recipeId = this.route.snapshot.paramMap.get('id')
     if (this.category) {
-      let params = new HttpParams().set('category', this.category.replace('-', '_').toUpperCase())
+      let params = new HttpParams().set('category', this.recipeCategories.find(c => c.url == this.category)?.value ?? '')
       this.loading = true
       this.http.get<Recipe[]>(environment.urlPrefix + `api/recipes`, {params: params}).subscribe({
         next: (res: Recipe[]) => {
@@ -95,8 +97,6 @@ export class RecipeComponent implements OnDestroy, AfterViewInit {
           this.notifierService.error('Error', 'Failed to get')
         }
       })
-
-      
     }
   }
 
@@ -105,10 +105,21 @@ export class RecipeComponent implements OnDestroy, AfterViewInit {
   }
 
   addRecipe() {
-    this.recipe = new Recipe()
-    this.category = null
-    this.recipeId = null
-    this.editing = true
+    this.loading = true
+    this.http.post<any>(environment.urlPrefix + `api/recipes/editing`, {}).subscribe({
+      next: (res: any) => {
+        this.loading = false
+        this.recipe = new Recipe()
+        this.category = null
+        this.recipeId = null
+        this.editing = true
+      },
+      error: (error: any) => {
+        console.log(error)
+        this.loading = false
+        this.notifierService.error('Error', 'Do not have access to add recipe')
+      }
+    })
   }
 
   parse(inputValue: string) {
@@ -178,7 +189,6 @@ export class RecipeComponent implements OnDestroy, AfterViewInit {
               this.recipe.thumbnail = res['data']['link']
             },
             error: (error: any) => {
-              console.log(error)
               this.notifierService.error('Error', 'Failed to upload thubnail')
             }
           })
@@ -188,17 +198,67 @@ export class RecipeComponent implements OnDestroy, AfterViewInit {
     }
   }
 
+  onCategorySelected(category: RecipeCategory) {
+    this.isDirty = true
+    this.recipe.category = category.value
+  }
+
+  getCategoryLabel() {
+    return this.recipeCategories.find(c => c.value == this.recipe.category)?.label
+  }
+
   cancelRecipe() {
     if (this.isDirty) {
       $('#cancelConfirmationModal').modal('show')
     } else {
-      this.confirmCancelRecipe()
+      this.reloadMainPage()
     }
   }
 
-  confirmCancelRecipe() {
-    this.category = 'chinese-wheaten'
+  reloadMainPage() {
+    this.category = this.recipeCategories[0].url
     this.loadData()
+  }
+
+  saveRecipe() {
+    if (this.recipe.name == null) {
+      this.notifierService.error('Error', 'Recipe title is required')
+      return
+    } else if (this.recipe.category == null) {
+      this.notifierService.error('Error', 'Recipe category is required')
+      return
+    } else if (this.recipe.content == null) {
+      this.notifierService.error('Error', 'Recipe content is required')
+      return
+    }
+
+    if (this.recipe.id == null) {
+      this.loading = true
+      this.http.post<Recipe>(environment.urlPrefix + `api/recipes`, this.recipe).subscribe({
+        next: (res: any) => {
+          this.loading = false
+          this.reloadMainPage()
+        },
+        error: (error: any) => {
+          console.log(error)
+          this.loading = false
+          this.notifierService.error('Error', 'Failed to create recipe')
+        }
+      })
+    } else {
+      this.loading = true
+      this.http.put<Recipe>(environment.urlPrefix + `api/recipes/${this.recipe.id}`, this.recipe).subscribe({
+        next: (res: any) => {
+          this.loading = false
+          this.reloadMainPage()
+        },
+        error: (error: any) => {
+          console.log(error)
+          this.loading = false
+          this.notifierService.error('Error', 'Failed to save recipe')
+        }
+      })
+    }
   }
 
 }
