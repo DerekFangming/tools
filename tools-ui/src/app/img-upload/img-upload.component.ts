@@ -27,7 +27,6 @@ export class ImgUploadComponent implements OnInit {
   imageSavedList: Image[] = []
 
   currentUploadIndex = 0
-  clientId = "Q2xpZW50LUlEIDQzMzQzNWRkNjBmNWQ3OQ=="
 
   constructor(private title: Title, private http: HttpClient, @Inject(DOCUMENT) private document: Document, public utils: UtilsService) {
     this.title.setTitle('Image uploader')
@@ -120,8 +119,8 @@ export class ImgUploadComponent implements OnInit {
       } else {
         image.status = ImageStatus.Uploading
         let parts = image.data!.split(',')
-        let data = parts[1];
-        this.http.post('https://api.imgur.com/3/image', {image: data}, {headers: {'authorization': atob(this.clientId)}}).subscribe({
+        let data = parts[1]
+        this.http.post('https://api.imgur.com/3/image', {image: data}, {headers: {'authorization': this.utils.getClientId()}}).subscribe({
           next: (res: any) => {
             image.url = res['data']['link']
             image.status = ImageStatus.Uploaded

@@ -123,12 +123,40 @@ export class RecipeComponent implements OnDestroy, AfterViewInit {
   processContent(e: any) {
     this.isDirty = true
     let content = e.getContent()
-    if (!/<img src="(.*?)" \/>/gm.test(content)) {
+
+    let matches = content.matchAll(/<img src="(.*?)" \/>/gm)
+    let next = matches.next()
+
+    if (next.done) {
       this.recipe.content = content
       return
     }
+    
+    while (!next.done) {
+      let uploadId = `<ImageUploading-${this.utils.uuid()}/>`
+      content = content.replace(next.value[0], uploadId)
 
-    content = content.replace(/<img src="(.*?)" \/>/gm, '<IMAGE IS REPLACED HERE />')
+      // Upload and replace image
+      let parts = next.value[1].split(',')
+      this.http.post('https://api.imgur.com/3/image', {image: parts[1]}, {headers: {'authorization': this.utils.getClientId()}}).subscribe({
+        next: (res: any) => {
+          let imgMarkdown = `![Image Description](${res['data']['link']})`
+
+          let latestContent = e.getContent()
+          latestContent = latestContent.replace(uploadId, imgMarkdown)
+          this.recipe.content = latestContent
+          e.setContent(latestContent)
+        },
+        error: (error: any) => {
+          console.log(error)
+          this.notifierService.error('Error', 'Failed to upload thubnail')
+        }
+      })
+
+      // Check if there are more matches
+      next = matches.next()
+    }
+    
     this.recipe.content = content
     e.setContent(content)
   }
@@ -143,6 +171,17 @@ export class RecipeComponent implements OnDestroy, AfterViewInit {
         reader.onload = (event) =>{
           var fileReader = event.target as FileReader
           this.recipe.thumbnail = fileReader.result!.toString()
+
+          let parts = this.recipe.thumbnail.split(',')
+          this.http.post('https://api.imgur.com/3/image', {image: parts[1]}, {headers: {'authorization': this.utils.getClientId()}}).subscribe({
+            next: (res: any) => {
+              this.recipe.thumbnail = res['data']['link']
+            },
+            error: (error: any) => {
+              console.log(error)
+              this.notifierService.error('Error', 'Failed to upload thubnail')
+            }
+          })
         }
         reader.readAsDataURL(file)
       }
