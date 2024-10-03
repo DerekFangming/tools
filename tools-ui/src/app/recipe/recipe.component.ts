@@ -26,6 +26,7 @@ export class RecipeComponent implements OnDestroy, AfterViewInit {
   loading = false
   editing = false
   isDirty = false
+  uploadingImage = false
   routerSubscription: Subscription | undefined
   category: string | null = null
   recipeId: string | null = null
@@ -165,8 +166,10 @@ export class RecipeComponent implements OnDestroy, AfterViewInit {
 
       // Upload and replace image
       let parts = next.value[1].split(',')
+      this.uploadingImage = true
       this.http.post('https://api.imgur.com/3/image', {image: parts[1]}, {headers: {'authorization': this.utils.getClientId()}}).subscribe({
         next: (res: any) => {
+          this.uploadingImage = false
           let imgMarkdown = `![Image Description](${res['data']['link']})`
 
           let latestContent = e.getContent()
@@ -174,6 +177,7 @@ export class RecipeComponent implements OnDestroy, AfterViewInit {
           e.setContent(latestContent)
         },
         error: (error: any) => {
+          this.uploadingImage = false
           console.log(error)
           this.notifierService.error('Error', 'Failed to upload thubnail')
         }
@@ -198,11 +202,15 @@ export class RecipeComponent implements OnDestroy, AfterViewInit {
           this.recipe.thumbnail = fileReader.result!.toString()
 
           let parts = this.recipe.thumbnail.split(',')
+          
+          this.uploadingImage = true
           this.http.post('https://api.imgur.com/3/image', {image: parts[1]}, {headers: {'authorization': this.utils.getClientId()}}).subscribe({
             next: (res: any) => {
+              this.uploadingImage = false
               this.recipe.thumbnail = res['data']['link']
             },
             error: (error: any) => {
+              this.uploadingImage = false
               this.notifierService.error('Error', 'Failed to upload thubnail')
             }
           })
@@ -235,7 +243,10 @@ export class RecipeComponent implements OnDestroy, AfterViewInit {
   }
 
   saveRecipe() {
-    if (this.recipe.name == null) {
+    if (this.uploadingImage) {
+      this.notifierService.error('Error', 'Uploading images. Please try again later')
+      return
+    } else if (this.recipe.name == null) {
       this.notifierService.error('Error', 'Recipe title is required')
       return
     } else if (this.recipe.category == null) {

@@ -22,3 +22,14 @@
   border-style: dashed;
 }
 
+:host ::ng-deep table {
+  border: 1px solid;
+}
+
+:host ::ng-deep td {
+  border: 1px solid;
+}
+
+:host ::ng-deep th {
+  border: 1px solid;
+}
