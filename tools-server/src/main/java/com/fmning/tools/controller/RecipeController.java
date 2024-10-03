@@ -22,6 +22,22 @@ public class RecipeController {
 
     private final RecipeRepo recipeRepo;
 
+    @RequestMapping(value = "", method = RequestMethod.GET)
+    public List<Recipe> getRecipes(@RequestParam("category") RecipeCategory category) {
+        return recipeRepo.findAllByCategory(category);
+    }
+
+    @RequestMapping(value = "/{id}", method = RequestMethod.GET)
+    public Recipe getRecipe(@PathVariable int id) {
+        return recipeRepo.findById(id).orElseThrow(() -> new IllegalArgumentException("Recipe with ID " + id + " is not found."));
+    }
+
+    @RequestMapping(value = "/editing", method = RequestMethod.POST)
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'TL')")
+    public ResponseEntity<Void> editing() {
+        return ResponseEntity.ok().build();
+    }
+
     @RequestMapping(value = "", method = RequestMethod.POST)
     @PreAuthorize("hasAnyAuthority('ADMIN', 'TL')")
     public Recipe create(@RequestBody Recipe recipe) {
@@ -37,22 +53,6 @@ public class RecipeController {
         recipe.setId(id);
         recipe.setCreated(recipeRepo.findById(id).orElseThrow().getCreated());
         return recipeRepo.save(recipe);
-    }
-
-    @RequestMapping(value = "", method = RequestMethod.GET)
-    public List<Recipe> getRecipes(@RequestParam("category") RecipeCategory category) {
-        return recipeRepo.findAllByCategory(category);
-    }
-
-    @RequestMapping(value = "/{id}", method = RequestMethod.GET)
-    public Recipe getRecipe(@PathVariable int id) {
-        return recipeRepo.findById(id).orElseThrow(() -> new IllegalArgumentException("Recipe with ID " + id + " is not found."));
-    }
-
-    @RequestMapping(value = "/editing", method = RequestMethod.POST)
-    @PreAuthorize("hasAnyAuthority('ADMIN', 'TL')")
-    public ResponseEntity<Void> editing() {
-        return ResponseEntity.ok().build();
     }
 
 }
