@@ -33,8 +33,9 @@ public class RecipeController {
 
     @RequestMapping(value = "/{id}", method = RequestMethod.PUT)
     @PreAuthorize("hasAnyAuthority('ADMIN', 'TL')")
-    public Recipe update(@PathVariable int id, Recipe recipe)  {
+    public Recipe update(@PathVariable int id, @RequestBody Recipe recipe)  {
         recipe.setId(id);
+        recipe.setCreated(recipeRepo.findById(id).orElseThrow().getCreated());
         return recipeRepo.save(recipe);
     }
 

@@ -57,13 +57,14 @@
 <div *ngIf="!loading && recipeId" class="container mt-4">
   <div class="row g-0">
     <div class="thumbnail-title">
-      <img class="fill-img" src="{{recipe.thumbnail}}" >
+      <img class="fill-img" src="{{recipe.thumbnail ?? 'https://i.imgur.com/zJhEsI7.jpeg'}}" >
     </div>
     <div class="col">
       <p class="display-6 ms-2">{{ recipe.name }}</p>
       <p class="card-text ms-2">
         <small class="text-muted">Created at {{getCreatedTime(recipe.created)}}</small>
-        <button type="button" class="btn btn-link py-0 px-0 ms-2">Edit</button><button type="button" class="btn btn-link text-danger py-0 px-0 ms-2">Delete</button>
+        <button type="button" class="btn btn-link py-0 px-0 ms-2" (click)="editRecipe()">Edit</button>
+        <button type="button" class="btn btn-link text-danger py-0 px-0 ms-2">Delete</button>
       </p>
     </div>
   </div>
@@ -111,7 +112,7 @@
   </div>
   <div class="row mt-3">
     <div class="col" style="height:800px">
-      <angular-markdown-editor textareaId="editor1" [options]="editorOptions" name="body">
+      <angular-markdown-editor textareaId="editor1" [options]="editorOptions" name="body" [(ngModel)]="recipe.content">
       </angular-markdown-editor>
     </div>
     <div class="col">

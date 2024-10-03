@@ -122,6 +122,23 @@ export class RecipeComponent implements OnDestroy, AfterViewInit {
     })
   }
 
+  editRecipe() {
+    this.loading = true
+    this.http.post<any>(environment.urlPrefix + `api/recipes/editing`, {}).subscribe({
+      next: (res: any) => {
+        this.loading = false
+        this.category = null
+        this.recipeId = null
+        this.editing = true
+      },
+      error: (error: any) => {
+        console.log(error)
+        this.loading = false
+        this.notifierService.error('Error', 'Do not have access to edit recipe')
+      }
+    })
+  }
+
   parse(inputValue: string) {
     const markedOutput = this.markdownService.parse(inputValue.trim())
     setTimeout(() => {
@@ -139,7 +156,6 @@ export class RecipeComponent implements OnDestroy, AfterViewInit {
     let next = matches.next()
 
     if (next.done) {
-      this.recipe.content = content
       return
     }
     
@@ -155,7 +171,6 @@ export class RecipeComponent implements OnDestroy, AfterViewInit {
 
           let latestContent = e.getContent()
           latestContent = latestContent.replace(uploadId, imgMarkdown)
-          this.recipe.content = latestContent
           e.setContent(latestContent)
         },
         error: (error: any) => {
@@ -168,7 +183,6 @@ export class RecipeComponent implements OnDestroy, AfterViewInit {
       next = matches.next()
     }
     
-    this.recipe.content = content
     e.setContent(content)
   }
 
