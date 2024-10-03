@@ -91,7 +91,6 @@ export class RecipeComponent implements OnDestroy, AfterViewInit {
         next: (res: Recipe) => {
           this.loading = false
           this.recipe = res
-          console.log(this.recipe.content)
         },
         error: (error: any) => {
           this.loading = false
