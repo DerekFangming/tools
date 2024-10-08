@@ -1,6 +1,6 @@
 <nav class="navbar navbar-expand-lg navbar-light bg-light">
   <div class="container shows-up">
-    <a class="navbar-brand" href="#" [ngClass]="{'btn px-0 disabled': editing}">Recipes</a>
+    <a class="navbar-brand" [routerLink]="'/recipes'" [ngClass]="{'btn px-0 disabled': editing}">Recipes</a>
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
       <span class="navbar-toggler-icon"></span>
     </button>
