@@ -25,6 +25,7 @@ import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 import java.io.File;
@@ -36,6 +37,7 @@ public class BeanConfig {
 
     private final PostService postService;
     private final ToolsProperties toolsProperties;
+    private final APIKeyFilter apiKeyFilter;
 
     @PostConstruct
     private void init() {
@@ -95,7 +97,8 @@ public class BeanConfig {
                         .userAuthoritiesMapper(this.userAuthoritiesMapper())))
                 .oauth2ResourceServer((resourceServer) -> resourceServer.jwt((jwt) ->
                         jwt.jwtAuthenticationConverter(jwtConverter())))
-                .csrf(AbstractHttpConfigurer::disable);
+                .csrf(AbstractHttpConfigurer::disable)
+                .addFilterBefore(apiKeyFilter, AnonymousAuthenticationFilter.class);
 
         return http.build();
     }
