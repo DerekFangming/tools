@@ -108,7 +108,6 @@ public class FinanceController {
         String realEstate = configRepo.findById("REAL_ESTATE")
                 .orElseThrow(() -> new IllegalStateException("Failed to get real estate")).getValue();
 
-
         List<RealEstateDto> realEstates = objectMapper.readValue(realEstate, new TypeReference<>() {});
 
         for (RealEstateDto r : realEstates) {
@@ -120,7 +119,13 @@ public class FinanceController {
         return realEstates;
     }
 
-    @RequestMapping(value = "/reload-real-estates", method = RequestMethod.GET)
+    @RequestMapping(value = "/real-estates/summary", method = RequestMethod.GET)
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'TL')")
+    public Object realEstatesSummary() throws JsonProcessingException {
+        return realEstateService.getSummary();
+    }
+
+    @RequestMapping(value = "/real-estates/reload", method = RequestMethod.GET)
     @PreAuthorize("hasAnyAuthority('ADMIN', 'TL')")
     public void reloadRealEstates() {
         try {

@@ -1,5 +1,6 @@
 package com.fmning.tools.repository;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import java.util.Objects;
@@ -8,6 +9,7 @@ import java.sql.Date;
 
 @Getter
 @NoArgsConstructor
+@AllArgsConstructor
 public class RealEstatePK {
 
     private String zid;

@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fmning.tools.domain.RealEstate;
 import com.fmning.tools.dto.RealEstateDto;
 import com.fmning.tools.repository.ConfigRepo;
+import com.fmning.tools.repository.RealEstatePK;
 import com.fmning.tools.repository.RealEstateRepo;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
@@ -17,9 +18,11 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.sql.Date;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @CommonsLog
@@ -27,6 +30,8 @@ import java.util.List;
 public class RealEstateService {
 
     private String zillowApiKey;
+    private Object currentValue;
+    private Instant currentValueLastCheck;
 
     private final ConfigRepo configRepo;
     private final RealEstateRepo realEstateRepo;
@@ -94,5 +99,28 @@ public class RealEstateService {
         }
     }
 
+    public Object getSummary() throws JsonProcessingException {
+        if (currentValueLastCheck != null && ChronoUnit.SECONDS.between(currentValueLastCheck, Instant.now()) < 5) {
+            return currentValue;// TODO
+        }
+
+        // Reload
+        String realEstate = configRepo.findById("REAL_ESTATE")
+                .orElseThrow(() -> new IllegalStateException("Failed to get real estate")).getValue();
+
+        List<RealEstateDto> realEstates = objectMapper.readValue(realEstate, new TypeReference<>() {});
+        Date firstDateOfCurrentMonth = Date.valueOf(LocalDate.now().withDayOfMonth(1));
+
+        int value = 0, balance = 0;
+        for (RealEstateDto r : realEstates) {
+            RealEstate re = realEstateRepo.findById(new RealEstatePK(r.getZid(), firstDateOfCurrentMonth)).orElseThrow();
+            value += re.getValue();
+            balance += re.getBalance();
+        }
+
+        currentValueLastCheck = Instant.now();
+        currentValue = Map.of("value", value, "balance", balance, "equity", value - balance);
+        return currentValue;
+    }
 
 }
