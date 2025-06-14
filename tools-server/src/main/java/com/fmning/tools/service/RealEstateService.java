@@ -100,8 +100,8 @@ public class RealEstateService {
     }
 
     public Object getSummary() throws JsonProcessingException {
-        if (currentValueLastCheck != null && ChronoUnit.SECONDS.between(currentValueLastCheck, Instant.now()) < 5) {
-            return currentValue;// TODO
+        if (currentValueLastCheck != null && ChronoUnit.HOURS.between(currentValueLastCheck, Instant.now()) < 72) {
+            return currentValue;
         }
 
         // Reload
@@ -114,8 +114,27 @@ public class RealEstateService {
         int value = 0, balance = 0;
         for (RealEstateDto r : realEstates) {
             RealEstate re = realEstateRepo.findById(new RealEstatePK(r.getZid(), firstDateOfCurrentMonth)).orElseThrow();
-            value += re.getValue();
             balance += re.getBalance();
+
+            try {
+                Request request = new Request.Builder()
+                        .url(HttpUrl
+                                .parse("https://api.bridgedataoutput.com/api/v2/zestimates_v2/zestimates")
+                                .newBuilder()
+                                .addQueryParameter("access_token", zillowApiKey)
+                                .addQueryParameter("zpid", r.getZid())
+                                .build())
+                        .get()
+                        .build();
+
+                Call call = client.newCall(request);
+                Response res = call.execute();
+
+                JSONObject obj = new JSONObject(res.body().string());
+                value += obj.getJSONArray("bundle").getJSONObject(0).getNumber("zestimate").intValue();
+            } catch (Exception e) {
+                log.error("Failed to get zestimate", e);
+            }
         }
 
         currentValueLastCheck = Instant.now();
