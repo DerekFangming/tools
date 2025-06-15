@@ -1,7 +1,8 @@
 package com.fmning.tools.controller;
 
-import com.fmning.tools.ToolsProperties;
-import com.fmning.tools.domain.Image;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fmning.tools.repository.ConfigRepo;
 import jakarta.annotation.PostConstruct;
 import lombok.Data;
@@ -29,14 +30,26 @@ import java.util.Map;
 public class AlexaController {
 
     private String temperatureWebhookUrl;
+    private String acCoolWebhookUrl;
+    private String acHeatWebhookUrl;
+    private String acOffWebhookUrl;
+    private String goodnightWebhookUrl;
 
     private final ConfigRepo configRepo;
     private final OkHttpClient client;
+    private final ObjectMapper objectMapper;
 
     @PostConstruct
-    public void init() {
-        temperatureWebhookUrl = configRepo.findById("TEMPERATURE_WEBHOOK_URL")
-                .orElseThrow(() -> new IllegalStateException("Failed to get temperature webhook url")).getValue();
+    public void init() throws JsonProcessingException {
+        String urlsStr = configRepo.findById("HA_WEBHOOK_URLS")
+                .orElseThrow(() -> new IllegalStateException("Failed to get HA webhook url")).getValue();
+
+        Map<String, String> urlMaps = objectMapper.readValue(urlsStr, new TypeReference<>() {});
+        temperatureWebhookUrl = urlMaps.get("temperatureWebhookUrl");
+        acCoolWebhookUrl = urlMaps.get("acCoolWebhookUrl");
+        acHeatWebhookUrl = urlMaps.get("acHeatWebhookUrl");
+        acOffWebhookUrl = urlMaps.get("acOffWebhookUrl");
+        goodnightWebhookUrl = urlMaps.get("goodnightWebhookUrl");
     }
 
     @PostMapping
@@ -44,7 +57,15 @@ public class AlexaController {
     public ResponseEntity alexaCode(@RequestBody AlexaCode alexaCode) {
         log.info("Received code from alexa: " + alexaCode.code);
 
-        if (alexaCode.getCode() >= 70 && alexaCode.getCode() <= 80) {
+        if (alexaCode.getCode() == 0) {
+            postToHAWebhook(goodnightWebhookUrl, new JSONObject());
+        } else if (alexaCode.getCode() == 50) {
+            postToHAWebhook(acOffWebhookUrl, new JSONObject());
+        } else if (alexaCode.getCode() == 51) {
+            postToHAWebhook(acCoolWebhookUrl, new JSONObject());
+        } else if (alexaCode.getCode() == 52) {
+            postToHAWebhook(acHeatWebhookUrl, new JSONObject());
+        } else if (alexaCode.getCode() >= 70 && alexaCode.getCode() <= 80) {
             JSONObject payload = new JSONObject().put("temperature", alexaCode.code);
             postToHAWebhook(temperatureWebhookUrl, payload);
         }
