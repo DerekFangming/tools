@@ -34,6 +34,7 @@ public class AlexaController {
     private String acHeatWebhookUrl;
     private String acOffWebhookUrl;
     private String goodnightWebhookUrl;
+    private String teslaACWebhookUrl;
 
     private final ConfigRepo configRepo;
     private final OkHttpClient client;
@@ -50,6 +51,7 @@ public class AlexaController {
         acHeatWebhookUrl = urlMaps.get("acHeatWebhookUrl");
         acOffWebhookUrl = urlMaps.get("acOffWebhookUrl");
         goodnightWebhookUrl = urlMaps.get("goodnightWebhookUrl");
+        teslaACWebhookUrl = urlMaps.get("teslaACWebhookUrl");
     }
 
     @PostMapping
@@ -68,6 +70,8 @@ public class AlexaController {
         } else if (alexaCode.getCode() >= 70 && alexaCode.getCode() <= 80) {
             JSONObject payload = new JSONObject().put("temperature", alexaCode.code);
             postToHAWebhook(temperatureWebhookUrl, payload);
+        } else if (alexaCode.getCode() == 100) {
+            postToHAWebhook(temperatureWebhookUrl, new JSONObject());
         }
 
         return ResponseEntity.ok(Map.of());
