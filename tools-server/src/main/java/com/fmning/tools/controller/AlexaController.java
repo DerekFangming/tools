@@ -71,7 +71,7 @@ public class AlexaController {
             JSONObject payload = new JSONObject().put("temperature", alexaCode.code);
             postToHAWebhook(temperatureWebhookUrl, payload);
         } else if (alexaCode.getCode() == 100) {
-            postToHAWebhook(temperatureWebhookUrl, new JSONObject());
+            postToHAWebhook(teslaACWebhookUrl, new JSONObject());
         }
 
         return ResponseEntity.ok(Map.of());
