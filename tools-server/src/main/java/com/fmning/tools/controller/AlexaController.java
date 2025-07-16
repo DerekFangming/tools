@@ -5,6 +5,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fmning.tools.repository.ConfigRepo;
 import jakarta.annotation.PostConstruct;
+import lombok.Builder;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.apachecommons.CommonsLog;
@@ -29,12 +30,7 @@ import java.util.Map;
 @RequiredArgsConstructor(onConstructor_={@Autowired})
 public class AlexaController {
 
-    private String temperatureWebhookUrl;
-    private String acCoolWebhookUrl;
-    private String acHeatWebhookUrl;
-    private String acOffWebhookUrl;
-    private String goodnightWebhookUrl;
-    private String teslaACWebhookUrl;
+    private String webhookUrl;
 
     private final ConfigRepo configRepo;
     private final OkHttpClient client;
@@ -42,16 +38,8 @@ public class AlexaController {
 
     @PostConstruct
     public void init() throws JsonProcessingException {
-        String urlsStr = configRepo.findById("HA_WEBHOOK_URLS")
-                .orElseThrow(() -> new IllegalStateException("Failed to get HA webhook url")).getValue();
-
-        Map<String, String> urlMaps = objectMapper.readValue(urlsStr, new TypeReference<>() {});
-        temperatureWebhookUrl = urlMaps.get("temperatureWebhookUrl");
-        acCoolWebhookUrl = urlMaps.get("acCoolWebhookUrl");
-        acHeatWebhookUrl = urlMaps.get("acHeatWebhookUrl");
-        acOffWebhookUrl = urlMaps.get("acOffWebhookUrl");
-        goodnightWebhookUrl = urlMaps.get("goodnightWebhookUrl");
-        teslaACWebhookUrl = urlMaps.get("teslaACWebhookUrl");
+        webhookUrl = configRepo.findById("HA_ALEXA_WEBHOOK_URL")
+                .orElseThrow(() -> new IllegalStateException("Failed to get HA alexa webhook url")).getValue();
     }
 
     @PostMapping
@@ -59,29 +47,36 @@ public class AlexaController {
     public ResponseEntity alexaCode(@RequestBody AlexaCode alexaCode) {
         log.info("Received code from alexa: " + alexaCode.code);
 
+        WebhookPayload payload = null;
         if (alexaCode.getCode() == 0) {
-            postToHAWebhook(goodnightWebhookUrl, new JSONObject());
+            payload = WebhookPayload.builder().command("goodnight").build();
         } else if (alexaCode.getCode() == 50) {
-            postToHAWebhook(acOffWebhookUrl, new JSONObject());
+            payload = WebhookPayload.builder().command("1stAcOff").build();
         } else if (alexaCode.getCode() == 51) {
-            postToHAWebhook(acCoolWebhookUrl, new JSONObject());
+            payload = WebhookPayload.builder().command("1stAcCool").build();
         } else if (alexaCode.getCode() == 52) {
-            postToHAWebhook(acHeatWebhookUrl, new JSONObject());
+            payload = WebhookPayload.builder().command("1stAcHeat").build();
         } else if (alexaCode.getCode() >= 70 && alexaCode.getCode() <= 80) {
-            JSONObject payload = new JSONObject().put("temperature", alexaCode.code);
-            postToHAWebhook(temperatureWebhookUrl, payload);
+            payload = WebhookPayload.builder()
+                    .command("1stAcTemp")
+                    .temperature(alexaCode.code)
+                    .build();
         } else if (alexaCode.getCode() == 100) {
-            postToHAWebhook(teslaACWebhookUrl, new JSONObject());
+            payload = WebhookPayload.builder().command("teslaAc").build();
+        }
+
+        if (payload != null) {
+            postToHAWebhook(webhookUrl, payload);
         }
 
         return ResponseEntity.ok(Map.of());
     }
 
-    private void postToHAWebhook(String url, JSONObject payload) {
+    private void postToHAWebhook(String url, WebhookPayload payload) {
         try {
             Request request = new Request.Builder()
                     .url(url)
-                    .post(okhttp3.RequestBody.create(payload.toString(), MediaType.parse("application/json; charset=utf-8")))
+                    .post(okhttp3.RequestBody.create(objectMapper.writeValueAsString(payload), MediaType.parse("application/json; charset=utf-8")))
                     .build();
 
             Call call = client.newCall(request);
@@ -94,6 +89,13 @@ public class AlexaController {
     @Data
     static class AlexaCode {
         int code;
+    }
+
+    @Data
+    @Builder
+    static class WebhookPayload {
+        String command;
+        int temperature;
     }
 
 }
