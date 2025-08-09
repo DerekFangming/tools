@@ -113,7 +113,17 @@ public class RealEstateService {
 
         int value = 0, balance = 0;
         for (RealEstateDto r : realEstates) {
-            RealEstate re = realEstateRepo.findById(new RealEstatePK(r.getZid(), firstDateOfCurrentMonth)).orElseThrow();
+            RealEstate re = realEstateRepo.findById(new RealEstatePK(r.getZid(), firstDateOfCurrentMonth)).orElseGet(() -> {
+
+                try {
+                    processCurrentMonth();
+                } catch (JsonProcessingException e) {
+                    throw new IllegalStateException("Failed to get current month value", e);
+                }
+
+                return realEstateRepo.findById(new RealEstatePK(r.getZid(), firstDateOfCurrentMonth))
+                        .orElseThrow(() -> new IllegalStateException("Failed to get current month value after retry"));
+            });
             balance += re.getBalance();
 
             try {
