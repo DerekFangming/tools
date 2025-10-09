@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.sql.Date;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -30,6 +31,8 @@ import java.util.Map;
 public class RealEstateService {
 
     private String zillowApiKey;
+    private String[] zillowRapidApiKeys;
+    private int zillowRapidApiKeyCounter = 0;
     private Object currentValue;
     private Instant currentValueLastCheck;
 
@@ -40,8 +43,13 @@ public class RealEstateService {
 
     @PostConstruct
     public void init() {
-        zillowApiKey = configRepo.findById("ZILLOW_API_KEY")
-                .orElseThrow(() -> new IllegalStateException("Failed to get zillow API key")).getValue();
+//        zillowApiKey = configRepo.findById("ZILLOW_API_KEY")
+//                .orElseThrow(() -> new IllegalStateException("Failed to get zillow API key")).getValue();
+         String apiKeys = configRepo.findById("ZILLOW_RAPID_API_KEYS")
+                .orElseThrow(() -> new IllegalStateException("Failed to get zillow rapid API key")).getValue();
+
+        zillowRapidApiKeys = apiKeys.split(",");
+        System.out.println(1);
     }
 
     @Scheduled(cron = "0 0 14 1 * ?")// 2 pm, 1st day of every month
@@ -68,21 +76,7 @@ public class RealEstateService {
             // Get estimate from zillow
             int zestimate = 0;
             try {
-                Request request = new Request.Builder()
-                        .url(HttpUrl
-                                .parse("https://api.bridgedataoutput.com/api/v2/zestimates_v2/zestimates")
-                                .newBuilder()
-                                .addQueryParameter("access_token", zillowApiKey)
-                                .addQueryParameter("zpid", r.getZid())
-                                .build())
-                        .get()
-                        .build();
-
-                Call call = client.newCall(request);
-                Response res = call.execute();
-
-                JSONObject obj = new JSONObject(res.body().string());
-                zestimate = obj.getJSONArray("bundle").getJSONObject(0).getNumber("zestimate").intValue();
+                zestimate = getHouseValue(r.getZid());
             } catch (Exception e) {
                 log.error("Failed to get zestimate", e);
             }
@@ -127,21 +121,7 @@ public class RealEstateService {
             balance += re.getBalance();
 
             try {
-                Request request = new Request.Builder()
-                        .url(HttpUrl
-                                .parse("https://api.bridgedataoutput.com/api/v2/zestimates_v2/zestimates")
-                                .newBuilder()
-                                .addQueryParameter("access_token", zillowApiKey)
-                                .addQueryParameter("zpid", r.getZid())
-                                .build())
-                        .get()
-                        .build();
-
-                Call call = client.newCall(request);
-                Response res = call.execute();
-
-                JSONObject obj = new JSONObject(res.body().string());
-                value += obj.getJSONArray("bundle").getJSONObject(0).getNumber("zestimate").intValue();
+                value += getHouseValue(r.getZid());
             } catch (Exception e) {
                 log.error("Failed to get zestimate", e);
             }
@@ -150,6 +130,35 @@ public class RealEstateService {
         currentValueLastCheck = Instant.now();
         currentValue = Map.of("value", value, "balance", balance, "equity", value - balance);
         return currentValue;
+    }
+
+    private int getHouseValue(String zpid) throws IOException {
+
+        String zillowRapidApiKey = zillowRapidApiKeys[zillowRapidApiKeyCounter++ % 2];
+
+        Request request = new Request.Builder()
+//                        .url(HttpUrl
+//                                .parse("https://api.bridgedataoutput.com/api/v2/zestimates_v2/zestimates")
+//                                .newBuilder()
+//                                .addQueryParameter("access_token", zillowApiKey)
+//                                .addQueryParameter("zpid", r.getZid())
+//                                .build())
+                .url(HttpUrl
+                        .parse("https://zillow-com1.p.rapidapi.com/zestimate")
+                        .newBuilder()
+                        .addQueryParameter("zpid", zpid)
+                        .build())
+                .headers(Headers.of("x-rapidapi-host", "zillow-com1.p.rapidapi.com", "x-rapidapi-key", zillowRapidApiKey))
+                .get()
+                .build();
+
+        Call call = client.newCall(request);
+        Response res = call.execute();
+
+        JSONObject obj = new JSONObject(res.body().string());
+
+//        return obj.getJSONArray("bundle").getJSONObject(0).getNumber("zestimate").intValue();
+        return obj.getInt("value");
     }
 
 }
