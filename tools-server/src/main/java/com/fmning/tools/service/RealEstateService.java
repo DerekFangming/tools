@@ -49,7 +49,6 @@ public class RealEstateService {
                 .orElseThrow(() -> new IllegalStateException("Failed to get zillow rapid API key")).getValue();
 
         zillowRapidApiKeys = apiKeys.split(",");
-        System.out.println(1);
     }
 
     @Scheduled(cron = "0 0 14 1 * ?")// 2 pm, 1st day of every month
@@ -144,11 +143,11 @@ public class RealEstateService {
 //                                .addQueryParameter("zpid", r.getZid())
 //                                .build())
                 .url(HttpUrl
-                        .parse("https://zillow-com1.p.rapidapi.com/zestimate")
+                        .parse("https://us-housing-market-data1.p.rapidapi.com/zestimate")
                         .newBuilder()
                         .addQueryParameter("zpid", zpid)
                         .build())
-                .headers(Headers.of("x-rapidapi-host", "zillow-com1.p.rapidapi.com", "x-rapidapi-key", zillowRapidApiKey))
+                .headers(Headers.of("x-rapidapi-host", "us-housing-market-data1.p.rapidapi.com", "x-rapidapi-key", zillowRapidApiKey))
                 .get()
                 .build();
 
