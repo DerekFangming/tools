@@ -483,7 +483,11 @@ export class SpendingComponent implements OnInit, AfterViewInit {
         console.log(`Processing "${key}" as Chase`)
         for (let i = 1; i < matrix.length; i ++) {
           let row = matrix[i]
-          if (row.length <= 1 || !row[5].startsWith('-')) {
+          let description = row[2] == null ? '' : row[2].toLocaleLowerCase()
+          if (row.length <= 1 || !row[5].startsWith('-')
+            || description.includes('dairy queen') || description.includes('whataburger') || description.includes('jack in the box')
+            || description.includes('mcdonald') || description.includes('arbys') || description.includes('wendy')
+            || description.includes('burger king') || description.includes('sonic drive in') || description.includes('golden chick')) {
             console.log('Skipping row: ' + row)
             continue
           }
@@ -527,7 +531,12 @@ export class SpendingComponent implements OnInit, AfterViewInit {
           let row = matrix[i]
           let description = row[2] == null ? null : row[2].toLocaleLowerCase()
           if (description == null || !row[3].startsWith('-')
-            || description.includes('autopay') || description.includes('auto pay')) {
+            || description.includes('autopay') || description.includes('auto pay') || description.includes('pnc mtg payment')
+            || description.includes('cardmember serv') || description.includes('jpmorgan chase') || description.includes('bell farms')
+            || description.includes('atgpay') || description.includes('pennymac') || description.includes('newrez-shellpoin')
+            || description.includes('american express') || description.includes('pnc lending') || description.includes('dbamr.cooper')
+            || description.includes('bank of america') || description.includes('payment to chase') || description.includes('online transfer')
+            || description.includes('flagstar') ) {
             console.log('Skipping row: ' + row)
             continue
           }
@@ -548,6 +557,19 @@ export class SpendingComponent implements OnInit, AfterViewInit {
           let transaction = new SpendingTransaction({accountId: this.selectedAccount!.id, name: row[2],
             amount: row[3], date: row[1]})
           this.transactions.push(this.utils.processTransaction(transaction, 'BOA'))
+        }
+      } else if (!isNaN(Date.parse(format))) {
+        console.log(`Processing "${key}" as well fargo`)
+        for (let i = 1; i < matrix.length; i ++) {
+          let row = matrix[i]
+          if (row.length <= 1 || !row[1].startsWith('-')) {
+            console.log('Skipping row: ' + row)
+            continue
+          }
+
+          let transaction = new SpendingTransaction({accountId: this.selectedAccount!.id, name: row[4],
+            amount: row[1].substring(1), date: row[0]})
+          this.transactions.push(this.utils.processTransaction(transaction, 'WF'))
         }
       } else {
         console.log("Not processed due to unknown format: " + format)

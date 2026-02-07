@@ -51,17 +51,36 @@ export class UtilsService {
       if (transaction.name!.startsWith('H-E-B')) this.updateTransactionName(transaction, 'H-E-B')
     } else if (bank == 'Chase') {
       if (name.includes('costco')) transaction.category = 'Grocery'
+      else if (name.includes('tesla service')) transaction.category = 'Utility'
       else if (name.includes('spotify') || name.includes('netflix') || name.includes('github') || name.includes('tesla') || name.includes('godaddy')) transaction.category = 'Subscription'
       else if (name.includes('dps')) transaction.category = 'Government'
       else if (name.includes('txtag')) transaction.category = 'Transportation'
       else if (name.includes('vzwrlss')) transaction.category = 'Utility'
       else if (name.includes('amazon')) transaction.category = 'Shopping'
+      else if (name.includes('paypal')) transaction.category = 'Shopping'
+      else if (name.includes('youtubepremium')) transaction.category = 'Subscription'
+      else if (name.includes('recreation')) transaction.category = 'Subscription'
+      else if (name.includes('youtube member')) transaction.category = 'Subscription'
+      else if (name.includes('madsen rec')) transaction.category = 'Subscription'
+      else if (name.includes('foreign transaction fee')) transaction.category = 'Shopping'
+      else if (name.includes('gexa energy')) transaction.category = 'Utility'
+      else if (name.includes('atmos energy')) transaction.category = 'Utility'
+      else if (name.includes('city of round rock')) transaction.category = 'Utility'
+      else if (name.includes('ownwell')) transaction.category = 'Real Estate'
+      else if (name.includes('apple')) transaction.category = 'Subscription'
+      
+      
+      
 
     } else if (bank == 'BOA') {
       if (name.includes('uber')) transaction.category = 'Travel'
       transaction.amount = transaction.amount!.replace(/,/g, '')
     } else if (bank == 'BOA checking') {
       transaction.amount = transaction.amount!.replace(/,/g, '')
+    } else if (bank == 'WF') {
+      if (name.includes('walgreens')) transaction.category = 'Healthcare'
+      if (name.includes('bilt rent')) transaction.category = 'Real Estate'
+      
     }
 
 
@@ -154,6 +173,7 @@ export class UtilsService {
     else if (name.includes('ikea')) this.updateTransactionName(transaction, 'Ikea')
     else if (name.includes('autozone')) this.updateTransactionName(transaction, 'Autozone')
     else if (name.includes('mt supermarket')) this.updateTransactionName(transaction, 'MT Supermarket')
+  
       
 
     return transaction
@@ -182,8 +202,8 @@ export class UtilsService {
         }
       }
       if (!transactionCategories.has(transaction.category)) {
-        console.log(`${transaction.name} has category ${transaction.category}`)
-        transaction.category = undefined
+        console.log(`RESETTING CATEGORY because ${transaction.name} has category ${transaction.category}`)
+        transaction.category = 'Other'
       }
     }
 
