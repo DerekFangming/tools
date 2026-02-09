@@ -28,7 +28,7 @@ export class SpendingComponent implements OnInit, AfterViewInit {
   transactionPage = 0
   transactionTotal = 0
   transactionOrder = Order.DATE_ASC
-  transactionFilter: any = {keyword: null, category: null, accountId: null}
+  transactionFilter: any = {keyword: null, category: null, accountId: null, owner: null}
   transactionRangeLabel = 'Last Year'
   filteredTransactions: SpendingTransaction[] = []
   filteredTransactionsPage: SpendingTransaction[] = []
@@ -42,6 +42,7 @@ export class SpendingComponent implements OnInit, AfterViewInit {
 
   selectedAccount: SpendingAccount = new SpendingAccount()
   accountList: SpendingAccount[] = []
+  accountOwenerList: (string | undefined) [] = []
   transactionFiles = new Map<string, string>()
   selectedTransaction: SpendingTransaction | undefined
   transactions: SpendingTransaction[] = []
@@ -73,6 +74,8 @@ export class SpendingComponent implements OnInit, AfterViewInit {
       this.http.get<SpendingAccount[]>(environment.urlPrefix + 'api/finance/spending/accounts').subscribe({
         next: (res: SpendingAccount[]) => {
           this.accountList = res
+          
+          this.accountOwenerList = res.map(a => a.owner).filter((value, index, array) => array.indexOf(value) === index).filter(a => a != undefined)
         },
         error: (error: any) => {
           console.log(error.error)
@@ -283,12 +286,14 @@ export class SpendingComponent implements OnInit, AfterViewInit {
 
   getInputValue(target: EventTarget | null) {return (<HTMLTextAreaElement>target).value}
 
-  filterTransactions(keyword: string | undefined, category: string | undefined, accountId: number | undefined) {
+  filterTransactions(keyword: string | undefined, category: string | undefined, accountId: number | undefined, owner: string | undefined) {
     keyword = keyword != undefined && keyword.length > 2 ? keyword.toLowerCase() : undefined
-    if (this.transactionFilter.keyword != keyword || this.transactionFilter.category != category || this.transactionFilter.accountId != accountId) {
+    if (this.transactionFilter.keyword != keyword || this.transactionFilter.category != category
+      || this.transactionFilter.accountId != accountId|| this.transactionFilter.owner != owner) {
       this.transactionFilter.keyword = keyword
       this.transactionFilter.category = category
       this.transactionFilter.accountId = accountId
+      this.transactionFilter.owner = owner
       this.filterAndPageTransactions(this.transactionPage, this.transactionOrder, true)
     }
   }
@@ -299,6 +304,14 @@ export class SpendingComponent implements OnInit, AfterViewInit {
     if (this.transactionFilter.keyword != null) transactions = transactions.filter(t => t.name!.toLocaleLowerCase().includes(this.transactionFilter.keyword))
     if (this.transactionFilter.category != null) transactions = transactions.filter(t => t.category == this.transactionFilter.category)
     if (this.transactionFilter.accountId != null) transactions = transactions.filter(t => t.accountId == this.transactionFilter.accountId)
+
+    if (this.transactionFilter.owner != null) {
+
+      let accountIds = this.accountList.filter(a => a.owner == this.transactionFilter.owner).map(a => a.id)
+      console.log(accountIds)
+      
+      transactions = transactions.filter(t => accountIds.includes(t.accountId))
+    }
 
     if (order != null) {
       this.transactionOrder = <Order>order
@@ -466,7 +479,7 @@ export class SpendingComponent implements OnInit, AfterViewInit {
         }
       }
 
-      if (format == 'Date') {
+      if (format == 'Date' && matrix[0].length != 5) {
         console.log(`Processing "${key}" as AMEX`)
         for (let i = 1; i < matrix.length; i ++) {
           let row = matrix[i]
@@ -477,6 +490,19 @@ export class SpendingComponent implements OnInit, AfterViewInit {
 
           let transaction = new SpendingTransaction({accountId: this.selectedAccount!.id, name: row[1], amount: row[2],
             category: row[10], location: `${row[5]} ${row[6]}, ${row[8]}`, date: row[0]})
+          this.transactions.push(this.utils.processTransaction(transaction, 'AMEX'))
+        }
+      } else if (format == 'Date' && matrix[0].length == 5) {
+        console.log(`Processing "${key}" as US Bank`)
+        for (let i = 1; i < matrix.length; i ++) {
+          let row = matrix[i]
+          if (row[4] == undefined || !row[4].startsWith('-')) {
+            console.log('Skipping row: ' + row)
+            continue
+          }
+
+          let transaction = new SpendingTransaction({accountId: this.selectedAccount!.id, name: row[2], amount: row[4].substring(1),
+            date: row[0]})
           this.transactions.push(this.utils.processTransaction(transaction, 'AMEX'))
         }
       } else if (format == 'Transaction Date') {

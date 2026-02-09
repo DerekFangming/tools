@@ -277,6 +277,16 @@ export const nameToCategory = new Map([
   ['diagnostic', 'Healthcare'],
   ['bswhealth', 'Healthcare'],
   ['austin family dentist', 'Healthcare'],
+  ['trader joe', 'Grocery'],
+  ['central mark', 'Grocery'],
+  ['sprouts', 'Grocery'],
+  ['whole food', 'Grocery'],
+  ['99 ranch', 'Grocery'],
+  ['city of round rock', 'Utility'],
+  ['atmos energy', 'Utility'],
+  ['fiber fast homes', 'Utility'],
+  ['gexa energy', 'Utility'],
+  ['4change energy', 'Utility'],
 ])
 
 export const categoryConvertion = new Map([

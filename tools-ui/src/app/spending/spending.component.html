@@ -37,21 +37,29 @@
       <div class="row">
         <div class="col mb-1">
           <div class="input-group">
-            <input type="text" class="form-control" placeholder="Search by keyword" (input)="filterTransactions(getInputValue($event.target), transactionFilter.category, transactionFilter.accountId)">
+            <input type="text" class="form-control" placeholder="Search by keyword" (input)="filterTransactions(getInputValue($event.target), transactionFilter.category, transactionFilter.accountId, transactionFilter.owner)">
             <div class="input-group-append">
               <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{{transactionFilter.accountId == null ? 'All Accounts' : getSelectedAccountName()}}</button>
               <div class="dropdown-menu">
-                <a class="dropdown-item pointer" (click)="filterTransactions(transactionFilter.keyword, transactionFilter.category, undefined)">All Accounts</a>
+                <a class="dropdown-item pointer" (click)="filterTransactions(transactionFilter.keyword, transactionFilter.category, undefined, transactionFilter.owner)">All Accounts</a>
                 <div role="separator" class="dropdown-divider"></div>
-                <a class="dropdown-item pointer" *ngFor="let a of accountList;" (click)="filterTransactions(transactionFilter.keyword, transactionFilter.category, a.id)">{{a.name}} <small>({{a.owner}})</small></a>
+                <a class="dropdown-item pointer" *ngFor="let a of accountList;" (click)="filterTransactions(transactionFilter.keyword, transactionFilter.category, a.id, transactionFilter.owner)">{{a.name}} <small>({{a.owner}})</small></a>
+              </div>
+            </div>
+            <div class="input-group-append">
+              <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{{transactionFilter.owner == null ? 'All Owners' : transactionFilter.owner}}</button>
+              <div class="dropdown-menu">
+                <a class="dropdown-item pointer" (click)="filterTransactions(transactionFilter.keyword, transactionFilter.category, transactionFilter.accountId, undefined)">All Owners</a>
+                <div role="separator" class="dropdown-divider"></div>
+                <a class="dropdown-item pointer" *ngFor="let a of accountOwenerList;" (click)="filterTransactions(transactionFilter.keyword, transactionFilter.category, transactionFilter.accountId, a)">{{a}}</a>
               </div>
             </div>
             <div class="input-group-append">
               <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{{transactionFilter.category == null ? 'All Categories' : transactionFilter.category}}</button>
               <div class="dropdown-menu">
-                <a class="dropdown-item pointer" (click)="filterTransactions(transactionFilter.keyword, undefined, transactionFilter.accountId)">All Categories</a>
+                <a class="dropdown-item pointer" (click)="filterTransactions(transactionFilter.keyword, undefined, transactionFilter.accountId, transactionFilter.owner)">All Categories</a>
                 <div role="separator" class="dropdown-divider"></div>
-                <a class="dropdown-item pointer" *ngFor="let c of categories;" (click)="filterTransactions(transactionFilter.keyword, c, transactionFilter.accountId)">{{c}}</a>
+                <a class="dropdown-item pointer" *ngFor="let c of categories;" (click)="filterTransactions(transactionFilter.keyword, c, transactionFilter.accountId, transactionFilter.owner)">{{c}}</a>
               </div>
             </div>
             <div class="input-group-append">

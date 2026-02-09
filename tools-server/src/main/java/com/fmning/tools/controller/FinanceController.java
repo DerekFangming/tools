@@ -101,6 +101,23 @@ public class FinanceController {
         }
     }
 
+    @RequestMapping(value = "/spending/transactions/{id}", method = RequestMethod.PUT)
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'TL')")
+    public SpendingTransaction updateTransaction(@PathVariable int id, @RequestBody SpendingTransaction transaction) {
+        SpendingTransaction spendingTransaction = transactionRepo.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Not found"));
+        spendingTransaction.setName(transaction.getName());
+        spendingTransaction.setOriginalName(transaction.getOriginalName());
+        spendingTransaction.setCategory(transaction.getCategory());
+        return transactionRepo.save(spendingTransaction);
+    }
+
+    @RequestMapping(value = "/spending/transactions/{id}", method = RequestMethod.DELETE)
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'TL')")
+    public void deleteTransaction(@PathVariable int id) {
+        transactionRepo.deleteById(id);
+    }
+
     @RequestMapping(value = "/real-estates", method = RequestMethod.GET)
     @PreAuthorize("hasAnyAuthority('ADMIN', 'TL')")
     public List<RealEstateDto> listRealEstates() throws JsonProcessingException {
