@@ -107,7 +107,6 @@ public class FinanceController {
         SpendingTransaction spendingTransaction = transactionRepo.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Not found"));
         spendingTransaction.setName(transaction.getName());
-        spendingTransaction.setOriginalName(transaction.getOriginalName());
         spendingTransaction.setCategory(transaction.getCategory());
         return transactionRepo.save(spendingTransaction);
     }

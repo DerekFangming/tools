@@ -302,7 +302,8 @@
             <div class="row">
               <div class="col">
                 <label><b>Name</b></label>
-                <p>{{selectedTransaction?.originalName ? selectedTransaction?.originalName : selectedTransaction?.name}}</p>
+                <p *ngIf="!editingTransaction">{{selectedTransaction?.name}}</p>
+                <input *ngIf="editingTransaction" name="transaction-name" type="text" class="form-control" [(ngModel)]="selectedTransaction!.name">
               </div>
               <div class="col">
                 <label><b>Amount</b></label>
@@ -312,7 +313,13 @@
             <div class="row">
               <div class="col">
                 <label><b>Category</b></label>
-                <p>{{selectedTransaction?.category}}</p>
+                <p *ngIf="!editingTransaction">{{selectedTransaction?.category}}</p>
+                <div *ngIf="editingTransaction" class="input-group-append">
+                  <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{{selectedTransaction?.category}}</button>
+                  <div class="dropdown-menu">
+                    <a class="dropdown-item pointer" *ngFor="let c of categories;" (click)="selectTransactionCategory(c)">{{c}}</a>
+                  </div>
+                </div>
               </div>
               <div class="col">
                 <label><b>Location</b></label>
@@ -323,6 +330,9 @@
         </div>
       </div>
       <div class="modal-footer">
+        <button type="button" class="btn btn-danger" data-bs-dismiss="modal" (click)="deleteTransaction()">Delete</button>
+        <button *ngIf="!editingTransaction" type="button" class="btn btn-success" (click)="editTransaction()">Edit</button>
+        <button *ngIf="editingTransaction" type="button" class="btn btn-success" (click)="saveTransaction()">Save</button>
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
       </div>
     </div>

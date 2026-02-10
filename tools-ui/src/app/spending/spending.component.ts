@@ -36,6 +36,7 @@ export class SpendingComponent implements OnInit, AfterViewInit {
   dragOver = false
   hasDuplicatedTransactions = false
   transactionView = false
+  editingTransaction = false
 
   monthlySpendingChart: any
   topSpendingChart: any
@@ -371,6 +372,42 @@ export class SpendingComponent implements OnInit, AfterViewInit {
     this.transactions = []
     this.transactionFiles = new Map<string, string>()
     $("#transactionUploadModal").modal('show')
+  }
+
+  editTransaction() {
+    this.editingTransaction = true
+  }
+
+  selectTransactionCategory(category: string) {
+    this.selectedTransaction!.category = category
+  }
+
+  saveTransaction() {
+    $("#transactionModal").modal('hide')
+    this.http.put<any>(environment.urlPrefix + `api/finance/spending/transactions/${this.selectedTransaction?.id}`, this.selectedTransaction).subscribe({
+      next: (res: any) => {
+      },
+      error: (error: any) => {
+        console.log(error.error)
+        this.notifierService.error('Error', 'Failed to save transaction')
+      }
+    })
+  }
+
+  deleteTransaction() {
+    $("#transactionModal").modal('hide')
+    this.http.delete<any>(environment.urlPrefix + `api/finance/spending/transactions/${this.selectedTransaction?.id}`).subscribe({
+      next: (res: any) => {
+        console.log('deleting')
+        this.transactions = this.transactions.filter(t => t.id != this.selectedTransaction?.id)
+        this.filteredTransactions = this.filteredTransactions.filter(t => t.id != this.selectedTransaction?.id)
+        this.filteredTransactionsPage = this.filteredTransactionsPage.filter(t => t.id != this.selectedTransaction?.id)
+      },
+      error: (error: any) => {
+        console.log(error.error)
+        this.notifierService.error('Error', 'Failed to delete transaction')
+      }
+    })
   }
 
   forceDedupTransactions() {
